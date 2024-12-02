@@ -1,19 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import sql, { config as SQLConfig } from 'mssql';
+import { executeQuery } from '@/lib/db';
 import { jwtVerify } from 'jose';
+import sql from 'mssql';
 
-const config: SQLConfig = {
-    user: process.env.DB_USER || '',
-    password: process.env.DB_PASSWORD || '',
-    server: process.env.DB_SERVER || '',
-    port: parseInt(process.env.DB_PORT || '1433'),
-    database: process.env.DB_NAME || '',
-    options: {
-        encrypt: false,
-        trustServerCertificate: true,
-        enableArithAbort: true,
-    },
-};
+interface Branch {
+    BranchID: number;
+    BranchName: string;
+    IsActive: boolean;
+    CountryName: string;
+}
 
 export default async function handler(
     req: NextApiRequest,
@@ -42,33 +37,40 @@ export default async function handler(
             return res.status(400).json({ error: 'Invalid user ID in token' });
         }
 
-        console.log('User ID:', userId);
+        const userIdNumber = parseInt(userId.toString());
+        if (isNaN(userIdNumber)) {
+            return res.status(400).json({ error: 'Invalid user ID format' });
+        }
 
-        const pool = await sql.connect(config);
-        const result = await pool.request()
-            .input('userId', sql.NVarChar, userId.toString())
-            .query(`
-                SELECT DISTINCT b.* 
-                FROM Efr_Branchs b 
-                WHERE b.IsActive = 1 
-                AND b.CountryName = 'TÜRKİYE' 
-                AND EXISTS (
-                    SELECT 1 
-                    FROM Efr_Users u 
-                    WHERE u.UserID = @userId
-                    AND u.IsActive = 1 
-                    AND (u.Category = 5 OR CHARINDEX(',' + CAST(b.BranchID AS VARCHAR) + ',', ',' + u.UserBranchs + ',') > 0)
-                )
-            `);
+        console.log('User ID:', userIdNumber);
 
-        await pool.close();
-        return res.status(200).json(result.recordset);
+        const branches = await executeQuery<Branch>(`
+            SELECT DISTINCT b.* 
+            FROM Efr_Branchs b 
+            WHERE b.IsActive = 1 
+            AND b.CountryName = 'TÜRKİYE' 
+            AND EXISTS (
+                SELECT 1 
+                FROM Efr_Users u 
+                WHERE u.UserID = @userId
+                AND u.IsActive = 1 
+                AND (u.Category = 5 OR CHARINDEX(',' + CAST(b.BranchID AS VARCHAR) + ',', ',' + u.UserBranchs + ',') > 0)
+            )
+        `, {
+            userId: userIdNumber
+        });
 
-    } catch (error) {
-        console.error('Error:', error);
+        if (!branches || branches.length === 0) {
+            return res.status(404).json({ error: 'No branches found for user' });
+        }
+
+        return res.status(200).json(branches);
+
+    } catch (error: any) {
+        console.error('Error in branches handler:', error);
         return res.status(500).json({
             error: 'Internal server error',
-            message: error instanceof Error ? error.message : 'Unknown error'
+            details: error.message
         });
     }
 }

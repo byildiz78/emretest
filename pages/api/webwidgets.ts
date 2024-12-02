@@ -1,18 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import sql, { config as SQLConfig } from 'mssql';
-
-const config: SQLConfig = {
-    user: process.env.DB_USER || '',
-    password: process.env.DB_PASSWORD || '',
-    server: process.env.DB_SERVER || '',
-    port: parseInt(process.env.DB_PORT || '1433'),
-    database: process.env.DB_NAME || '',
-    options: {
-        encrypt: false,
-        trustServerCertificate: true,
-        enableArithAbort: true,
-    },
-};
+import { executeQuery } from '@/lib/db';
+import { WebWidget } from '@/types/tables';
 
 export default async function handler(
     req: NextApiRequest,
@@ -23,15 +11,34 @@ export default async function handler(
     }
 
     try {
-        const pool = await sql.connect(config);
-        const result = await pool.request()
-            .query("SELECT AutoID,ReportName,ReportID,ReportIndex,ReportIcon,V1Type,V2Type,V3Type,V4Type,V5Type,V6Type,IsActive,ReportColor FROM dm_webWidgets6 WHERE IsActive=1 AND ReportID NOT IN(522) ORDER BY ReportIndex ASC");
-        
-        await pool.close();
+        const widgets = await executeQuery<WebWidget>(`
+            SELECT 
+                AutoID,
+                ReportName,
+                ReportID,
+                ReportIndex,
+                ReportIcon,
+                V1Type,
+                V2Type,
+                V3Type,
+                V4Type,
+                V5Type,
+                V6Type,
+                IsActive,
+                ReportColor 
+            FROM dm_webWidgets6 
+            WHERE IsActive = 1 
+            AND ReportID NOT IN (522) 
+            ORDER BY ReportIndex ASC
+        `);
 
-        return res.status(200).json(result.recordset);
+        if (!widgets || widgets.length === 0) {
+            return res.status(404).json({ error: 'No widgets found' });
+        }
+
+        return res.status(200).json(widgets);
     } catch (error) {
-        console.error('Database error:', error);
+        console.error('API error:', error);
         return res.status(500).json({
             error: 'Internal server error',
             message: error instanceof Error ? error.message : 'Unknown error'

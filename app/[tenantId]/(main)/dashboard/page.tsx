@@ -27,9 +27,7 @@ export default function Dashboard() {
     const [filterLoading, setFilterLoading] = useState(false);
     const [countdown, setCountdown] = useState(REFRESH_INTERVAL / 1000);
     const { selectedFilter } = useFilterStore();
-    const { addOrReplaceWidgetData, setBranchDatas} =
-        useWidgetDataStore();
-    const mountedRef = useRef(false);
+    const { addOrReplaceWidgetData, setBranchDatas } = useWidgetDataStore();
 
     const fetchData = useCallback(async () => {
         console.log('fetchData called with:', {
@@ -47,19 +45,7 @@ export default function Dashboard() {
             const branchIds = branches.map((item: Branch) => item.BranchID);
 
             try {
-                const [widgetResponse, branchResponse] = await Promise.all([
-                    axios.post<WebWidgetData[]>(
-                        "/api/widgetreport",
-                        {
-                            date1: selectedFilter.date.from,
-                            date2: selectedFilter.date.to,
-                            branches: branchIds,
-                            reportId: widgets.map((widget) => widget.ReportID),
-                        },
-                        {
-                            headers: { "Content-Type": "application/json" },
-                        }
-                    ),
+                const [branchResponse] = await Promise.all([
                     axios.post<BranchModel[]>(
                         "/api/widgetbranch",
                         {
@@ -73,10 +59,6 @@ export default function Dashboard() {
                         }
                     )
                 ]);
-
-                widgetResponse.data.forEach((widget) => {
-                    addOrReplaceWidgetData(widget);
-                });
 
                 if (Array.isArray(branchResponse.data)) {
                     const validBranchData = branchResponse.data.map((branch) => ({
@@ -94,7 +76,6 @@ export default function Dashboard() {
                     setBranchDatas(validBranchData);
                 }
 
-                // Update lastAppliedFilter after successful fetch
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
@@ -105,52 +86,21 @@ export default function Dashboard() {
         }
     }, [selectedFilter, widgets, addOrReplaceWidgetData, setBranchDatas]);
 
-    // Initial data fetch when component mounts
     useEffect(() => {
-        if (!mountedRef.current) {
-            mountedRef.current = true;
-            const fetchInitialData = async () => {
-                try {
-                    const response = await axios.get<WebWidget[]>("/api/webwidgets", {
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    });
-                    setWidgets(response.data);
-                } catch (error) {
-                    console.error("Error fetching initial data:", error);
-                }
-            };
+        const fetchWidgetsData = async () => {
+            try {
+                const response = await axios.get<WebWidget[]>("/api/webwidgets", {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                setWidgets(response.data);
+            } catch (error) {
+                console.error("Error fetching initial data:", error);
+            }
+        };
 
-            fetchInitialData();
-        }
-    }, []);
-
-    // Only fetch data when widgets are loaded
-    useEffect(() => {
-        console.log('widgets effect triggered:', widgets.length);
-        if (widgets.length > 0) {
-            console.log('Calling fetchData because widgets loaded');
-            fetchData();
-
-            // Set up refresh interval
-            const intervalId = setInterval(fetchData, REFRESH_INTERVAL);
-            return () => clearInterval(intervalId);
-        }
-    }, [widgets, fetchData]);
-
-    // Countdown timer effect
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCountdown((prev) => {
-                if (prev <= 1) {
-                    return REFRESH_INTERVAL / 1000;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
-        return () => clearInterval(timer);
+        fetchWidgetsData();
     }, []);
 
     return (
@@ -183,16 +133,10 @@ export default function Dashboard() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6 auto-rows-auto">
                             {widgets.map((widget, index) => (
-                                // <LazyWidgetCard
-                                //     key={widget.AutoID}
-                                //     {...widget}
-                                //     loading={initialLoading || filterLoading}
-                                //     columnIndex={index % 3}
-                                // />
-                                <WidgetCard key={widget.AutoID}
-                                {...widget}
-                                loading={initialLoading || filterLoading}
-                                columnIndex={index % 3} />
+                                <WidgetCard reportId={widget.ReportID} key={widget.AutoID} reportName={widget.ReportName}
+                                    reportIcon={widget.ReportIcon}
+                                    {...widget}
+                                    columnIndex={index % 3} />
                             ))}
                         </div>
                     )}

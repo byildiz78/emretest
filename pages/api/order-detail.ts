@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from './superset';
+import { executeSingleQuery } from '@/lib/db';
 import { OrderDetail } from '@/types/tables';
+import sql from 'mssql';
 
 export default async function handler(
     req: NextApiRequest,
@@ -16,9 +17,7 @@ export default async function handler(
     }
 
     try {
-        const sql = `
-            DECLARE @orderKeyParam UNIQUEIDENTIFIER = '${orderKey}'
-            
+        const query = `
             SELECT 
                 (
                     SELECT TOP 1 
@@ -32,7 +31,7 @@ export default async function handler(
                         END SatisTuru,
                         CONVERT(VARCHAR, OrderDateTime, 120) as TarihText
                     FROM dbo.OrderHeaders as row WITH (NOLOCK)
-                    WHERE row.OrderKey = @orderKeyParam
+                    WHERE row.OrderKey = @orderKey
                     FOR JSON PATH, WITHOUT_ARRAY_WRAPPER
                 ) as header,
                 (
@@ -41,7 +40,7 @@ export default async function handler(
                         CASE WHEN row.LineDeleted=1 THEN 'İptal' ELSE '' END Status,
                         convert(varchar, PaymentDateTime, 108) as SaatText
                     FROM dbo.OrderPayments as row WITH (NOLOCK)
-                    WHERE row.OrderKey = @orderKeyParam
+                    WHERE row.OrderKey = @orderKey
                     FOR JSON PATH
                 ) as payments,
                 (
@@ -50,22 +49,26 @@ export default async function handler(
                         CASE WHEN row.LineDeleted=1 THEN 'İptal' ELSE '' END Status,
                         convert(varchar, ISNULL(EditDateTime,AddDateTime), 108) as SaatText
                     FROM dbo.OrderTransactions as row WITH (NOLOCK)
-                    WHERE row.OrderKey = @orderKeyParam
+                    WHERE row.OrderKey = @orderKey
                     FOR JSON PATH
                 ) as transactions
         `;
 
-        const response = await db.query<OrderDetail>(sql);
+        const result = await executeSingleQuery<OrderDetail>(query, {
+            orderKey: sql.UniqueIdentifier,
+            value: orderKey
+        });
 
-        if (!response.data) {
+        if (!result) {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        return res.status(200).json(response.data);
-    } catch (error) {
+        return res.status(200).json(result);
+    } catch (error: any) {
+        console.error('Error in order detail handler:', error);
         return res.status(500).json({
             error: 'Internal server error',
-            message: error instanceof Error ? error.message : 'Unknown error'
+            details: error.message
         });
     }
 }

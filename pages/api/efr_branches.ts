@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeQuery } from '@/lib/db';
 import { jwtVerify } from 'jose';
-import sql from 'mssql';
 
 interface Branch {
     BranchID: number;

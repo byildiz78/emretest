@@ -1,7 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { executeSingleQuery } from '@/lib/db';
 import { OrderDetail } from '@/types/tables';
-import sql from 'mssql';
 
 export default async function handler(
     req: NextApiRequest,
@@ -55,8 +54,7 @@ export default async function handler(
         `;
 
         const result = await executeSingleQuery<OrderDetail>(query, {
-            orderKey: sql.UniqueIdentifier,
-            value: orderKey
+            orderKey: orderKey
         });
 
         if (!result) {

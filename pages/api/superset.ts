@@ -169,13 +169,7 @@ export class Superset {
         try {
             await this.createTokens();
             const defaultOptions = {
-                client_id: this.generateClientId(),
-                ctas_method: "TABLE",
                 database_id: 3,
-                expand_data: true,
-                json: true,
-                runAsync: false,
-                select_as_cta: false,
                 sql: sql
             };
 

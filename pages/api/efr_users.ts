@@ -1,24 +1,35 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '@/pages/api/superset';
+import { executeQuery } from '@/lib/db';
 import { Efr_Users } from '@/types/tables';
 
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    try {
-        const sql = "SELECT UserID, UserName, UserBranchs FROM Efr_users";
-        const response = await db.query<Efr_Users[]>(sql);
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
 
-        if (response.data == null) {
-            return res.status(400).json(response.error);
+    try {
+        const users = await executeQuery<Efr_Users>(`
+            SELECT 
+                UserID, 
+                UserName, 
+                UserBranchs 
+            FROM Efr_users 
+            WHERE IsActive = 1
+        `);
+
+        if (!users || users.length === 0) {
+            return res.status(404).json({ error: 'No users found' });
         }
 
-        return res.status(200).json(response.data);
-    } catch (error) {
+        return res.status(200).json(users);
+    } catch (error: any) {
+        console.error('Error in users handler:', error);
         return res.status(500).json({ 
             error: 'Internal server error',
-            message: error instanceof Error ? error.message : 'Unknown error'
+            details: error.message
         });
     }
 }

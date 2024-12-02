@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import sql, { config as SQLConfig } from 'mssql';
+import { executeQuery, executeSingleQuery } from '@/lib/db';
 import { formatDateTimeYMDHIS } from '@/lib/utils';
 
 interface BranchModel {
@@ -15,19 +15,6 @@ interface BranchModel {
     reportValue9: number;    // GecenHaftaOran
 }
 
-const config: SQLConfig = {
-    user: process.env.DB_USER || '',
-    password: process.env.DB_PASSWORD || '',
-    server: process.env.DB_SERVER || '',
-    port: parseInt(process.env.DB_PORT || '1433'),
-    database: process.env.DB_NAME || '',
-    options: {
-        encrypt: false,
-        trustServerCertificate: true,
-        enableArithAbort: true,
-    },
-};
-
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
@@ -38,15 +25,22 @@ export default async function handler(
 
     const { date1, date2, branches } = req.body;
 
+    if (!date1 || !date2 || !branches) {
+        return res.status(400).json({ error: 'Missing required parameters' });
+    }
+
     try {
-        const pool = await sql.connect(config);
-
         // Get report query
-        const reportResult = await pool.request()
-            .query("SELECT ReportID, ReportQuery, ReportQuery2 FROM dm_webWidgets6 WHERE ReportID = '522' AND IsActive=1 AND (ReportQuery != '' OR ReportQuery2 != '') ORDER BY ReportIndex ASC");
+        const widget = await executeSingleQuery<{ ReportQuery: string }>(`
+            SELECT ReportID, ReportQuery, ReportQuery2 
+            FROM dm_webWidgets6 
+            WHERE ReportID = '522' 
+            AND IsActive = 1 
+            AND (ReportQuery != '' OR ReportQuery2 != '') 
+            ORDER BY ReportIndex ASC
+        `);
 
-        if (!reportResult.recordset || reportResult.recordset.length === 0) {
-            await pool.close();
+        if (!widget) {
             return res.status(400).json({
                 error: 'No data returned from query',
                 details: {
@@ -71,7 +65,7 @@ export default async function handler(
         const d2 = formatDateTimeYMDHIS(date2Obj);
 
         // Ana sorguyu hazırla
-        let reportQuery = reportResult.recordset[0].ReportQuery.toString()
+        let reportQuery = widget.ReportQuery.toString()
             .replaceAll(";", "")
             .replaceAll("@date1", `'${d1}'`)
             .replaceAll("@date2", `'${d2}'`)
@@ -81,10 +75,9 @@ export default async function handler(
         reportQuery = reportQuery.replace("BranchID = BranchID IN(", "BranchID IN(");
 
         // Ana sorguyu çalıştır
-        const queryResult = await pool.request().query(reportQuery);
+        const branchData = await executeQuery<BranchModel>(reportQuery);
 
-        if (!queryResult.recordset || queryResult.recordset.length === 0) {
-            await pool.close();
+        if (!branchData || branchData.length === 0) {
             return res.status(400).json({
                 error: 'No branch data found',
                 details: {
@@ -94,7 +87,7 @@ export default async function handler(
         }
 
         // Sonuçları formatla
-        const formattedResults = queryResult.recordset.map((branch: BranchModel) => ({
+        const formattedResults = branchData.map((branch: BranchModel) => ({
             BranchID: Number(branch.BranchID) || 0,
             reportValue1: String(branch.reportValue1 || ''),    // SubeAdi
             reportValue2: Number(branch.reportValue2) || 0,    // TC (Cari dönem ciro)
@@ -107,17 +100,14 @@ export default async function handler(
             reportValue9: Number(branch.reportValue9) || 0     // GecenHaftaOran
         }));
 
-        await pool.close();
         return res.status(200).json(formattedResults);
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error in widgetbranch API:', error);
         return res.status(500).json({
             error: 'Internal server error',
-            details: {
-                message: error instanceof Error ? error.message : 'Unknown error',
-                stack: error instanceof Error ? error.stack : undefined
-            }
+            details: error.message,
+            stack: error.stack
         });
     }
 }

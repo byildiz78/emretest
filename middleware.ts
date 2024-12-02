@@ -97,29 +97,29 @@ export async function middleware(request: NextRequest) {
     const isLoginRoute = request.nextUrl.pathname.includes("login");
     const isNotFoundRoute = request.nextUrl.pathname.includes("notfound");
 
-    // NotFound sayfası kontrolü
-    if (isNotFoundRoute) {
-        if (tenantId && !isApiRoute) {
-            const databaseExists = await checkTenantDatabase(tenantId);
-            if (databaseExists) {
-                return NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
-            }
-        }
-        return NextResponse.next();
-    }
+    // // NotFound sayfası kontrolü
+    // if (isNotFoundRoute) {
+    //     if (tenantId && !isApiRoute) {
+    //         const databaseExists = await checkTenantDatabase(tenantId);
+    //         if (databaseExists) {
+    //             return NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
+    //         }
+    //     }
+    //     return NextResponse.next();
+    // }
 
     // Tenant ID kontrolü
     if (!tenantId && !isApiRoute) {
         return NextResponse.redirect(new URL('/notfound', request.url));
     }
 
-    // Database kontrolü
-    if (!isApiRoute && !tenantId.includes("api")) {
-        const databaseExists = await checkTenantDatabase(tenantId);
-        if (!databaseExists) {
-            return NextResponse.redirect(new URL(`/${tenantId}/notfound`, request.url));
-        }
-    }
+    // // Database kontrolü
+    // if (!isApiRoute && !tenantId.includes("api")) {
+    //     const databaseExists = await checkTenantDatabase(tenantId);
+    //     if (!databaseExists) {
+    //         return NextResponse.redirect(new URL(`/${tenantId}/notfound`, request.url));
+    //     }
+    // }
 
     // Token kontrolü
     const accessToken = request.cookies.get("access_token")?.value;

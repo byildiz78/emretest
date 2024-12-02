@@ -1,17 +1,57 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '@/pages/api/superset';
-import { formatDateTimeYMDHIS } from '@/lib/utils';
-import { WebWidgetData } from '@/types/tables';
+import sql, { config as SQLConfig } from 'mssql';
+
+// SQL Server configuration
+const config: SQLConfig = {
+    user: process.env.DB_USER || '',
+    password: process.env.DB_PASSWORD || '',
+    server: process.env.DB_SERVER || '',
+    port: parseInt(process.env.DB_PORT || '1433'),
+    database: process.env.DB_NAME || '',
+    options: {
+        encrypt: false,
+        trustServerCertificate: true,
+        enableArithAbort: true,
+    },
+};
+
+interface WebWidgetData {
+    reportValue1: string;
+    reportValue2: string;
+    reportValue3: string;
+    reportValue4: string;
+    reportValue5: string;
+    reportValue6: string;
+}
 
 interface QueryResult {
-    ReportID: string;
+    ReportID: number;
     ReportQuery: string;
     ReportQuery2: string;
 }
 
 interface QueryResultWithData {
-    reportId: string;
+    reportId: number;
     data: WebWidgetData;
+}
+
+// Clean and validate SQL query
+function cleanSqlQuery(query: string): string {
+    if (!query) return '';
+    
+    // Remove comments and normalize whitespace
+    let cleaned = query
+        .replace(/\/\*[\s\S]*?\*\//g, '')  // Remove multi-line comments
+        .replace(/--.*$/gm, '')            // Remove single-line comments
+        .replace(/\s+/g, ' ')              // Normalize whitespace
+        .trim();
+    
+    // Remove trailing semicolon
+    if (cleaned.endsWith(';')) {
+        cleaned = cleaned.slice(0, -1);
+    }
+    
+    return cleaned;
 }
 
 export default async function handler(
@@ -22,64 +62,107 @@ export default async function handler(
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { date1, date2, reportId, branches } = req.body;
+    let pool: sql.ConnectionPool | null = null;
 
     try {
-        const sql = "SELECT ReportID,ReportQuery,ReportQuery2 FROM dm_webWidgets6 WHERE ReportID IN ({{ reportId }}) AND IsActive=1 AND (ReportQuery != '' OR ReportQuery2 != '') ORDER BY ReportIndex ASC";
+        const { date1, date2, reportId, branches } = req.body;
 
-        const response = await db.query<QueryResult[]>(sql, { templateParams: JSON.stringify({ reportId: reportId.join(",") }) });
+        console.log('Request params:', { date1, date2, reportId, branches });
 
-        if (!response.data) {
+        // Connect to database
+        pool = await sql.connect(config);
+
+        // Get widget queries
+        const baseQuery = `
+            SELECT ReportID, ReportQuery, ReportQuery2
+            FROM dm_webWidgets6
+            WHERE ReportID IN (${reportId.map(id => parseInt(id)).join(',')})
+            AND IsActive = 1
+            AND (ReportQuery != '' OR ReportQuery2 != '')
+            ORDER BY ReportIndex ASC`;
+
+        console.log('Base Query:', baseQuery);
+        const widgetResults = await pool.request().query(baseQuery);
+
+        if (!widgetResults.recordset || widgetResults.recordset.length === 0) {
+            console.log('No widget queries found');
             return res.status(400).json({ error: 'No data returned from query' });
         }
 
-        const queryPromises = response.data.map(async (item: QueryResult) => {
-            const branchesString = Array.isArray(branches) ? branches.join(",") : branches;
-            const reportQuery1 = item.ReportQuery.toString()
-                .replaceAll(";", "")
-                .replaceAll("@date1", "'{{date1}}'")
-                .replaceAll("@date2", "'{{date2}}'")
-                .replaceAll("@BranchID", "BranchID IN({{branches}})");
+        console.log('Found widget queries:', widgetResults.recordset.length);
 
-            const date1Obj = new Date(date1);
-            const date2Obj = new Date(date2);
+        // Process each widget query
+        const queryPromises = widgetResults.recordset.map(async (item: QueryResult) => {
+            console.log('\n--- Processing ReportID:', item.ReportID, '---');
+            
+            // Convert branch IDs to integers
+            const branchIds = Array.isArray(branches) 
+                ? branches.map(id => parseInt(id))
+                : [parseInt(branches)];
+            
+            const branchesString = branchIds.join(',');
+            
+            let reportQuery1 = cleanSqlQuery(item.ReportQuery.toString());
+            
+            if (!reportQuery1) {
+                console.log('Empty query for ReportID:', item.ReportID);
+                return null;
+            }
 
-            date1Obj.setHours(6, 0, 0, 0);
-            date2Obj.setHours(6, 0, 0, 0);
+            console.log('Clean Query:', reportQuery1);
+            console.log('Branch IDs:', branchIds);
 
-            const d1 = formatDateTimeYMDHIS(date1Obj);
-            const d2 = formatDateTimeYMDHIS(date2Obj);
+            try {
+                const request = pool!.request();
+                
+                // Set parameters
+                const date1Obj = new Date(date1);
+                const date2Obj = new Date(date2);
+                date1Obj.setHours(6, 0, 0, 0);
+                date2Obj.setHours(6, 0, 0, 0);
+                
+                request.input('date1', sql.DateTime, date1Obj);
+                request.input('date2', sql.DateTime, date2Obj);
+                request.input('BranchID', sql.VarChar, branchesString);
 
-            if (reportQuery1 !== '' && reportQuery1 !== null) {
-                const queryResult = await db.query<WebWidgetData[]>(reportQuery1, {
-                    templateParams: JSON.stringify({
-                        date1: d1,
-                        date2: d2,
-                        branches: branchesString
-                    })
+                console.log('Parameters:', {
+                    date1: date1Obj,
+                    date2: date2Obj,
+                    BranchID: branchesString
                 });
 
-                if (!queryResult.data || queryResult.data.length === 0) {
+                const queryResult = await request.query(reportQuery1);
+
+                if (!queryResult.recordset || queryResult.recordset.length === 0) {
+                    console.log('No results for ReportID:', item.ReportID);
                     return null;
                 }
 
+                console.log('Success for ReportID:', item.ReportID, 'Data:', queryResult.recordset[0]);
                 return {
                     reportId: item.ReportID,
-                    data: queryResult.data[0]
+                    data: queryResult.recordset[0] as WebWidgetData
                 };
+            } catch (queryError) {
+                console.error('Query Error for ReportID:', item.ReportID);
+                console.error('Query:', reportQuery1);
+                console.error('Error:', queryError);
+                return null;
             }
-            return null;
         });
 
-        const results = (await Promise.all(queryPromises)).filter((item): item is QueryResultWithData => 
-            item !== null && item !== undefined
+        const results = (await Promise.all(queryPromises)).filter((item): item is QueryResultWithData =>
+            item !== null
         );
+
+        console.log('Total successful queries:', results.length);
 
         if (results.length === 0) {
             return res.status(400).json({ error: 'No valid results found' });
         }
 
-        return res.status(200).json(results.map((item: QueryResultWithData) => ({
+        // Format response
+        const formattedResults = results.map(item => ({
             ReportID: item.reportId,
             reportValue1: item.data.reportValue1,
             reportValue2: item.data.reportValue2,
@@ -87,11 +170,19 @@ export default async function handler(
             reportValue4: item.data.reportValue4,
             reportValue5: item.data.reportValue5,
             reportValue6: item.data.reportValue6
-        })));
+        }));
+
+        return res.status(200).json(formattedResults);
+
     } catch (error) {
+        console.error('Error:', error);
         return res.status(500).json({
             error: 'Internal server error',
             message: error instanceof Error ? error.message : 'Unknown error'
         });
+    } finally {
+        if (pool) {
+            await pool.close();
+        }
     }
 }

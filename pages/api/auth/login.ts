@@ -1,9 +1,21 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { serialize } from 'cookie';
-import { db } from '../superset';
-import { Efr_Branches, Efr_Users } from '@/types/tables';
+import sql, { config as SQLConfig } from 'mssql';
 import { SignJWT } from 'jose';
 import crypto from 'crypto';
+
+const config: SQLConfig = {
+    user: process.env.DB_USER || '',
+    password: process.env.DB_PASSWORD || '',
+    server: process.env.DB_SERVER || '',
+    port: parseInt(process.env.DB_PORT || '1433'),
+    database: process.env.DB_NAME || '',
+    options: {
+        encrypt: false,
+        trustServerCertificate: true,
+        enableArithAbort: true,
+    },
+};
 
 const ACCESS_TOKEN_SECRET = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
 const REFRESH_TOKEN_SECRET = new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET);
@@ -49,35 +61,31 @@ export default async function handler(
 
     try {
         const tenantId = new URL(req.headers.referer || '').pathname.split('/')[1];
-
         const { username, password } = req.body;
 
         const encryptStartTime = performance.now();
         const encryptedpass = encrypt(password);
         console.log(`Password encryption took: ${performance.now() - encryptStartTime}ms`);
 
+        const pool = await sql.connect(config);
         const dbQueryStartTime = performance.now();
-        const query = "SELECT TOP 1 UserID, UserName FROM Efr_Users WHERE UserName = '{{ username }}' AND EncryptedPass = '{{ password }}' AND IsActive=1";
-        const response = await db.query<Efr_Users[]>(query, {templateParams: JSON.stringify({ username, password: encryptedpass })});
+        
+        const result = await pool.request()
+            .input('username', sql.VarChar, username)
+            .input('password', sql.VarChar, encryptedpass)
+            .query("SELECT TOP 1 UserID, UserName FROM Efr_Users WHERE UserName = @username AND EncryptedPass = @password AND IsActive=1");
+
         console.log(`Database query took: ${performance.now() - dbQueryStartTime}ms`);
 
-        if (response.data != null && response.data.length > 0) {
+        if (result.recordset && result.recordset.length > 0) {
             const tokenStartTime = performance.now();
-            const user = response.data[0]
+            const user = result.recordset[0];
             let tokenPayload = {
                 username: user.UserName,
                 userId: user.UserID,
                 aud: tenantId
-            }
-/*
-            if(user.Category === 5){
-                const response = await db.query<Efr_Branches[]>("SELECT * FROM Efr_Branchs WHERE IsActive=1 AND CountryName = 'TÜRKİYE'");
-                tokenPayload = {
-                    ...tokenPayload,
-                    userBranches: response.data?.map((item)=> item.BranchID).join(",")
-                }
-            }
-            */
+            };
+
             const currentTimestamp = Math.floor(Date.now() / 1000);
 
             const accessToken = await new SignJWT(tokenPayload)
@@ -117,9 +125,14 @@ export default async function handler(
                 ...(cookieDomain ? { domain: cookieDomain } : {})
             });
 
+            await pool.close();
             console.log(`Total login process took: ${performance.now() - startTime}ms`);
-            return res.status(200).setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]).json({ message: 'Login successful' });
+            return res.status(200)
+                .setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie])
+                .json({ message: 'Login successful' });
         }
+
+        await pool.close();
         return res.status(401).json({ message: 'Invalid credentials' });
     } catch (error) {
         console.error('Login error:', error);

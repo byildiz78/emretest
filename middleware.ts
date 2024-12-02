@@ -72,20 +72,23 @@ async function verifyToken(token: string, secret: Uint8Array, options: any): Pro
     }
 }
 
-async function createNewAccessToken(user: Efr_Users, tenantId: string): Promise<string> {
-    const tokenPayload = {
-        username: user.UserName,
-        userId: user.UserID
-    };
-    console.log(tokenPayload)
-    const date = Date.now();
-    return await new SignJWT(tokenPayload)
-        .setProtectedHeader({ alg: ACCESS_TOKEN_ALGORITHM })
-        .setExpirationTime(Math.floor(date / 1000) + ACCESS_TOKEN_LIFETIME)
-        .setIssuer(NEXT_PUBLIC_DOMAIN)
-        .setAudience(tenantId)
-        .setIssuedAt(Math.floor(date / 1000))
-        .sign(ACCESS_TOKEN_SECRET);
+async function createNewAccessToken(username: string | unknown, userId: string | unknown, tenantId: string): Promise<string> {
+    
+    if(username !== undefined && userId !== undefined){
+        const tokenPayload = {
+            username: username,
+            userId: userId
+        };
+        const date = Date.now();
+        return await new SignJWT(tokenPayload)
+            .setProtectedHeader({ alg: ACCESS_TOKEN_ALGORITHM })
+            .setExpirationTime(Math.floor(date / 1000) + ACCESS_TOKEN_LIFETIME)
+            .setIssuer(NEXT_PUBLIC_DOMAIN)
+            .setAudience(tenantId)
+            .setIssuedAt(Math.floor(date / 1000))
+            .sign(ACCESS_TOKEN_SECRET);
+    }
+    return '';
 }
 
 export async function middleware(request: NextRequest) {
@@ -162,7 +165,7 @@ export async function middleware(request: NextRequest) {
             return NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
         }
         console.log(decodedToken)
-        const newAccessToken = await createNewAccessToken(decodedToken as Efr_Users, tenantId);
+        const newAccessToken = await createNewAccessToken(decodedToken.username, decodedToken.userId, tenantId);
         const response = NextResponse.next(); // Yönlendirme yerine next() kullan
         
         response.cookies.set('access_token', newAccessToken, {

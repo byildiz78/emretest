@@ -8,7 +8,10 @@ import { memo } from 'react';
 
 const DashboardPage = memo(dynamic(() => import('./dashboard/page'), {
     loading: () => <div>Loading...</div>,
-    ssr: false
+}));
+
+const DashboardMssqlPage = memo(dynamic(() => import('./dashboard-mssql/page'), {
+    loading: () => <div>Loading...</div>,
 }));
 
 export default function Home() {
@@ -59,6 +62,9 @@ export default function Home() {
                                 <div className="flex-1 mt-4 overflow-hidden">
                                     <div style={{ display: activeTab === "dashboard" ? "block" : "none", height: "100%" }}>
                                         <DashboardPage />
+                                    </div>
+                                    <div style={{ display: activeTab === "dashboard-mssql" ? "block" : "none", height: "100%" }}>
+                                        <DashboardMssqlPage />
                                     </div>
                                     {tabs.map((tab) => {
                                         const TabComponent = dynamic(tab.lazyComponent, {

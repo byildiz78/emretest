@@ -1,13 +1,32 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from './superset';
+import sql, { config as SQLConfig } from 'mssql';
 import { formatDateTimeYMDHIS } from '@/lib/utils';
-import { BranchModel } from '@/types/tables';
 
-interface QueryResult {
-    ReportID: string;
-    ReportQuery: string;
-    ReportQuery2: string;
+interface BranchModel {
+    BranchID: number;
+    reportValue1: string;    // SubeAdi
+    reportValue2: number;    // TC (Cari dönem ciro)
+    reportValue3: number;    // GHTC (Geçen hafta aynı saat ciro)
+    reportValue4: number;    // GHTCTUM (Geçen hafta tüm gün ciro)
+    reportValue5: number;    // KisiSayisi
+    reportValue6: number;    // GHKisiSayisi
+    reportValue7: number;    // GHKisiSayisiTUM
+    reportValue8: number;    // Oran
+    reportValue9: number;    // GecenHaftaOran
 }
+
+const config: SQLConfig = {
+    user: process.env.DB_USER || '',
+    password: process.env.DB_PASSWORD || '',
+    server: process.env.DB_SERVER || '',
+    port: parseInt(process.env.DB_PORT || '1433'),
+    database: process.env.DB_NAME || '',
+    options: {
+        encrypt: false,
+        trustServerCertificate: true,
+        enableArithAbort: true,
+    },
+};
 
 export default async function handler(
     req: NextApiRequest,
@@ -20,18 +39,17 @@ export default async function handler(
     const { date1, date2, branches } = req.body;
 
     try {
-        // İlk sorguyu debug bilgisiyle birlikte yap
-        const initialSql = "SELECT ReportID,ReportQuery,ReportQuery2 FROM dm_webWidgets6 WHERE ReportID = '522' AND IsActive=1 AND (ReportQuery != '' OR ReportQuery2 != '') ORDER BY ReportIndex ASC";
+        const pool = await sql.connect(config);
 
-        const response = await db.query<QueryResult[]>(initialSql);
+        // Get report query
+        const reportResult = await pool.request()
+            .query("SELECT ReportID, ReportQuery, ReportQuery2 FROM dm_webWidgets6 WHERE ReportID = '522' AND IsActive=1 AND (ReportQuery != '' OR ReportQuery2 != '') ORDER BY ReportIndex ASC");
 
-        if (!response.data || response.data.length === 0) {
-            // Daha detaylı hata bilgisi dön
+        if (!reportResult.recordset || reportResult.recordset.length === 0) {
+            await pool.close();
             return res.status(400).json({
                 error: 'No data returned from query',
                 details: {
-                    sql: initialSql,
-                    response: response,
                     reportId: '522'
                 }
             });
@@ -47,49 +65,36 @@ export default async function handler(
         // Tarih formatlaması
         const date1Obj = new Date(date1);
         const date2Obj = new Date(date2);
-
         date1Obj.setHours(6, 0, 0, 0);
         date2Obj.setHours(6, 0, 0, 0);
-
         const d1 = formatDateTimeYMDHIS(date1Obj);
         const d2 = formatDateTimeYMDHIS(date2Obj);
 
-
         // Ana sorguyu hazırla
-        let reportQuery = response.data[0].ReportQuery.toString()
+        let reportQuery = reportResult.recordset[0].ReportQuery.toString()
             .replaceAll(";", "")
-            .replaceAll("@date1", "'{{date1}}'")
-            .replaceAll("@date2", "'{{date2}}'")
-            .replaceAll("@BranchID", "BranchID IN({{branches}})");
+            .replaceAll("@date1", `'${d1}'`)
+            .replaceAll("@date2", `'${d2}'`)
+            .replaceAll("@BranchID", `BranchID IN(${branchesString})`);
 
         // BranchID syntax düzeltmesi
         reportQuery = reportQuery.replace("BranchID = BranchID IN(", "BranchID IN(");
 
-        // Template parametreleri
-        const templateParams = {
-            date1: d1,
-            date2: d2,
-            branches: branchesString
-        };
-
         // Ana sorguyu çalıştır
-        const queryResult = await db.query<BranchModel[]>(reportQuery, {
-            templateParams: JSON.stringify(templateParams)
-        });
+        const queryResult = await pool.request().query(reportQuery);
 
-        if (!queryResult.data || queryResult.data.length === 0) {
+        if (!queryResult.recordset || queryResult.recordset.length === 0) {
+            await pool.close();
             return res.status(400).json({
                 error: 'No branch data found',
                 details: {
-                    requestedBranches: branchesString,
-                    params: templateParams,
-                    response: queryResult
+                    requestedBranches: branchesString
                 }
             });
         }
 
         // Sonuçları formatla
-        const formattedResults = queryResult.data.map((branch: BranchModel) => ({
+        const formattedResults = queryResult.recordset.map((branch: BranchModel) => ({
             BranchID: Number(branch.BranchID) || 0,
             reportValue1: String(branch.reportValue1 || ''),    // SubeAdi
             reportValue2: Number(branch.reportValue2) || 0,    // TC (Cari dönem ciro)
@@ -102,6 +107,7 @@ export default async function handler(
             reportValue9: Number(branch.reportValue9) || 0     // GecenHaftaOran
         }));
 
+        await pool.close();
         return res.status(200).json(formattedResults);
 
     } catch (error) {

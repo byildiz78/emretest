@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useRef } from "react";
 import { useWidgetDataStore } from "@/stores/widget-data-store";
 import { Loader2 } from "lucide-react";
 import { BranchModel } from "@/types/tables";
 import LazyBranchCard from "./LazyBranchCard";
+import BranchCard from "./BranchCard";
 
 // Transform BranchModel to BranchData
 const transformBranchData = (data: BranchModel) => {
@@ -28,7 +29,7 @@ const transformBranchData = (data: BranchModel) => {
 
 export default function BranchList() {
     const { branchDatas } = useWidgetDataStore();
-
+   
     if (!branchDatas || branchDatas.length === 0) {
         return (
             <div className="col-span-full flex items-center justify-center py-8">
@@ -47,12 +48,9 @@ export default function BranchList() {
                     if (!branchData) return null;
                     const transformedData = transformBranchData(branchData);
                     return (
-                        <LazyBranchCard
-                            key={`branch-${transformedData.id}`}
-                            data={transformedData}
-                            index={index}
-                            maxValue={maxValue}
-                        />
+                        <BranchCard data={transformedData} index={index} maxValue={maxValue} />
+
+                        
                     );
                 })}
             </div>

@@ -1,5 +1,5 @@
-import { ThemeProvider } from "@/components/theme-provider";
-import { LanguageProvider } from "@/components/language-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
+import { LanguageProvider } from "@/providers/language-provider";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { Metadata } from "next";

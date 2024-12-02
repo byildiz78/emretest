@@ -28,7 +28,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "@/providers/theme-provider"
 import { Efr_Branches } from "@/types/tables";
 import { useFilterStore } from "@/stores/filters-store";
 

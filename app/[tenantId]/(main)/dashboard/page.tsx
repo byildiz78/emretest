@@ -6,13 +6,13 @@ import { WebWidget, WebWidgetData, BranchModel } from "@/types/tables";
 import { useFilterStore } from "@/stores/filters-store";
 import { useWidgetDataStore } from "@/stores/widget-data-store";
 import RingLoader from "react-spinners/RingLoader";
-import LazyWidgetCard from "@/components/DashboardComponent/LazyWidgetCard";
-import NotificationPanel from "@/components/DashboardComponent/NotificationPanel";
+import LazyWidgetCard from "@/app/[tenantId]/(main)/dashboard/components/LazyWidgetCard";
+import NotificationPanel from "@/app/[tenantId]/(main)/dashboard/components/NotificationPanel";
 import { Bell, Store } from "lucide-react";
 import { motion } from "framer-motion";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import BranchList from "@/components/DashboardComponent/BranchList";
+import BranchList from "@/app/[tenantId]/(main)/dashboard/components/BranchList";
 
 const REFRESH_INTERVAL = 90000; // 90 seconds in milliseconds
 
@@ -26,82 +26,85 @@ export default function Dashboard() {
     const [filterLoading, setFilterLoading] = useState(false);
     const [countdown, setCountdown] = useState(REFRESH_INTERVAL / 1000);
     const { selectedFilter } = useFilterStore();
-    const { addOrReplaceWidgetData, setBranchDatas, branchDatas } = useWidgetDataStore();
-    const previousFilterRef = useRef(selectedFilter);
-    const dataFetchingRef = useRef(false);
+    const { addOrReplaceWidgetData, setBranchDatas} =
+        useWidgetDataStore();
     const mountedRef = useRef(false);
-    const lastAppliedFilterRef = useRef(selectedFilter);
 
     const fetchData = useCallback(async () => {
-        if (dataFetchingRef.current) return;
-        dataFetchingRef.current = true;
 
-        const branches = selectedFilter.selectedBranches.length <= 0
-            ? selectedFilter.branches
-            : selectedFilter.selectedBranches;
+        const branches =
+            selectedFilter.selectedBranches.length <= 0
+                ? selectedFilter.branches
+                : selectedFilter.selectedBranches;
 
-        const branchIds = branches.map((item: Branch) => item.BranchID);
+        if (branches.length > 0) {
+            const branchIds = branches.map((item: Branch) => item.BranchID);
 
-        try {
-            // Widget verilerini al
-            const widgetResponse = await axios.post<WebWidgetData[]>(
-                "/api/widgetreport",
-                {
-                    date1: selectedFilter.date.from,
-                    date2: selectedFilter.date.to,
-                    branches: branchIds,
-                    reportId: widgets.map((widget) => widget.ReportID),
-                },
-                {
-                    headers: { "Content-Type": "application/json" },
+            try {
+                // Widget verilerini al
+                const widgetResponse = await axios.post<WebWidgetData[]>(
+                    "/api/widgetreport",
+                    {
+                        date1: selectedFilter.date.from,
+                        date2: selectedFilter.date.to,
+                        branches: branchIds,
+                        reportId: widgets.map((widget) => widget.ReportID),
+                    },
+                    {
+                        headers: { "Content-Type": "application/json" },
+                    }
+                );
+
+                widgetResponse.data.forEach((widget) => {
+                    addOrReplaceWidgetData(widget);
+                });
+
+                // Branch verilerini al
+                const branchResponse = await axios.post<BranchModel[]>(
+                    "/api/widgetbranch",
+                    {
+                        date1: selectedFilter.date.from,
+                        date2: selectedFilter.date.to,
+                        branches: branchIds,
+                        reportId: "522",
+                    },
+                    {
+                        headers: { "Content-Type": "application/json" },
+                    }
+                );
+
+                if (Array.isArray(branchResponse.data)) {
+                    const validBranchData = branchResponse.data.map((branch) => ({
+                        BranchID: Number(branch.BranchID),
+                        reportValue1: String(branch.reportValue1),
+                        reportValue2: Number(branch.reportValue2),
+                        reportValue3: Number(branch.reportValue3),
+                        reportValue4: Number(branch.reportValue4),
+                        reportValue5: Number(branch.reportValue5),
+                        reportValue6: Number(branch.reportValue6),
+                        reportValue7: Number(branch.reportValue7),
+                        reportValue8: Number(branch.reportValue8),
+                        reportValue9: Number(branch.reportValue9),
+                    }));
+                    setBranchDatas(validBranchData);
                 }
-            );
 
-            widgetResponse.data.forEach(widget => {
-                addOrReplaceWidgetData(widget);
-            });
-
-            // Branch verilerini al
-            const branchResponse = await axios.post<BranchModel[]>(
-                "/api/widgetbranch",
-                {
-                    date1: selectedFilter.date.from,
-                    date2: selectedFilter.date.to,
-                    branches: branchIds,
-                    reportId: "522"
-                },
-                {
-                    headers: { "Content-Type": "application/json" },
-                }
-            );
-
-            if (Array.isArray(branchResponse.data)) {
-                const validBranchData = branchResponse.data.map(branch => ({
-                    BranchID: Number(branch.BranchID),
-                    reportValue1: String(branch.reportValue1),
-                    reportValue2: Number(branch.reportValue2),
-                    reportValue3: Number(branch.reportValue3),
-                    reportValue4: Number(branch.reportValue4),
-                    reportValue5: Number(branch.reportValue5),
-                    reportValue6: Number(branch.reportValue6),
-                    reportValue7: Number(branch.reportValue7),
-                    reportValue8: Number(branch.reportValue8),
-                    reportValue9: Number(branch.reportValue9)
-                }));
-                setBranchDatas(validBranchData);
+                // Update lastAppliedFilter after successful fetch
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setInitialLoading(false);
+                setFilterLoading(false);
+                setCountdown(REFRESH_INTERVAL / 1000);
             }
-
-            // Update lastAppliedFilter after successful fetch
-            lastAppliedFilterRef.current = selectedFilter;
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        } finally {
-            dataFetchingRef.current = false;
-            setInitialLoading(false);
-            setFilterLoading(false);
-            setCountdown(REFRESH_INTERVAL / 1000);
         }
-    }, [selectedFilter, widgets, addOrReplaceWidgetData, setBranchDatas]);
+    }, [
+        selectedFilter,
+        selectedFilter.selectedBranches,
+        widgets,
+        addOrReplaceWidgetData,
+        setBranchDatas,
+    ]);
 
     // Initial data fetch when component mounts
     useEffect(() => {
@@ -109,14 +112,11 @@ export default function Dashboard() {
             mountedRef.current = true;
             const fetchInitialData = async () => {
                 try {
-                    const response = await axios.get<WebWidget[]>(
-                        "/api/webwidgets",
-                        {
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                        }
-                    );
+                    const response = await axios.get<WebWidget[]>("/api/webwidgets", {
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
                     setWidgets(response.data);
                 } catch (error) {
                     console.error("Error fetching initial data:", error);
@@ -127,21 +127,19 @@ export default function Dashboard() {
         }
     }, []);
 
-    // Only fetch data when widgets are loaded and filter is explicitly applied
+    // Only fetch data when widgets are loaded
     useEffect(() => {
         if (widgets.length > 0) {
-            // Only fetch if this is an explicit filter apply (not just a selection change)
-            const isExplicitApply = JSON.stringify(selectedFilter) !== JSON.stringify(lastAppliedFilterRef.current);
-            if (isExplicitApply) {
-                setFilterLoading(true);
-                previousFilterRef.current = selectedFilter;
-                fetchData();
-            }
+            // Initial fetch when widgets are loaded
+            fetchData();
 
+            // Set up refresh interval
             const intervalId = setInterval(fetchData, REFRESH_INTERVAL);
             return () => clearInterval(intervalId);
         }
-    }, [widgets, selectedFilter, fetchData]);
+    }, [widgets]); // Only depend on widgets
+
+
 
     // Countdown timer effect
     useEffect(() => {
@@ -159,7 +157,8 @@ export default function Dashboard() {
 
     return (
         <div className="h-full overflow-hidden flex">
-            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent 
+            <div
+                className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent 
                 [&::-webkit-scrollbar]:w-2
                 [&::-webkit-scrollbar-thumb]:bg-gray-300/50
                 [&::-webkit-scrollbar-thumb]:rounded-full
@@ -179,16 +178,9 @@ export default function Dashboard() {
                 </div>
 
                 <div className="p-3 space-y-4 md:space-y-6">
-                    {widgets.length <= 0 ||
-                        widgets === null ||
-                        widgets === undefined ? (
+                    {widgets.length <= 0 || widgets === null || widgets === undefined ? (
                         <div className="flex items-center justify-center min-h-[200px]">
-                            <RingLoader
-                                color="#fff"
-                                loading
-                                size={30}
-                                speedMultiplier={2}
-                            />
+                            <RingLoader color="#fff" loading size={30} speedMultiplier={2} />
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6 auto-rows-auto">
@@ -236,7 +228,10 @@ export default function Dashboard() {
                             </div>
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="right" className="w-[90%] max-w-[400px] p-0 sm:w-[400px]">
+                    <SheetContent
+                        side="right"
+                        className="w-[90%] max-w-[400px] p-0 sm:w-[400px]"
+                    >
                         <NotificationPanel />
                     </SheetContent>
                 </Sheet>

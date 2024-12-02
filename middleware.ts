@@ -75,9 +75,9 @@ async function verifyToken(token: string, secret: Uint8Array, options: any): Pro
 async function createNewAccessToken(user: Efr_Users, tenantId: string): Promise<string> {
     const tokenPayload = {
         username: user.UserName,
-        userId: user.UserID,
-        userBranches: user.UserBranchs
+        userId: user.UserID
     };
+    console.log(tokenPayload)
     const date = Date.now();
     return await new SignJWT(tokenPayload)
         .setProtectedHeader({ alg: ACCESS_TOKEN_ALGORITHM })
@@ -161,7 +161,7 @@ export async function middleware(request: NextRequest) {
         if (!decodedToken) {
             return NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
         }
-
+        console.log(decodedToken)
         const newAccessToken = await createNewAccessToken(decodedToken as Efr_Users, tenantId);
         const response = NextResponse.next(); // Yönlendirme yerine next() kullan
         

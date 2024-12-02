@@ -5,9 +5,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import BranchStats from "@/components/DashboardComponent/BranchStats";
-import BranchCharts from "@/components/DashboardComponent/BranchCharts";
-import OrdersTable from "@/components/DashboardComponent/OrdersTable";
+import BranchStats from "@/app/[tenantId]/(main)/dashboard/components/BranchStats";
+import BranchCharts from "@/app/[tenantId]/(main)/dashboard/components/BranchCharts";
+import OrdersTable from "@/app/[tenantId]/(main)/dashboard/components/OrdersTable";
 import { Card } from "@/components/ui/card";
 import {
     Select,

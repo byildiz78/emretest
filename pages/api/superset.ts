@@ -85,7 +85,7 @@ export class Superset {
                     await this.renewTokens();
                     continue;
                 }
-                lastError = error;
+                lastError = error as Error;
                 await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i))); // Exponential backoff
             }
         }

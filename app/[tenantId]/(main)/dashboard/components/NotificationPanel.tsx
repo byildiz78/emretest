@@ -14,7 +14,7 @@ import {
     ChevronRight,
 } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
-import { Notification } from "@/types/tables";
+import { Notification, OrderDetail } from "@/types/tables";
 import { useOrderDetail } from "@/hooks/use-orderdetail";
 import { OrderDetailDialog } from "./OrderDetailDialog";
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
@@ -282,11 +282,7 @@ export default function NotificationPanel() {
             <OrderDetailDialog
                 isOpen={isOpen}
                 onOpenChange={setIsOpen}
-                orderDetail={orderDetail as Array<{
-                    header: string;
-                    payments: string;
-                    transactions: string;
-                }> | null}
+                orderDetail={orderDetail as OrderDetail | null}
                 loading={loading}
             />
         </>

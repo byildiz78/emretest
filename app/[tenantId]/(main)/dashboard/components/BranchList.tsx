@@ -1,14 +1,13 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import { useWidgetDataStore } from "@/stores/widget-data-store";
 import { Loader2 } from "lucide-react";
-import { BranchModel } from "@/types/tables";
-import LazyBranchCard from "./LazyBranchCard";
 import BranchCard from "./BranchCard";
+import { WebWidgetData } from "@/types/tables";
 
 // Transform BranchModel to BranchData
-const transformBranchData = (data: BranchModel) => {
+const transformBranchData = (data: WebWidgetData) => {
     const currentValue = data.reportValue2 || 0;
     const previousValue = data.reportValue3 || 0;
     const difference = currentValue - previousValue;

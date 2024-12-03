@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
+import { executeQuery } from '@/lib/dataset';
 import { WebReportGroup } from '@/types/tables';
 
 export default async function handler(
@@ -29,9 +29,8 @@ export default async function handler(
             ORDER BY g.DisplayOrderID, i.DisplayOrderID
         `;
 
-        const result = await execute({
-            databaseId: "3",
-            query: query,
+        const result = await executeQuery<WebReportGroup[]>({
+            query,
             parameters: {}
         });
 

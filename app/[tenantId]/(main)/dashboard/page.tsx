@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import axios from "axios";
-import { WebWidget, WebWidgetData, BranchModel } from "@/types/tables";
+import { WebWidget, WebWidgetData } from "@/types/tables";
 import { useFilterStore } from "@/stores/filters-store";
 import { useWidgetDataStore } from "@/stores/widget-data-store";
 import RingLoader from "react-spinners/RingLoader";
@@ -22,6 +22,7 @@ interface Branch {
 }
 
 export default function Dashboard() {
+    const [loading, setLoading] = useState<boolean>(true);
     const [widgets, setWidgets] = useState<WebWidget[]>([]);
     const [initialLoading, setInitialLoading] = useState(true);
     const [filterLoading, setFilterLoading] = useState(false);
@@ -30,12 +31,6 @@ export default function Dashboard() {
     const { addOrReplaceWidgetData, setBranchDatas } = useWidgetDataStore();
 
     const fetchData = useCallback(async () => {
-        console.log('fetchData called with:', {
-            selectedBranches: selectedFilter.selectedBranches,
-            branches: selectedFilter.branches,
-            widgets: widgets
-        });
-
         const branches =
             selectedFilter.selectedBranches.length <= 0
                 ? selectedFilter.branches
@@ -45,36 +40,19 @@ export default function Dashboard() {
             const branchIds = branches.map((item: Branch) => item.BranchID);
 
             try {
-                const [branchResponse] = await Promise.all([
-                    axios.post<BranchModel[]>(
-                        "/api/widgetbranch",
-                        {
-                            date1: selectedFilter.date.from,
-                            date2: selectedFilter.date.to,
-                            branches: branchIds,
-                            reportId: "522",
-                        },
-                        {
-                            headers: { "Content-Type": "application/json" },
-                        }
-                    )
-                ]);
-
-                if (Array.isArray(branchResponse.data)) {
-                    const validBranchData = branchResponse.data.map((branch) => ({
-                        BranchID: Number(branch.BranchID),
-                        reportValue1: String(branch.reportValue1),
-                        reportValue2: Number(branch.reportValue2),
-                        reportValue3: Number(branch.reportValue3),
-                        reportValue4: Number(branch.reportValue4),
-                        reportValue5: Number(branch.reportValue5),
-                        reportValue6: Number(branch.reportValue6),
-                        reportValue7: Number(branch.reportValue7),
-                        reportValue8: Number(branch.reportValue8),
-                        reportValue9: Number(branch.reportValue9),
-                    }));
-                    setBranchDatas(validBranchData);
-                }
+                const response = await axios.post<WebWidgetData[]>(
+                    "/api/widgetreport",
+                    {
+                        date1: selectedFilter.date.from,
+                        date2: selectedFilter.date.to,
+                        branches: branchIds,
+                        reportId: 522,
+                    },
+                    {
+                        headers: { "Content-Type": "application/json" },
+                    }
+                )
+                setBranchDatas(response.data);
 
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -84,7 +62,15 @@ export default function Dashboard() {
                 setCountdown(REFRESH_INTERVAL / 1000);
             }
         }
-    }, [selectedFilter, widgets, addOrReplaceWidgetData, setBranchDatas]);
+    }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, addOrReplaceWidgetData, setBranchDatas]);
+
+    useEffect(() => {
+        fetchData();
+        const intervalId = setInterval(() => {
+            fetchData();
+        }, REFRESH_INTERVAL);
+        return () => clearInterval(intervalId);
+    }, [fetchData]);
 
     useEffect(() => {
         const fetchWidgetsData = async () => {

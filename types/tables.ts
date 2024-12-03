@@ -82,18 +82,24 @@ export type WebWidget = {
     V4Type?: number;
     V5Type?: number;
     V6Type?: number;
+    ReportQuery?: string;
+    ReportQuery2?: string;
     IsActive?: boolean;
     ReportColor?: string;
 }
 
 export type WebWidgetData = {
+    BranchID: number;
     ReportID: number;
-    reportValue1?: string;
-    reportValue2?: string;
-    reportValue3?: string;
-    reportValue4?: string;
-    reportValue5?: string;
-    reportValue6?: string;
+    reportValue1: string;    // SubeAdi
+    reportValue2: number;    // TC (Cari dönem ciro)
+    reportValue3: number;    // GHTC (Geçen hafta aynı saat ciro)
+    reportValue4: number;    // GHTCTUM (Geçen hafta tüm gün ciro)
+    reportValue5: number;    // KisiSayisi
+    reportValue6: number;    // GHKisiSayisi
+    reportValue7: number;    // GHKisiSayisiTUM
+    reportValue8: number;    // Oran
+    reportValue9: number;    // GecenHaftaOran
 }
 
 export type WebReport = {
@@ -164,22 +170,9 @@ export type OrderTransaction = {
 }
 
 export type OrderDetail = {
-    header: OrderHeader;
-    payments: OrderPayment[];
-    transactions: OrderTransaction[];
-}
-
-export type BranchModel = {
-    BranchID: number;
-    reportValue1: string;    // SubeAdi
-    reportValue2: number;    // TC (Cari dönem ciro)
-    reportValue3: number;    // GHTC (Geçen hafta aynı saat ciro)
-    reportValue4: number;    // GHTCTUM (Geçen hafta tüm gün ciro)
-    reportValue5: number;    // KisiSayisi
-    reportValue6: number;    // GHKisiSayisi
-    reportValue7: number;    // GHKisiSayisiTUM
-    reportValue8: number;    // Oran
-    reportValue9: number;    // GecenHaftaOran
+    header?: OrderHeader;
+    payments?: OrderPayment[];
+    transactions?: OrderTransaction[];
 }
 
 export type Branch = {

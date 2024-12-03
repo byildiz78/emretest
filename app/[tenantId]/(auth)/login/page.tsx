@@ -110,7 +110,7 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const response = await axios.post("/api/auth/login2", formData, {
+            const response = await axios.post("/api/auth/login", formData, {
                 headers: {
                     "Content-Type": "application/json",
                 },

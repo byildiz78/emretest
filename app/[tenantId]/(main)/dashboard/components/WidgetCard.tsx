@@ -89,7 +89,7 @@ export default function WidgetCard({
             setIsLoading(true);
             setError(null);
             
-            const response = await axios.post<WebWidgetData>(
+            const response = await axios.post<WebWidgetData[]>(
                 "/api/widgetreport",
                 {
                     date1: selectedFilter.date.from,
@@ -102,7 +102,7 @@ export default function WidgetCard({
                 }
             );
             if (response.status === 200) {
-                setWidgetData(response.data);
+                setWidgetData(response.data[0]);
             }
         } catch (err) {
             const error = err as AxiosError;

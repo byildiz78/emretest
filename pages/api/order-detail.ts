@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
+import { executeQuery } from '@/lib/dataset';
 import { OrderDetail } from '@/types/tables';
 
 export default async function handler(
@@ -53,9 +53,8 @@ export default async function handler(
                 ) as transactions
         `;
 
-        const result = await execute({
-            databaseId: "3",
-            query: query,
+        const result = await executeQuery<OrderDetail[]>({
+            query,
             parameters: {
                 orderKey: orderKey
             }

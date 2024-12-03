@@ -1,13 +1,13 @@
-import { BranchModel, WebWidgetData } from '@/types/tables'
+import { WebWidgetData } from '@/types/tables'
 import { create } from 'zustand'
 
 interface WebWidgetDataState {
     widgetDatas: WebWidgetData[],
-    branchDatas: BranchModel[],
+    branchDatas: WebWidgetData[],
     setWidgetDatas: (widgetDatas: WebWidgetData[]) => void,
-    setBranchDatas: (branchDatas: BranchModel[]) => void,
+    setBranchDatas: (branchDatas: WebWidgetData[]) => void,
     addOrReplaceWidgetData: (widgetData: WebWidgetData) => void,
-    addOrReplaceBranchData: (branchData: BranchModel) => void
+    addOrReplaceBranchData: (branchData: WebWidgetData) => void
 }
 
 export const useWidgetDataStore = create<WebWidgetDataState>((set) => ({
@@ -19,7 +19,7 @@ export const useWidgetDataStore = create<WebWidgetDataState>((set) => ({
             widgetDatas: widgetDatas
         }));
     },
-    setBranchDatas: (branchDatas: BranchModel[]) => {
+    setBranchDatas: (branchDatas: WebWidgetData[]) => {
         console.log('Setting branch data:', branchDatas);
         set(() => ({
             branchDatas: branchDatas
@@ -39,7 +39,7 @@ export const useWidgetDataStore = create<WebWidgetDataState>((set) => ({
                 return { widgetDatas: [...state.widgetDatas, widgetData] };
             }
         }),
-    addOrReplaceBranchData: (branchData: BranchModel) =>
+    addOrReplaceBranchData: (branchData: WebWidgetData) =>
         set((state) => {
             const existingIndex = state.branchDatas.findIndex(
                 data => data.BranchID === branchData.BranchID

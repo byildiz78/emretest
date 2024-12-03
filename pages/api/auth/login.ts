@@ -1,21 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { serialize } from 'cookie';
-import sql, { config as SQLConfig } from 'mssql';
 import { SignJWT } from 'jose';
 import crypto from 'crypto';
-
-const config: SQLConfig = {
-    user: process.env.DB_USER || '',
-    password: process.env.DB_PASSWORD || '',
-    server: process.env.DB_SERVER || '',
-    port: parseInt(process.env.DB_PORT || '1433'),
-    database: process.env.DB_NAME || '',
-    options: {
-        encrypt: false,
-        trustServerCertificate: true,
-        enableArithAbort: true,
-    },
-};
+import { executeQuery } from '@/lib/dataset';
 
 const ACCESS_TOKEN_SECRET = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
 const REFRESH_TOKEN_SECRET = new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET);
@@ -62,78 +49,65 @@ export default async function handler(
     try {
         const tenantId = new URL(req.headers.referer || '').pathname.split('/')[1];
         const { username, password } = req.body;
+        const encryptedpass = encrypt(password);
         
-        // const encryptStartTime = performance.now();
-        // const encryptedpass = encrypt(password);
-        // console.log(`Password encryption took: ${performance.now() - encryptStartTime}ms`);
+        const query = "SELECT TOP 1 UserID, UserName FROM Efr_Users WHERE UserName = @username AND EncryptedPass = @password AND IsActive=1";
 
-        // const pool = await sql.connect(config);
-        // const dbQueryStartTime = performance.now();
-        
-        // const result = await pool.request()
-        //     .input('username', sql.VarChar, username)
-        //     .input('password', sql.VarChar, encryptedpass)
-        //     .query("SELECT TOP 1 UserID, UserName FROM Efr_Users WHERE UserName = @username AND EncryptedPass = @password AND IsActive=1");
+        const response = await executeQuery<{ UserID: number; UserName: string }[]>({
+            query,
+            parameters : {
+                username: username,
+                password: encryptedpass?.toString()
+            }
+        });
+        const user = response[0]
+        console.log(user)
+        if (user) {
+            let tokenPayload = {
+                username: user.UserName,
+                userId: user.UserID,
+                aud: tenantId
+            };
 
-        // console.log(`Database query took: ${performance.now() - dbQueryStartTime}ms`);
+            const currentTimestamp = Math.floor(Date.now() / 1000);
+            const cookieDomain = NODE_ENV === 'production' ? getDomainForCookie() : undefined;
 
-        // if (result.recordset && result.recordset.length > 0) {
-        //     const tokenStartTime = performance.now();
-        //     const user = result.recordset[0];
-        //     let tokenPayload = {
-        //         username: user.UserName,
-        //         userId: user.UserID,
-        //         aud: tenantId
-        //     };
+            const accessToken = await new SignJWT(tokenPayload)
+                .setProtectedHeader({ alg: ACCESS_TOKEN_ALGORITHM })
+                .setExpirationTime(currentTimestamp + ACCESS_TOKEN_LIFETIME)
+                .setIssuer(NEXT_PUBLIC_DOMAIN)
+                .setAudience(tenantId)
+                .setIssuedAt(currentTimestamp)
+                .sign(ACCESS_TOKEN_SECRET);
+            const accessTokenCookie = serialize('access_token', accessToken, {
+                httpOnly: true,
+                secure: NODE_ENV === 'production',
+                sameSite: 'strict',
+                path: '/',
+                ...(cookieDomain ? { domain: cookieDomain } : {})
+            });
 
-        //     const currentTimestamp = Math.floor(Date.now() / 1000);
+            const refreshToken = await new SignJWT(tokenPayload)
+                .setProtectedHeader({ alg: REFRESH_TOKEN_ALGORITHM })
+                .setExpirationTime(currentTimestamp + REFRESH_TOKEN_LIFETIME)
+                .setIssuer(NEXT_PUBLIC_DOMAIN)
+                .setAudience(tenantId)
+                .setIssuedAt(currentTimestamp)
+                .sign(REFRESH_TOKEN_SECRET);
+            const refreshTokenCookie = serialize('refresh_token', refreshToken, {
+                httpOnly: true,
+                secure: NODE_ENV === 'production',
+                sameSite: 'strict',
+                path: '/',
+                ...(cookieDomain ? { domain: cookieDomain } : {})
+            });
 
-        //     const accessToken = await new SignJWT(tokenPayload)
-        //         .setProtectedHeader({ alg: ACCESS_TOKEN_ALGORITHM })
-        //         .setExpirationTime(currentTimestamp + ACCESS_TOKEN_LIFETIME)
-        //         .setIssuer(NEXT_PUBLIC_DOMAIN)
-        //         .setAudience(tenantId)
-        //         .setIssuedAt(currentTimestamp)
-        //         .sign(ACCESS_TOKEN_SECRET);
-        //     console.log(`Access token generation took: ${performance.now() - tokenStartTime}ms`);
+            return res.status(200)
+                .setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie])
+                .json({ message: 'Login successful' });
+        }
 
-        //     const cookieStartTime = performance.now();
-        //     const cookieDomain = NODE_ENV === 'production' ? getDomainForCookie() : undefined;
-
-        //     const accessTokenCookie = serialize('access_token', accessToken, {
-        //         httpOnly: true,
-        //         secure: NODE_ENV === 'production',
-        //         sameSite: 'strict',
-        //         path: '/',
-        //         ...(cookieDomain ? { domain: cookieDomain } : {})
-        //     });
-
-        //     const refreshToken = await new SignJWT(tokenPayload)
-        //         .setProtectedHeader({ alg: REFRESH_TOKEN_ALGORITHM })
-        //         .setExpirationTime(currentTimestamp + REFRESH_TOKEN_LIFETIME)
-        //         .setIssuer(NEXT_PUBLIC_DOMAIN)
-        //         .setAudience(tenantId)
-        //         .setIssuedAt(currentTimestamp)
-        //         .sign(REFRESH_TOKEN_SECRET);
-        //     console.log(`Refresh token generation took: ${performance.now() - cookieStartTime}ms`);
-
-        //     const refreshTokenCookie = serialize('refresh_token', refreshToken, {
-        //         httpOnly: true,
-        //         secure: NODE_ENV === 'production',
-        //         sameSite: 'strict',
-        //         path: '/',
-        //         ...(cookieDomain ? { domain: cookieDomain } : {})
-        //     });
-
-        //     await pool.close();
-        //     console.log(`Total login process took: ${performance.now() - startTime}ms`);
-        //     return res.status(200)
-        //         .setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie])
-        //         .json({ message: 'Login successful' });
-        // }
-
-        // await pool.close();
-        // return res.status(401).json({ message: 'Invalid credentials' });
+        return res.status(401).json({ message: 'Invalid credentials' });
     } catch (error) {
         console.error('Login error:', error);
         return res.status(500).json({ message: 'Internal server error' });

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
+import { executeSingleQuery } from '@/lib/db';
 import { OrderDetail } from '@/types/tables';
 
 export default async function handler(
@@ -53,20 +53,15 @@ export default async function handler(
                 ) as transactions
         `;
 
-        const result = await execute({
-            databaseId: "3",
-            query: query,
-            parameters: {
-                orderKey: orderKey
-            }
+        const result = await executeSingleQuery<OrderDetail>(query, {
+            orderKey: orderKey
         });
 
         if (!result) {
             return res.status(404).json({ error: 'Order not found' });
         }
 
-        return res.status(200).json(result[0]); // Since we're using FOR JSON PATH, we need to get the first result
-
+        return res.status(200).json(result);
     } catch (error: any) {
         console.error('Error in order detail handler:', error);
         return res.status(500).json({

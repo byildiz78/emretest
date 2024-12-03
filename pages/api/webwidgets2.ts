@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
+import { executeQuery } from '@/lib/db';
 import { WebWidget } from '@/types/tables';
 
 export default async function handler(
@@ -11,7 +11,7 @@ export default async function handler(
     }
 
     try {
-        const query = `
+        const widgets = await executeQuery<WebWidget>(`
             SELECT 
                 AutoID,
                 ReportName,
@@ -30,19 +30,13 @@ export default async function handler(
             WHERE IsActive = 1 
             AND ReportID NOT IN (522) 
             ORDER BY ReportIndex ASC
-        `;
+        `);
 
-        const result = await execute({
-            databaseId: "3",
-            query: query,
-            parameters: {}
-        });
-
-        if (!result || result.length === 0) {
+        if (!widgets || widgets.length === 0) {
             return res.status(404).json({ error: 'No widgets found' });
         }
 
-        return res.status(200).json(result.data);
+        return res.status(200).json(widgets);
     } catch (error) {
         console.error('API error:', error);
         return res.status(500).json({

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
+import { executeQuery } from '@/lib/db';
 
 interface Notification {
     autoId: number;
@@ -29,7 +29,7 @@ export default async function handler(
     }
 
     try {
-        const query = `
+        const notifications = await executeQuery<Notification>(`
             SELECT TOP 10 
                 row.AutoID as autoId,
                 row.LogKey as logKey,
@@ -55,18 +55,16 @@ export default async function handler(
             FROM dbo.infiniaActivityLogs AS row WITH (NOLOCK)
             LEFT JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = row.BranchID
             ORDER BY row.OrderDateTime DESC
-        `;
+        `);
 
-        const result = await execute({
-            databaseId: "3",
-            query: query,
-            parameters: {}
-        });
+        if (!notifications || notifications.length === 0) {
+            return res.status(404).json({ error: 'No notifications found' });
+        }
 
-        return res.status(200).json(result.data);
+        return res.status(200).json(notifications);
     } catch (error: any) {
         console.error('Error in notifications handler:', error);
-        return res.status(500).json({ 
+        return res.status(500).json({
             error: 'Internal server error',
             details: error.message
         });

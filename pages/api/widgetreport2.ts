@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
+import { executeSingleQuery } from '@/lib/db';
 import { WebWidgetData } from '@/types/tables';
 
 // Clean and validate SQL query
@@ -28,28 +28,26 @@ export default async function handler(
         }
 
         // Get widget query
-        const widgetQuery = `
+        const widget = await executeSingleQuery<{ ReportQuery: string }>(`
             SELECT TOP 1 ReportID, ReportQuery, ReportQuery2
             FROM dm_webWidgets6
             WHERE ReportID = @reportId
             AND IsActive = 1
             AND (ReportQuery != '' OR ReportQuery2 != '')
             ORDER BY ReportIndex ASC
-        `;
-
-        const widgetResult = await execute({
-            databaseId: "3",
-            query: widgetQuery,
-            parameters: {
-                reportId: reportIdNumber
-            }
+        `, { 
+            reportId: reportIdNumber
         });
 
-        const widget = widgetResult.data[0];
         if (!widget) {
             return res.status(400).json({ error: 'No widget query found' });
         }
+
+        const branchIds = Array.isArray(branches) 
+            ? branches.map(id => parseInt(id))
+            : [parseInt(branches)];
         
+        const branchesString = branchIds.join(',');
         let reportQuery = cleanSqlQuery(widget.ReportQuery.toString());
         
         if (!reportQuery) {
@@ -62,22 +60,22 @@ export default async function handler(
             date1Obj.setHours(6, 0, 0, 0);
             date2Obj.setHours(6, 0, 0, 0);
 
-            const result = await execute({
-                databaseId: "3",
-                query: reportQuery,
-                parameters: {
-                    date1: date1Obj.toISOString(),
-                    date2: date2Obj.toISOString(),
-                    BranchID: branches
-                }
+            reportQuery = reportQuery
+                .replace(/'{{(\s*)date1(\s*)}}'/g, '@date1')
+                .replace(/'{{(\s*)date2(\s*)}}'/g, '@date2')
+                .replace(/{{(\s*)branches(\s*)}}/g, branchesString)
+                .replace(/@BranchID/g, `BranchID IN(${branchesString})`);
+
+            const result = await executeSingleQuery<WebWidgetData>(reportQuery, {
+                date1: date1Obj,
+                date2: date2Obj
             });
 
-            if (!result || result.length === 0) {
+            if (!result) {
                 return res.status(404).json({ error: 'No data found for widget' });
             }
 
-            return res.status(200).json(result.data[0]); // Since we're using TOP 1 in the query
-
+            return res.status(200).json(result);
         } catch (error: any) {
             console.error('Error executing widget query:', error);
             return res.status(500).json({

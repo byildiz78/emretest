@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { executeQuery } from '@/lib/db';
+import { execute } from '@/lib/serkanset';
 import { jwtVerify } from 'jose';
 
 interface Branch {
@@ -14,36 +14,34 @@ export default async function handler(
     res: NextApiResponse
 ) {
     try {
-        const ACCESS_TOKEN_SECRET = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
+        // const ACCESS_TOKEN_SECRET = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
 
-        const cookies = req.headers.cookie?.split(';').reduce((acc: { [key: string]: string }, cookie) => {
-            const [key, value] = cookie.trim().split('=');
-            acc[key] = value;
-            return acc;
-        }, {});
+        // const cookies = req.headers.cookie?.split(';').reduce((acc: { [key: string]: string }, cookie) => {
+        //     const [key, value] = cookie.trim().split('=');
+        //     acc[key] = value;
+        //     return acc;
+        // }, {});
 
-        if (!cookies || !cookies['access_token']) {
-            return res.status(401).json({ error: 'No access token found' });
-        }
+        // if (!cookies || !cookies['access_token']) {
+        //     return res.status(401).json({ error: 'No access token found' });
+        // }
 
-        const decoded = await jwtVerify(
-            cookies['access_token'],
-            ACCESS_TOKEN_SECRET
-        );
+        // const decoded = await jwtVerify(
+        //     cookies['access_token'],
+        //     ACCESS_TOKEN_SECRET
+        // );
 
-        const userId = decoded.payload.userId;
-        if (!userId) {
-            return res.status(400).json({ error: 'Invalid user ID in token' });
-        }
+        // const userId = decoded.payload.userId;
+        // if (!userId) {
+        //     return res.status(400).json({ error: 'Invalid user ID in token' });
+        // }
 
-        const userIdNumber = parseInt(userId.toString());
-        if (isNaN(userIdNumber)) {
-            return res.status(400).json({ error: 'Invalid user ID format' });
-        }
+        // const userIdNumber = parseInt(userId.toString());
+        // if (isNaN(userIdNumber)) {
+        //     return res.status(400).json({ error: 'Invalid user ID format' });
+        // }
 
-        console.log('User ID:', userIdNumber);
-
-        const branches = await executeQuery<Branch>(`
+        const query = `
             SELECT DISTINCT b.* 
             FROM Efr_Branchs b 
             WHERE b.IsActive = 1 
@@ -55,15 +53,21 @@ export default async function handler(
                 AND u.IsActive = 1 
                 AND (u.Category = 5 OR CHARINDEX(',' + CAST(b.BranchID AS VARCHAR) + ',', ',' + u.UserBranchs + ',') > 0)
             )
-        `, {
-            userId: userIdNumber
+        `;
+
+        const result = await execute({
+            databaseId: "3",
+            query: query,
+            parameters: {
+                userId: 1297
+            }
         });
 
-        if (!branches || branches.length === 0) {
+        if (!result || result.length === 0) {
             return res.status(404).json({ error: 'No branches found for user' });
         }
 
-        return res.status(200).json(branches);
+        return res.status(200).json(result.data);
 
     } catch (error: any) {
         console.error('Error in branches handler:', error);

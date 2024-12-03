@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
+import { executeQuery } from '@/lib/db';
 import { WebReportGroup } from '@/types/tables';
 
 export default async function handler(
@@ -11,7 +11,7 @@ export default async function handler(
     }
 
     try {
-        const query = `
+        const reports = await executeQuery<WebReportGroup>(`
             SELECT
                 g.AutoID as GroupAutoID,
                 g.GroupName as GroupName,
@@ -27,19 +27,13 @@ export default async function handler(
             INNER JOIN infiniaWebReports AS i WITH (NOLOCK) ON i.GroupID = g.AutoID 
             WHERE i.ShowDesktop = 1 
             ORDER BY g.DisplayOrderID, i.DisplayOrderID
-        `;
+        `);
 
-        const result = await execute({
-            databaseId: "3",
-            query: query,
-            parameters: {}
-        });
-
-        if (!result || result.length === 0) {
+        if (!reports || reports.length === 0) {
             return res.status(404).json({ error: 'No reports found' });
         }
 
-        return res.status(200).json(result);
+        return res.status(200).json(reports);
     } catch (error: any) {
         console.error('Error in web report list handler:', error);
         return res.status(500).json({ 

@@ -4,7 +4,6 @@ import { getDatabase} from './lib/dataset';
 import { CACHE_CONSTANTS } from './pages/api/constants';
 import { jwtVerify, SignJWT, decodeJwt } from 'jose';
 
-// Sabit değerler ve encoder'ı bir kere oluştur
 const textEncoder = new TextEncoder();
 const ACCESS_TOKEN_SECRET = textEncoder.encode(process.env.ACCESS_TOKEN_SECRET);
 const REFRESH_TOKEN_SECRET = textEncoder.encode(process.env.REFRESH_TOKEN_SECRET);
@@ -86,89 +85,89 @@ async function createNewAccessToken(username: string | unknown, userId: string |
 }
 
 export async function middleware(request: NextRequest) {
-    const tenantId = getTenantId(request);
-    const isApiRoute = request.nextUrl.pathname.includes("/api/");
-    const isLoginRoute = request.nextUrl.pathname.includes("login");
-    const isNotFoundRoute = request.nextUrl.pathname.includes("notfound");
+    // const tenantId = getTenantId(request);
+    // const isApiRoute = request.nextUrl.pathname.includes("/api/");
+    // const isLoginRoute = request.nextUrl.pathname.includes("login");
+    // const isNotFoundRoute = request.nextUrl.pathname.includes("notfound");
 
-    if (isNotFoundRoute) {
-        if (tenantId && !isApiRoute) {
-            const databaseExists = await checkTenantDatabase(tenantId);
-            if (databaseExists) {
-                return NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
-            }
-        }
-        return NextResponse.next();
-    }
+    // if (isNotFoundRoute) {
+    //     if (tenantId && !isApiRoute) {
+    //         const databaseExists = await checkTenantDatabase(tenantId);
+    //         if (databaseExists) {
+    //             return NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
+    //         }
+    //     }
+    //     return NextResponse.next();
+    // }
 
-    if (!tenantId && !isApiRoute) {
-        return NextResponse.redirect(new URL('/notfound', request.url));
-    }
+    // if (!tenantId && !isApiRoute) {
+    //     return NextResponse.redirect(new URL('/notfound', request.url));
+    // }
 
-    if (!isApiRoute && !tenantId.includes("api")) {
-        const databaseExists = await checkTenantDatabase(tenantId);
-        if (!databaseExists) {
-            return NextResponse.redirect(new URL(`/${tenantId}/notfound`, request.url));
-        }
-    }
+    // if (!isApiRoute && !tenantId.includes("api")) {
+    //     const databaseExists = await checkTenantDatabase(tenantId);
+    //     if (!databaseExists) {
+    //         return NextResponse.redirect(new URL(`/${tenantId}/notfound`, request.url));
+    //     }
+    // }
 
-    const accessToken = request.cookies.get("access_token")?.value;
-    const refreshToken = request.cookies.get("refresh_token")?.value;
+    // const accessToken = request.cookies.get("access_token")?.value;
+    // const refreshToken = request.cookies.get("refresh_token")?.value;
 
-    if (!accessToken || !refreshToken) {
-        if (isLoginRoute || isApiRoute) {
-            return NextResponse.next();
-        }
-        const response = NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
-        response.cookies.set('access_token', '', { maxAge: 0 });
-        response.cookies.set('refresh_token', '', { maxAge: 0 });
-        return response;
-    }
+    // if (!accessToken || !refreshToken) {
+    //     if (isLoginRoute || isApiRoute) {
+    //         return NextResponse.next();
+    //     }
+    //     const response = NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
+    //     response.cookies.set('access_token', '', { maxAge: 0 });
+    //     response.cookies.set('refresh_token', '', { maxAge: 0 });
+    //     return response;
+    // }
 
-    const baseTokenOptions = {
-        audience: tenantId,
-        issuer: NEXT_PUBLIC_DOMAIN
-    };
+    // const baseTokenOptions = {
+    //     audience: tenantId,
+    //     issuer: NEXT_PUBLIC_DOMAIN
+    // };
 
-    const isValidRefresh = await verifyToken(refreshToken, REFRESH_TOKEN_SECRET, {
-        ...baseTokenOptions,
-        algorithms: [REFRESH_TOKEN_ALGORITHM]
-    });
+    // const isValidRefresh = await verifyToken(refreshToken, REFRESH_TOKEN_SECRET, {
+    //     ...baseTokenOptions,
+    //     algorithms: [REFRESH_TOKEN_ALGORITHM]
+    // });
 
-    if (!isValidRefresh) {
-        const response = NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
-        response.cookies.set('access_token', '', { maxAge: 0 });
-        response.cookies.set('refresh_token', '', { maxAge: 0 });
-        return response;
-    }
-    const isValidAccess = await verifyToken(accessToken, ACCESS_TOKEN_SECRET, {
-        ...baseTokenOptions,
-        algorithms: [ACCESS_TOKEN_ALGORITHM],
-        requiredClaims: ['username', 'userId']
-    });
+    // if (!isValidRefresh) {
+    //     const response = NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
+    //     response.cookies.set('access_token', '', { maxAge: 0 });
+    //     response.cookies.set('refresh_token', '', { maxAge: 0 });
+    //     return response;
+    // }
+    // const isValidAccess = await verifyToken(accessToken, ACCESS_TOKEN_SECRET, {
+    //     ...baseTokenOptions,
+    //     algorithms: [ACCESS_TOKEN_ALGORITHM],
+    //     requiredClaims: ['username', 'userId']
+    // });
 
-    if (!isValidAccess) {
-        const decodedToken = decodeJwt(refreshToken);
-        if (!decodedToken) {
-            return NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
-        }
-        const newAccessToken = await createNewAccessToken(decodedToken.username, decodedToken.userId, tenantId);
-        const response = NextResponse.next();
+    // if (!isValidAccess) {
+    //     const decodedToken = decodeJwt(refreshToken);
+    //     if (!decodedToken) {
+    //         return NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
+    //     }
+    //     const newAccessToken = await createNewAccessToken(decodedToken.username, decodedToken.userId, tenantId);
+    //     const response = NextResponse.next();
         
-        response.cookies.set('access_token', newAccessToken, {
-            httpOnly: true,
-            secure: NODE_ENV === 'production',
-            sameSite: 'strict',
-            path: '/',
-            ...(NODE_ENV === 'production' ? { domain: NEXT_PUBLIC_DOMAIN } : {})
-        });
+    //     response.cookies.set('access_token', newAccessToken, {
+    //         httpOnly: true,
+    //         secure: NODE_ENV === 'production',
+    //         sameSite: 'strict',
+    //         path: '/',
+    //         ...(NODE_ENV === 'production' ? { domain: NEXT_PUBLIC_DOMAIN } : {})
+    //     });
 
-        return response;
-    }
+    //     return response;
+    // }
 
-    if (isLoginRoute) {
-        return NextResponse.redirect(new URL(`/${tenantId}`, request.url));
-    }
+    // if (isLoginRoute) {
+    //     return NextResponse.redirect(new URL(`/${tenantId}`, request.url));
+    // }
 
     return NextResponse.next();
 }

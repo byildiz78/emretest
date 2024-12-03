@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
+import { executeQuery } from '@/lib/dataset';
 
 interface Notification {
     autoId: number;
@@ -57,13 +57,12 @@ export default async function handler(
             ORDER BY row.OrderDateTime DESC
         `;
 
-        const result = await execute({
-            databaseId: "3",
-            query: query,
+        const result = await executeQuery<Notification[]>({
+            query,
             parameters: {}
         });
 
-        return res.status(200).json(result.data);
+        return res.status(200).json(result);
     } catch (error: any) {
         console.error('Error in notifications handler:', error);
         return res.status(500).json({ 

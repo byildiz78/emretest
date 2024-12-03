@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
-import { jwtVerify } from 'jose';
+import { executeQuery } from '@/lib/dataset';
+import { Efr_Branches } from '@/types/tables';
 
 interface Branch {
     BranchID: number;
@@ -14,33 +14,6 @@ export default async function handler(
     res: NextApiResponse
 ) {
     try {
-        // const ACCESS_TOKEN_SECRET = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
-
-        // const cookies = req.headers.cookie?.split(';').reduce((acc: { [key: string]: string }, cookie) => {
-        //     const [key, value] = cookie.trim().split('=');
-        //     acc[key] = value;
-        //     return acc;
-        // }, {});
-
-        // if (!cookies || !cookies['access_token']) {
-        //     return res.status(401).json({ error: 'No access token found' });
-        // }
-
-        // const decoded = await jwtVerify(
-        //     cookies['access_token'],
-        //     ACCESS_TOKEN_SECRET
-        // );
-
-        // const userId = decoded.payload.userId;
-        // if (!userId) {
-        //     return res.status(400).json({ error: 'Invalid user ID in token' });
-        // }
-
-        // const userIdNumber = parseInt(userId.toString());
-        // if (isNaN(userIdNumber)) {
-        //     return res.status(400).json({ error: 'Invalid user ID format' });
-        // }
-
         const query = `
             SELECT DISTINCT b.* 
             FROM Efr_Branchs b 
@@ -55,9 +28,8 @@ export default async function handler(
             )
         `;
 
-        const result = await execute({
-            databaseId: "3",
-            query: query,
+        const result = await executeQuery<Efr_Branches[]>({
+            query,
             parameters: {
                 userId: 1297
             }
@@ -67,7 +39,7 @@ export default async function handler(
             return res.status(404).json({ error: 'No branches found for user' });
         }
 
-        return res.status(200).json(result.data);
+        return res.status(200).json(result);
 
     } catch (error: any) {
         console.error('Error in branches handler:', error);

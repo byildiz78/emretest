@@ -1,11 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
-import { WebWidgetData } from '@/types/tables';
-
-// Clean and validate SQL query
-function cleanSqlQuery(query: string): string {
-    return query.replace(/^\s+|\s+$/g, '');
-}
+import { executeQuery } from '@/lib/dataset';
+import { WebWidget, WebWidgetData } from '@/types/tables';
 
 export default async function handler(
     req: NextApiRequest,
@@ -37,23 +32,15 @@ export default async function handler(
             ORDER BY ReportIndex ASC
         `;
 
-        const widgetResult = await execute({
-            databaseId: "3",
+        const response = await executeQuery<WebWidget[]>({
             query: widgetQuery,
             parameters: {
                 reportId: reportIdNumber
             }
         });
-
-        const widget = widgetResult.data[0];
+        const widget = response[0];
         if (!widget) {
             return res.status(400).json({ error: 'No widget query found' });
-        }
-        
-        let reportQuery = cleanSqlQuery(widget.ReportQuery.toString());
-        
-        if (!reportQuery) {
-            return res.status(400).json({ error: 'Empty widget query' });
         }
 
         try {
@@ -62,28 +49,25 @@ export default async function handler(
             date1Obj.setHours(6, 0, 0, 0);
             date2Obj.setHours(6, 0, 0, 0);
 
-            const result = await execute({
-                databaseId: "3",
-                query: reportQuery,
+            const result = await executeQuery<WebWidgetData[]>({
+                query: widget.ReportQuery?.toString() + "",
                 parameters: {
                     date1: date1Obj.toISOString(),
                     date2: date2Obj.toISOString(),
                     BranchID: branches
                 }
             });
-
-            if (!result || result.length === 0) {
+            if (!result ) {
                 return res.status(404).json({ error: 'No data found for widget' });
             }
 
-            return res.status(200).json(result.data[0]); // Since we're using TOP 1 in the query
+            return res.status(200).json(result);
 
         } catch (error: any) {
             console.error('Error executing widget query:', error);
             return res.status(500).json({
                 error: 'Error executing widget query',
-                details: error.message,
-                query: reportQuery
+                details: error.message
             });
         }
     } catch (error: any) {

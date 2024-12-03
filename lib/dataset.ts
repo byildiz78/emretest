@@ -1,4 +1,3 @@
-const BASE_URL = 'https://srv7.robotpos.com/Serkanset/api';
 
 interface RequestOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -7,9 +6,9 @@ interface RequestOptions {
 }
 
 interface ExecuteParams {
-    databaseId: string;
+    databaseId?: string;
     query: string;
-    parameters: {
+    parameters?: {
         date1?: string;
         date2?: string;
         BranchID?: number;
@@ -17,7 +16,7 @@ interface ExecuteParams {
     };
 }
 
-export async function serkansetApi(endpoint: string, options: RequestOptions = {}) {
+export async function datasetApi<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
     const { method = 'GET', body, headers = {} } = options;
 
     const requestOptions: RequestInit = {
@@ -33,7 +32,7 @@ export async function serkansetApi(endpoint: string, options: RequestOptions = {
     }
 
     try {
-        const response = await fetch(`${BASE_URL}${endpoint}`, requestOptions);
+        const response = await fetch(`${process.env.DATASET_API_BASE_URL}${endpoint}`, requestOptions);
         const responseText = await response.text();
         
         let data;
@@ -49,27 +48,25 @@ export async function serkansetApi(endpoint: string, options: RequestOptions = {
             throw new Error(data?.message || 'Request failed');
         }
 
-        return data;
+        return data.data as T;
     } catch (error) {
         console.error('API request error:', error);
         throw error;
     }
 }
 
-export async function login(username: string, password: string) {
-    return serkansetApi('/auth/login', {
+export async function executeQuery<T>(params: ExecuteParams): Promise<T> {
+    const { query, parameters = {}, databaseId = '3' } = params;
+    return datasetApi<T>('/query/execute', {
         method: 'POST',
-        body: { username, password }
+        body: {
+            databaseId,
+            query,
+            parameters
+        }
     });
 }
 
-export async function execute(params: ExecuteParams) {
-    return serkansetApi('/query/execute', {
-        method: 'POST',
-        body: {
-            databaseId: params.databaseId,
-            query: params.query,
-            parameters: params.parameters
-        }
-    });
+export async function getDatabase<T>(tenantId: string = ""): Promise<T> {
+    return datasetApi<T>(`/config/database/${tenantId}`);
 }

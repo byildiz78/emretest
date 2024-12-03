@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { OrderHeader, OrderPayment, OrderTransaction } from '@/types/tables';
+import { OrderDetail, OrderHeader, OrderPayment, OrderTransaction } from '@/types/tables';
 
 import {
 
@@ -34,15 +34,7 @@ interface OrderDetailDialogProps {
 
     onOpenChange: (open: boolean) => void;
 
-    orderDetail: Array<{
-
-        header: string;
-
-        payments: string;
-
-        transactions: string;
-
-    }> | null;
+    orderDetail: OrderDetail | null;
 
     loading: boolean;
 
@@ -202,7 +194,7 @@ export function OrderDetailDialog({ isOpen, onOpenChange, orderDetail, loading }
 
                     try {
 
-                        const orderData = orderDetail[0];
+                        const orderData = orderDetail;
 
                         if (!orderData) {
 
@@ -212,11 +204,9 @@ export function OrderDetailDialog({ isOpen, onOpenChange, orderDetail, loading }
 
  
 
-                        const header = JSON.parse(orderData.header) as ParsedOrderHeader;
-
-                        const payments = orderData.payments ? JSON.parse(orderData.payments) as ParsedPayment[] : [];
-
-                        const formattedTransactions = formatTransactions(orderData.transactions);
+                        const header = JSON.parse(orderData.header?.toString() || "") as ParsedOrderHeader;
+                        const payments = orderData.payments ? JSON.parse(orderData.payments?.toString() || "") as ParsedPayment[] : [];
+                        const formattedTransactions = formatTransactions(orderData.transactions?.toString() || "");
 
  
 

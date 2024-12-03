@@ -110,7 +110,7 @@ export default function LoginPage() {
         setError("");
 
         try {
-            const response = await axios.post("https://pm01.robotpos.com/api/auth/login", formData, {
+            const response = await axios.post("/api/auth/login2", formData, {
                 headers: {
                     "Content-Type": "application/json",
                 },

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
+import { executeQuery, executeSingleQuery } from '@/lib/db';
 import { formatDateTimeYMDHIS } from '@/lib/utils';
 
 interface BranchModel {
@@ -31,22 +31,15 @@ export default async function handler(
 
     try {
         // Get report query
-        const widgetQuery = `
+        const widget = await executeSingleQuery<{ ReportQuery: string }>(`
             SELECT ReportID, ReportQuery, ReportQuery2 
             FROM dm_webWidgets6 
             WHERE ReportID = '522' 
             AND IsActive = 1 
             AND (ReportQuery != '' OR ReportQuery2 != '') 
             ORDER BY ReportIndex ASC
-        `;
+        `);
 
-        const widgetResult = await execute({
-            databaseId: "3",
-            query: widgetQuery,
-            parameters: {}
-        });
-
-        const widget = widgetResult[0];
         if (!widget) {
             return res.status(400).json({
                 error: 'No data returned from query',
@@ -82,13 +75,9 @@ export default async function handler(
         reportQuery = reportQuery.replace("BranchID = BranchID IN(", "BranchID IN(");
 
         // Ana sorguyu çalıştır
-        const branchResult = await execute({
-            databaseId: "3",
-            query: reportQuery,
-            parameters: {}
-        });
+        const branchData = await executeQuery<BranchModel>(reportQuery);
 
-        if (!branchResult || branchResult.length === 0) {
+        if (!branchData || branchData.length === 0) {
             return res.status(400).json({
                 error: 'No branch data found',
                 details: {
@@ -98,7 +87,7 @@ export default async function handler(
         }
 
         // Sonuçları formatla
-        const formattedResults = branchResult.map((branch: BranchModel) => ({
+        const formattedResults = branchData.map((branch: BranchModel) => ({
             BranchID: Number(branch.BranchID) || 0,
             reportValue1: String(branch.reportValue1 || ''),    // SubeAdi
             reportValue2: Number(branch.reportValue2) || 0,    // TC (Cari dönem ciro)
@@ -114,10 +103,11 @@ export default async function handler(
         return res.status(200).json(formattedResults);
 
     } catch (error: any) {
-        console.error('Error in widget branch handler:', error);
+        console.error('Error in widgetbranch API:', error);
         return res.status(500).json({
             error: 'Internal server error',
-            details: error.message
+            details: error.message,
+            stack: error.stack
         });
     }
 }

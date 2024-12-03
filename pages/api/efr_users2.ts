@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { execute } from '@/lib/serkanset';
+import { executeQuery } from '@/lib/db';
 import { Efr_Users } from '@/types/tables';
 
 export default async function handler(
@@ -11,26 +11,20 @@ export default async function handler(
     }
 
     try {
-        const query = `
+        const users = await executeQuery<Efr_Users>(`
             SELECT 
                 UserID, 
                 UserName, 
                 UserBranchs 
             FROM Efr_users 
             WHERE IsActive = 1
-        `;
+        `);
 
-        const result = await execute({
-            databaseId: "3",
-            query: query,
-            parameters: {}
-        });
-
-        if (!result || result.length === 0) {
+        if (!users || users.length === 0) {
             return res.status(404).json({ error: 'No users found' });
         }
 
-        return res.status(200).json(result.data);
+        return res.status(200).json(users);
     } catch (error: any) {
         console.error('Error in users handler:', error);
         return res.status(500).json({ 

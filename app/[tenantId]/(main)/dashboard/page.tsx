@@ -121,7 +121,7 @@ export default function Dashboard() {
                         Özet Bilgiler
                     </h2>
                     <div className="bg-card/95 backdrop-blur-sm border border-border/60 rounded-lg px-3 py-2 text-sm text-muted-foreground text-start flex items-center gap-2 group">
-                        <div className="animate-spin duration-[8000ms] text-blue-500 group-hover:text-blue-600">
+                        <div className="duration-[8000ms] text-blue-500 group-hover:text-blue-600 [animation:spin_6s_linear_infinite]">
                             <svg
                                 className="h-4 w-4"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +140,7 @@ export default function Dashboard() {
                                 <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
                             </svg>
                         </div>
-                        <span className="font-medium">{countdown}</span>
+                        <span className="font-medium w-4 text-center">{countdown}</span>
                         <span>saniye</span>
                     </div>
                 </div>
@@ -179,7 +179,14 @@ export default function Dashboard() {
             </div>
 
             <div className="hidden lg:block w-[300px] border-l border-border/60 bg-background/95 backdrop-blur-sm">
-                <div className="h-full p-3">
+                <div className="h-full p-3 overflow-y-auto
+                [&::-webkit-scrollbar]:w-2
+                        [&::-webkit-scrollbar-thumb]:bg-gray-300/50
+                        [&::-webkit-scrollbar-thumb]:rounded-full
+                        [&::-webkit-scrollbar-track]:bg-transparent
+                        dark:[&::-webkit-scrollbar-thumb]:bg-gray-700/50
+                        hover:[&::-webkit-scrollbar-thumb]:bg-gray-300/80
+                        dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700/80">
                     <NotificationPanel />
                 </div>
             </div>

@@ -40,7 +40,15 @@ const sheetVariants = cva(
           "inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
         left: "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
         right:
-          "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
+          `inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm overflow-y-auto [&::-webkit-scrollbar]:w-2
+                        [&::-webkit-scrollbar-thumb]:bg-gray-300/50
+                        [&::-webkit-scrollbar-thumb]:rounded-full
+                        [&::-webkit-scrollbar-track]:bg-transparent
+                        dark:[&::-webkit-scrollbar-thumb]:bg-gray-700/50
+                        hover:[&::-webkit-scrollbar-thumb]:bg-gray-300/80
+                        dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700/80
+          
+          `,
       },
     },
     defaultVariants: {

@@ -9,7 +9,6 @@ type ThemeProviderProps = {
   defaultTheme?: Theme
   storageKey?: string
   enableSystem?: boolean
-  disableTransitionOnChange?: boolean
 }
 
 type ThemeProviderState = {
@@ -29,12 +28,12 @@ export function ThemeProvider({
   defaultTheme = "system",
   storageKey = "theme",
   enableSystem = true,
-  disableTransitionOnChange = false,
 }: ThemeProviderProps) {
   const [theme, setTheme] = useState<Theme>(defaultTheme)
+  const [mounted, setMounted] = useState(false)
 
-  // Move localStorage check to a useEffect
   useEffect(() => {
+    setMounted(true)
     const savedTheme = localStorage.getItem(storageKey) as Theme
     if (savedTheme) {
       setTheme(savedTheme)
@@ -42,31 +41,27 @@ export function ThemeProvider({
   }, [storageKey])
 
   useEffect(() => {
+    if (!mounted) return
+
     const root = window.document.documentElement
+    const isDark = theme === "dark" || 
+      (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
 
-    root.classList.remove("light", "dark", "blue", "red")
-
-    if (theme === "system" && enableSystem) {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light"
-      root.classList.add(systemTheme)
-    } else {
-      root.classList.add(theme)
-    }
-
-    if (disableTransitionOnChange) {
-      root.classList.add("[&_*]:!transition-none")
-      window.setTimeout(() => {
-        root.classList.remove("[&_*]:!transition-none")
-      }, 0)
-    }
-  }, [theme, enableSystem, disableTransitionOnChange])
+    requestAnimationFrame(() => {
+      root.classList.remove("light", "dark", "blue", "red")
+      root.classList.add(isDark ? "dark" : "light")
+    })
+  }, [theme, mounted])
 
   useEffect(() => {
-    localStorage.setItem(storageKey, theme)
-  }, [theme, storageKey])
+    if (mounted) {
+      localStorage.setItem(storageKey, theme)
+    }
+  }, [theme, storageKey, mounted])
+
+  if (!mounted) {
+    return null
+  }
 
   return (
     <ThemeProviderContext.Provider

@@ -55,7 +55,7 @@ const RecursiveMenuItem = ({
 
     if (!hasSubItems) {
         return (
-            <SidebarMenuItem>
+            <div className="w-full">
                 <div
                     onClick={() => handleTabChange(item.title, item.title, item.url ? `/${tenantId}/${item.url}` : undefined, item.component)}
                     className="w-full"
@@ -71,36 +71,38 @@ const RecursiveMenuItem = ({
                         )}
                     </SidebarMenuButton>
                 </div>
-            </SidebarMenuItem>
+            </div>
         );
     }
 
     return (
-        <Collapsible asChild defaultOpen={isInitiallyOpen} className="group/collapsible w-full">
-            <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={item.title} className="w-full">
-                        {item.icon && <item.icon className="h-4 w-4 flex-shrink-0" />}
-                        <span className="flex-1 truncate">{item.title}</span>
-                        <ChevronRight className="ml-auto h-4 w-4 flex-shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                </CollapsibleTrigger>
+        <div className="w-full">
+            <Collapsible asChild defaultOpen={isInitiallyOpen} className="group/collapsible w-full">
+                <div>
+                    <CollapsibleTrigger asChild>
+                        <SidebarMenuButton tooltip={item.title} className="w-full">
+                            {item.icon && <item.icon className="h-4 w-4 flex-shrink-0" />}
+                            <span className="flex-1 truncate">{item.title}</span>
+                            <ChevronRight className="ml-auto h-4 w-4 flex-shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                        </SidebarMenuButton>
+                    </CollapsibleTrigger>
 
-                <CollapsibleContent className="w-full">
-                    <SidebarMenuSub>
-                        {item.items?.map((subItem) => (
-                            <SidebarMenuSubItem key={subItem.title} className="w-full">
-                                <RecursiveMenuItem
-                                    item={subItem}
-                                    level={level + 1}
-                                    handleTabChange={handleTabChange}
-                                />
-                            </SidebarMenuSubItem>
-                        ))}
-                    </SidebarMenuSub>
-                </CollapsibleContent>
-            </SidebarMenuItem>
-        </Collapsible>
+                    <CollapsibleContent className="w-full">
+                        <SidebarMenuSub>
+                            {item.items?.map((subItem) => (
+                                <div key={subItem.title} className="w-full">
+                                    <RecursiveMenuItem
+                                        item={subItem}
+                                        level={level + 1}
+                                        handleTabChange={handleTabChange}
+                                    />
+                                </div>
+                            ))}
+                        </SidebarMenuSub>
+                    </CollapsibleContent>
+                </div>
+            </Collapsible>
+        </div>
     );
 };
 
@@ -162,11 +164,12 @@ export const NavMain = ({ items }: { items: NavItem[] }) => {
             <SidebarGroupLabel>Platform</SidebarGroupLabel>
             <SidebarMenu className="w-full">
                 {filteredItems.map((item) => (
-                    <RecursiveMenuItem
-                        key={item.title}
-                        item={item}
-                        handleTabChange={handleTabChange}
-                    />
+                    <div key={item.title} className="w-full">
+                        <RecursiveMenuItem
+                            item={item}
+                            handleTabChange={handleTabChange}
+                        />
+                    </div>
                 ))}
             </SidebarMenu>
         </SidebarGroup>

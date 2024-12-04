@@ -86,7 +86,7 @@ export function OrderDetailDialog({ isOpen, onOpenChange, orderDetail, loading }
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <DialogTitle className="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 dark:from-indigo-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
-                                                    Sipariş #{header.OrderID}
+                                                {loading || !orderDetail ? 'Sipariş Detayı' : `Sipariş #${orderDetail?.header?.OrderID || ''}`}
                                                 </DialogTitle>
                                                 <div className="flex items-center gap-2 mt-2 text-sm">
                                                     <span className="font-medium text-slate-600 dark:text-slate-300">{header.OrderKey}</span>

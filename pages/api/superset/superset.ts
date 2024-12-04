@@ -1,4 +1,4 @@
-import { CACHE_CONSTANTS } from "./constants";
+import { CACHE_CONSTANTS } from "../constants";
 import type {
     SuperSetLoginResponse,
     SuperSetCrsfResponse,
@@ -24,8 +24,10 @@ export class Superset {
     private tokenExpiry: number = 0;
     private static instance: Superset;
     private readonly MAX_RETRIES = 3;
-    private readonly TOKEN_REFRESH_THRESHOLD = 300000; // 5 minutes in milliseconds
+    private readonly TOKEN_REFRESH_THRESHOLD = 300000;
+    private readonly GUEST_TOKEN_EXPIRY = 3600000; // 1 hour
     private readonly DATABASE_CACHE = new Map<string, CacheEntry<SuperSetDatabaseResponse>>();
+    private readonly GUEST_TOKEN_CACHE = new Map<string, { token: string; expiresAt: number }>();
 
     private constructor() {
         this.baseUrl = process.env.SUPERSET_BASE_URL || '';
@@ -43,7 +45,6 @@ export class Superset {
 
     private async fetchWithRetry(url: string, options: RequestInit): Promise<Response> {
         let lastError: Error | null = null;
-
         for (let i = 0; i < this.MAX_RETRIES; i++) {
             try {
                 const axiosConfig: AxiosRequestConfig = {
@@ -75,7 +76,7 @@ export class Superset {
                     headers: new Headers(axiosResponse.headers as any)
                 });
 
-                if (!response.ok && response.status === 401) {
+                if (response.status === 401) {
                     await this.renewTokens();
                     continue;
                 }
@@ -92,7 +93,7 @@ export class Superset {
         throw lastError || new Error('Request failed after max retries');
     }
 
-    private async getCsrfToken(): Promise<void> {
+    public async getCsrfToken(): Promise<void> {
         try {
             const response = await this.fetchWithRetry(
                 `${this.baseUrl}/api/v1/security/csrf_token`,
@@ -107,6 +108,59 @@ export class Superset {
             }
         } catch (error) {
             console.error('CSRF token error:', error);
+            throw error;
+        }
+    }
+
+    public async getGuestToken(dashboardId: string, forceRefresh: boolean = false): Promise<string> {
+        try {
+            const now = Date.now();
+            const cached = this.GUEST_TOKEN_CACHE.get(dashboardId);
+            if (!forceRefresh && cached && cached.expiresAt > now) {
+                return cached.token;
+            }
+
+            await this.createTokens();
+
+            const response = await this.fetchWithRetry(`${this.baseUrl}/api/v1/security/guest_token/`, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.token}`,
+                    'X-CSRFToken': this.csrfToken,
+                    'Referer': this.baseUrl,
+                    'Origin': this.baseUrl
+                },
+                body: JSON.stringify({
+                    resources: [{ 
+                        id: dashboardId,
+                        type: "dashboard"
+                    }],
+                    rls: [{ clause: "1=1" }],
+                    user: {
+                        first_name: "admin",
+                        last_name: "admin",
+                        username: "admin"
+                    }
+                })
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to obtain guest token');
+            }
+    
+            const data = await response.json();
+            
+            // Cache the token
+            this.GUEST_TOKEN_CACHE.set(dashboardId, {
+                token: data.token,
+                expiresAt: now + this.GUEST_TOKEN_EXPIRY
+            });
+
+            return data.token;
+        } catch (error) {
+            console.error('Error getting guest token:', error);
             throw error;
         }
     }
@@ -133,7 +187,7 @@ export class Superset {
 
             if (data.access_token) {
                 this.token = data.access_token;
-                this.tokenExpiry = Date.now() + 3600000; // 1 hour from now
+                this.tokenExpiry = Date.now() + 3600000;
             } else {
                 throw new Error('Access token not found in response');
             }
@@ -158,22 +212,19 @@ export class Superset {
         }
     }
 
-    private generateClientId(): string {
-        return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
-    }
 
     public async executeQuery<T>(
         sql: string,
         options: SuperSetQueryOptions = {}
     ): Promise<SuperSetExecuteResponse<T> | SuperSetErrorResponse> {
         try {
-            await this.createTokens();
             const defaultOptions = {
                 database_id: 3,
                 sql: sql
             };
 
             const mergedOptions = { ...defaultOptions, ...options };
+            await this.createTokens();
 
             const response = await this.fetchWithRetry(
                 `${this.baseUrl}/api/v1/sqllab/execute`,
@@ -207,7 +258,6 @@ export class Superset {
             if (cached && (Date.now() - cached.timestamp < CACHE_CONSTANTS.DATABASE.TTL)) {
                 return cached.data;
             }
-
             await this.createTokens();
 
             const response = await this.fetchWithRetry(

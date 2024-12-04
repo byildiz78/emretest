@@ -24,10 +24,8 @@ async function copyFiles() {
         path.join('.next', 'standalone', '.env')
       );
     } catch (err) {
-      console.log('.env dosyası bulunamadı, bu adım atlanıyor.');
     }
 
-    console.log('Tüm dosyalar başarıyla kopyalandı!');
   } catch (err) {
     console.error('Hata:', err);
     process.exit(1);

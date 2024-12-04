@@ -9,12 +9,16 @@ import { useTabStore } from "@/stores/tab-store"
 import { useState, useMemo } from "react"
 
 interface NavItem {
-    title: string
-    url?: string
-    icon?: LucideIcon
-    isActive?: boolean
-    expanded?: boolean
-    items?: NavItem[]
+    title: string;
+    icon?: LucideIcon;
+    isActive?: boolean;
+    expanded?: boolean;
+    securityLevel?: string;
+    displayOrder?: number;
+    url?: string;
+    component?: React.ComponentType<any>;
+    items?: NavItem[];
+    onClick?: () => void;
 }
 
 const ReportItemWithTooltip = ({ title, icon: Icon }: { title: string; icon?: LucideIcon }) => (
@@ -42,7 +46,7 @@ const RecursiveMenuItem = ({
 }: {
     item: NavItem;
     level?: number;
-    handleTabChange: (id: string, title: string, url?: string) => void;
+    handleTabChange: (id: string, title: string, url?: string, component?: React.ComponentType<any>) => void;
 }) => {
     const params = useParams();
     const tenantId = params?.tenantId;
@@ -53,7 +57,7 @@ const RecursiveMenuItem = ({
         return (
             <SidebarMenuItem>
                 <div
-                    onClick={() => handleTabChange(item.title, item.title, `/${tenantId}/${item.url}`)}
+                    onClick={() => handleTabChange(item.title, item.title, item.url ? `/${tenantId}/${item.url}` : undefined, item.component)}
                     className="w-full"
                 >
                     <SidebarMenuButton className="w-full group hover:bg-accent hover:text-accent-foreground">
@@ -104,7 +108,7 @@ export const NavMain = ({ items }: { items: NavItem[] }) => {
     const { addTab, setActiveTab, tabs } = useTabStore()
     const [searchQuery, setSearchQuery] = useState("");
 
-    const handleTabChange = (id: string, title: string, url?: string) => {
+    const handleTabChange = (id: string, title: string, url?: string, component?: React.ComponentType<any>) => {
         if (tabs.some(tab => tab.id === id)) {
             setActiveTab(id);
         } else {
@@ -112,7 +116,13 @@ export const NavMain = ({ items }: { items: NavItem[] }) => {
                 id,
                 title,
                 url,
-                lazyComponent: () => import(`@/app/[tenantId]/(main)/${url}/page`)
+                lazyComponent: component 
+                    ? async () => ({ default: component })
+                    : async () => {
+                        const parts = url?.split('/').filter(Boolean) || [];
+                        const cleanUrl = parts.slice(1).join('/');
+                        return import(`@/app/[tenantId]/(main)/${cleanUrl}/page`);
+                    }
             });
         }
     }

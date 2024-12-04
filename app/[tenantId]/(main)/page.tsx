@@ -10,9 +10,6 @@ const DashboardPage = memo(dynamic(() => import('./dashboard/page'), {
     loading: () => <div>Loading...</div>,
 }));
 
-const DashboardMssqlPage = memo(dynamic(() => import('./dashboard-mssql/page'), {
-    loading: () => <div>Loading...</div>,
-}));
 
 export default function Home() {
     const { tabs, activeTab, setActiveTab, removeTab } = useTabStore();
@@ -44,7 +41,7 @@ export default function Home() {
                                 onValueChange={setActiveTab}
                                 className="h-full flex flex-col"
                             >
-                                <TabsList className="w-full justify-start bg-background/80 backdrop-blur-sm shadow-sm border-b-2 border-border/30">
+                                <TabsList className="w-full justify-start">
                                     <TabsTrigger value="dashboard">
                                         Dashboard
                                     </TabsTrigger>
@@ -63,12 +60,8 @@ export default function Home() {
                                     <div style={{ display: activeTab === "dashboard" ? "block" : "none", height: "100%" }}>
                                         <DashboardPage />
                                     </div>
-                                    <div style={{ display: activeTab === "dashboard-mssql" ? "block" : "none", height: "100%" }}>
-                                        <DashboardMssqlPage />
-                                    </div>
                                     {tabs.map((tab) => {
                                         const TabComponent = dynamic(tab.lazyComponent, {
-                                            loading: () => <div>Loading...</div>,
                                             ssr: false
                                         });
                                         return (

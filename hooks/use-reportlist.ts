@@ -10,15 +10,11 @@ export function useReport<T = any>() {
         try {
             setIsLoading(true);
             setError(null);
-
-            console.log('Fetching report data...');
             const response = await axios.get('/api/webreportlist', {
                 headers: {
                     'Content-Type': 'application/json',
                 }
             });
-
-            console.log('API Response:', response);
 
             if (response.status !== 200) {
                 throw new Error(response.data.message || 'Query execution failed');

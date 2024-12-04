@@ -32,7 +32,7 @@ export function TeamSwitcher({
     const [activeTeam, setActiveTeam] = React.useState(teams[0])
     return (
         <SidebarMenu>
-            <SidebarMenuItem className="bg-blue-200">
+            <SidebarMenuItem className="bg-sky-100/80 dark:bg-indigo-500/20 hover:bg-sky-200/90 dark:hover:bg-indigo-500/30 rounded-xl transition-all duration-200">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton

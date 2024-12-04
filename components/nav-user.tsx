@@ -57,7 +57,7 @@ export function NavUser({
     }
     return (
         <SidebarMenu>
-            <SidebarMenuItem>
+            <SidebarMenuItem className="bg-blue-200">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton

@@ -68,14 +68,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         },
         teams: [
             {
-                name: "Pide By Pide",
+                name: "robotPOS Enterprise",
                 logo: GalleryVerticalEnd,
-                plan: "Enterprise",
+                plan: "data manager",
+                className: "bg-blue-200",
             },
             {
-                name: "HD İskender",
+                name: "robotPOS Operation",
                 logo: AudioWaveform,
-                plan: "Startup",
+                plan: "operation manager",
+                className: "bg-blue-200",
             },
         ],
         projects: [],

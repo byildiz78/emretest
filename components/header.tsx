@@ -415,7 +415,7 @@ export default function Header() {
                 <Button
                   onClick={applyFilters}
                   className={cn(
-                    "bg-primary/90 hover:bg-primary shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]",
+                    "bg-blue-200 hover:bg-blue-300 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] text-gray-900",
                     "hidden sm:flex"
                   )}
                 >
@@ -426,7 +426,7 @@ export default function Header() {
                   onClick={applyFilters}
                   size="icon"
                   className={cn(
-                    "bg-primary/90 hover:bg-primary shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]",
+                    "bg-blue-200 hover:bg-blue-300 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] text-gray-900",
                     "flex sm:hidden"
                   )}
                   title={t.apply}
@@ -708,7 +708,7 @@ export default function Header() {
 
             <Button
               onClick={applyFilters}
-              className="w-full mt-2 bg-primary/90 hover:bg-primary shadow-md hover:shadow-lg transition-all duration-300"
+              className="w-full mt-2 bg-blue-200 hover:bg-blue-300 shadow-md hover:shadow-lg transition-all duration-300 text-gray-900"
             >
               {t.apply}
             </Button>

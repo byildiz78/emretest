@@ -72,6 +72,20 @@ export default function Dashboard() {
         return () => clearInterval(intervalId);
     }, [fetchData]);
 
+    // Countdown timer effect
+    useEffect(() => {
+        const countdownInterval = setInterval(() => {
+            setCountdown((prevCount) => {
+                if (prevCount <= 1) {
+                    return REFRESH_INTERVAL / 1000;
+                }
+                return prevCount - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(countdownInterval);
+    }, []);
+
     useEffect(() => {
         const fetchWidgetsData = async () => {
             try {
@@ -104,10 +118,30 @@ export default function Dashboard() {
                 <div className="flex justify-between items-center py-3 px-3 bg-background/95 backdrop-blur-sm border-b border-border/60">
                     <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                         <Store className="h-5 w-5" />
-                        Toplam Tutarlar
+                        Özet Bilgiler
                     </h2>
-                    <div className="bg-card/95 backdrop-blur-sm border border-border/60 rounded-lg px-3 py-2 text-sm text-muted-foreground text-start">
-                        Yenileme: {countdown} saniye
+                    <div className="bg-card/95 backdrop-blur-sm border border-border/60 rounded-lg px-3 py-2 text-sm text-muted-foreground text-start flex items-center gap-2 group">
+                        <div className="animate-spin duration-[8000ms] text-blue-500 group-hover:text-blue-600">
+                            <svg
+                                className="h-4 w-4"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M5 22h14" />
+                                <path d="M5 2h14" />
+                                <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+                                <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+                            </svg>
+                        </div>
+                        <span className="font-medium">{countdown}</span>
+                        <span>saniye</span>
                     </div>
                 </div>
 
@@ -136,7 +170,7 @@ export default function Dashboard() {
                         >
                             <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                                 <Store className="h-5 w-5" />
-                                Şube Bazlı Tutarlar
+                                Cirolar
                             </h2>
                             <BranchList />
                         </motion.div>

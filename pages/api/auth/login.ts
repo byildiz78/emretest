@@ -39,8 +39,6 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    const startTime = performance.now();
-    console.log('Login handler started');
 
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Method not allowed' });
@@ -61,7 +59,6 @@ export default async function handler(
             }
         });
         const user = response[0]
-        console.log(user)
         if (user) {
             let tokenPayload = {
                 username: user.UserName,

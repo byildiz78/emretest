@@ -178,3 +178,26 @@ export type OrderDetail = {
 export type Branch = {
     BranchID: string | number;
 }
+
+export type SupersetDashboard = {
+    AutoID: number;
+    DashboardID: string;
+    Title: string;
+    Standalone: number;
+    ExtraParams: Record<string, string>;
+    Icon: string;
+}
+
+export type ChatBotRole = 'system' | 'user' | 'assistant' | 'function';
+
+export type ChatBot = {
+    AutoID: number;
+    ChatBotID: string;
+    ChatbotQuery: string;
+    ChatbotQueryParams: string;
+    ChatbotRole: ChatBotRole;
+    ChatbotContent: string;
+    AnalysisTitle: string;
+    Icon: string;
+    FunctionName?: string;
+}

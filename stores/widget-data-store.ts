@@ -14,13 +14,11 @@ export const useWidgetDataStore = create<WebWidgetDataState>((set) => ({
     widgetDatas: [],
     branchDatas: [],
     setWidgetDatas: (widgetDatas: WebWidgetData[]) => {
-        console.log('Setting widget data:', widgetDatas);
         set(() => ({
             widgetDatas: widgetDatas
         }));
     },
     setBranchDatas: (branchDatas: WebWidgetData[]) => {
-        console.log('Setting branch data:', branchDatas);
         set(() => ({
             branchDatas: branchDatas
         }));

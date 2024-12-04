@@ -25,16 +25,19 @@ import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
 import { useReport } from "@/hooks/use-reportlist";
 import { WebReportGroup } from "@/types/tables";
+import { SupersetDashboard } from "@/types/tables";
 import * as AllIcons from "lucide-react";
+import SupersetDashboardComponent from "@/app/[tenantId]/(main)/superset/dashboard";
 
 interface NavItem {
     title: string;
-    icon: LucideIcon;
+    icon?: LucideIcon;
     isActive?: boolean;
     expanded?: boolean;
     securityLevel?: string;
     displayOrder?: number;
     url?: string;
+    component?: React.ComponentType<any>;
     items?: NavItem[];
     onClick?: () => void;
 }
@@ -59,6 +62,29 @@ const getDynamicIcon = (iconName: string): LucideIcon => {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { data: reportData, isLoading, execute } = useReport<RawReportData[]>();
+    const [supersetMenuItems, setSupersetMenuItems] = React.useState<SupersetDashboard[]>([]);
+
+    const fetchSupersetMenuItems = React.useCallback(async () => {
+        try {
+            const response = await fetch('/api/superset/superset_menu_items');
+            const data = await response.json();
+            setSupersetMenuItems(data);
+        } catch (error) {
+            console.error('Error fetching superset menu items:', error);
+        }
+    }, []);
+
+    const getSupersetNavItems = React.useCallback((items: SupersetDashboard[]): NavItem[] => {
+        return items
+            .filter(item => item.DashboardID)
+            .map(item => ({
+                title: item.Title,
+                icon: getDynamicIcon(item.Icon),
+                component: () => (
+                    <SupersetDashboardComponent dashboardId={item.DashboardID} standalone={item.Standalone} extraParams={item.ExtraParams} />
+                )
+            }));
+    }, []);
 
     const baseData = React.useMemo(() => ({
         user: {
@@ -83,49 +109,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         projects: [],
     }), []);
 
-    const staticNavItems: NavItem[] = React.useMemo(() => [
+    const staticNavItems = React.useMemo(() => [
         {
             title: "Dashboard",
             icon: LayoutDashboard,
             isActive: true,
             expanded: true,
-            items: [
-                {
-                    title: "Ürün Satış Analizleri",
-                    url: "users",
-                    icon: BarChart3,
-                },
-                {
-                    title: "Ürün Bazlı Satış Dashboard",
-                    url: "userList",
-                    icon: ShoppingCart,
-                },
-                {
-                    title: "Cirolar Özet",
-                    url: "userList",
-                    icon: PieChart,
-                },
-                {
-                    title: "Mobil",
-                    url: "userList",
-                    icon: Smartphone,
-                },
-                {
-                    title: "Günlük-Haftalık-Aylık Satış Analizi",
-                    url: "userList",
-                    icon: Calendar,
-                },
-                {
-                    title: "Kazanç Raporları",
-                    url: "userList",
-                    icon: DollarSign,
-                },
-                {
-                    title: "İptal İşlemleri",
-                    url: "userList",
-                    icon: XCircle,
-                },
-            ],
+            items: getSupersetNavItems(supersetMenuItems),
         },
         {
             title: "AI",
@@ -135,16 +125,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             items: [
                 {
                     title: "Chatbot",
-                    url: "userList",
+                    url: "chatbot",
                     icon: Command,
-                },
+                }
             ],
         },
-    ], []);
-
-    React.useEffect(() => {
-        execute();
-    }, [execute]);
+    ], [supersetMenuItems, getSupersetNavItems]);
 
     const processReports = React.useCallback((rawData: RawReportData[]): WebReportGroup[] => {
         if (!Array.isArray(rawData) || !rawData.length) return [];
@@ -216,6 +202,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         const reportNavItems = getReportNavItems(reportData);
         return [...staticNavItems, ...reportNavItems];
     }, [reportData, staticNavItems, getReportNavItems]);
+
+    React.useEffect(() => {
+        execute();
+        fetchSupersetMenuItems();
+    }, [execute, fetchSupersetMenuItems]);
 
     return (
         <Sidebar collapsible="icon" {...props}>

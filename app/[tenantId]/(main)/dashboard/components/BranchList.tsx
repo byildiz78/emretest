@@ -47,9 +47,7 @@ export default function BranchList() {
                     if (!branchData) return null;
                     const transformedData = transformBranchData(branchData);
                     return (
-                        <BranchCard data={transformedData} index={index} maxValue={maxValue} />
-
-                        
+                        <BranchCard key={branchData.BranchID} data={transformedData} index={index} maxValue={maxValue} />
                     );
                 })}
             </div>

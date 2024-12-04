@@ -5,14 +5,14 @@ import Header from "@/components/header";
 import { useTabStore } from "@/stores/tab-store";
 import dynamic from 'next/dynamic';
 import { memo } from 'react';
+import { Home as HomeIcon } from 'lucide-react';
 
 const DashboardPage = memo(dynamic(() => import('./dashboard/page'), {
     loading: () => <div>Loading...</div>,
 }));
 
-
-export default function Home() {
-    const { tabs, activeTab, setActiveTab, removeTab } = useTabStore();
+export default function MainPage() {
+    const { tabs, activeTab, setActiveTab, removeTab, removeAllTabs } = useTabStore();
 
     const handleCloseTab = (tabId: string) => {
         if (activeTab === tabId) {
@@ -41,8 +41,8 @@ export default function Home() {
                                 onValueChange={setActiveTab}
                                 className="h-full flex flex-col"
                             >
-                                <TabsList className="w-full justify-start">
-                                    <TabsTrigger value="dashboard">
+                                <TabsList className="w-full justify-start" onCloseAll={removeAllTabs}>
+                                    <TabsTrigger value="dashboard" icon={<HomeIcon className="w-4 h-4" />}>
                                         Dashboard
                                     </TabsTrigger>
                                     {tabs.map((tab) => (

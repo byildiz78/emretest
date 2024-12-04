@@ -49,9 +49,18 @@ const formatNumberIntl = (value) => {
     if (value === null || value === undefined) return '0';
     if (typeof value === 'string') {
         const num = parseFloat(value);
-        return isNaN(num) ? value : num.toLocaleString();
+        return isNaN(num) ? value : num.toLocaleString('tr-TR');
     }
-    return value.toLocaleString();
+    return value.toLocaleString('tr-TR');
+};
+
+const formatMainValue = (value) => {
+    if (value === null || value === undefined) return '0';
+    if (typeof value === 'string') {
+        const num = parseFloat(value);
+        return isNaN(num) ? value : Math.floor(num).toLocaleString('tr-TR', { maximumFractionDigits: 0 });
+    }
+    return Math.floor(value).toLocaleString('tr-TR', { maximumFractionDigits: 0 });
 };
 
 export default function EnhancedWidgetCard({
@@ -165,7 +174,7 @@ export default function EnhancedWidgetCard({
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.5 }}
                 >
-                    {formatNumberIntl(widgetData.reportValue1)}
+                    {formatMainValue(widgetData.reportValue1)}
                 </motion.div>
 
                 {/* Secondary Value Tag */}

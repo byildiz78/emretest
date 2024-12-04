@@ -14,6 +14,7 @@ interface TabStore {
   renderedComponents: { [key: string]: React.ReactNode };
   addTab: (tab: Tab) => void;
   removeTab: (id: string) => void;
+  removeAllTabs: () => void;
   setActiveTab: (id: string) => void;
   setRenderedComponent: (id: string, component: React.ReactNode) => void;
 }
@@ -34,6 +35,12 @@ export const useTabStore = create<TabStore>((set) => ({
         ...state.renderedComponents,
         [id]: undefined,
       },
+    })),
+  removeAllTabs: () =>
+    set((state) => ({
+      tabs: [],
+      activeTab: 'dashboard',
+      renderedComponents: {},
     })),
   setActiveTab: (id) => set({ activeTab: id }),
   setRenderedComponent: (id, component) =>

@@ -108,11 +108,21 @@ export default async function handler(
                 max_tokens: 2000
             });
 
+            let firstMessageSent = false;
             // Stream the response immediately
             for await (const part of response) {
                 const content = part.choices[0]?.delta?.content || '';
                 if (content) {
-                    res.write(`data: ${JSON.stringify({ content })}\n\n`);
+                    // Send both content and raw data in the first message
+                    if (!firstMessageSent) {
+                        res.write(`data: ${JSON.stringify({ 
+                            content,
+                            rawData: queryResult 
+                        })}\n\n`);
+                        firstMessageSent = true;
+                    } else {
+                        res.write(`data: ${JSON.stringify({ content })}\n\n`);
+                    }
                     // Ensure the content is sent immediately
                     if (res.flush) res.flush();
                 }

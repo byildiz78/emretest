@@ -88,8 +88,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     const baseData = React.useMemo(() => ({
         user: {
-            name: "shadcn",
-            email: "m@example.com",
+            name: "robotPOS",
+            email: "destek@robotpos.com",
             avatar: "/avatars/shadcn.jpg",
         },
         teams: [
@@ -198,9 +198,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     const navMain = React.useMemo(() => {
         if (!reportData) return staticNavItems;
-        
-        const reportNavItems = getReportNavItems(reportData);
-        return [...staticNavItems, ...reportNavItems];
+        return [...staticNavItems, ...getReportNavItems(reportData)];
     }, [reportData, staticNavItems, getReportNavItems]);
 
     React.useEffect(() => {
@@ -209,30 +207,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }, [execute, fetchSupersetMenuItems]);
 
     return (
-        <Sidebar collapsible="icon" {...props}>
-            <SidebarHeader className="border-b">
+        <Sidebar {...props}>
+            <SidebarHeader>
                 <TeamSwitcher teams={baseData.teams} />
             </SidebarHeader>
-            <SidebarContent className="space-y-8">
-                {isLoading ? (
-                    <div className="flex items-center justify-center p-4">
-                        <div className="text-sm text-muted-foreground">Yükleniyor...</div>
-                    </div>
-                ) : (
-                    <>
-                        <NavMain 
-                            items={navMain} 
-                        />
-                        {baseData.projects.length > 0 && (
-                            <NavProjects projects={baseData.projects} />
-                        )}
-                    </>
-                )}
+            <SidebarContent>
+                <nav className="flex flex-col gap-4">
+                    <NavMain items={navMain} />
+                </nav>
             </SidebarContent>
-            <SidebarFooter className="border-t">
+            <SidebarFooter>
                 <NavUser user={baseData.user} />
             </SidebarFooter>
-            <SidebarRail />
         </Sidebar>
     );
 }

@@ -78,7 +78,7 @@ export function TeamSwitcher({
                             <div className="flex size-6 items-center justify-center rounded-md border bg-background">
                                 <Plus className="size-4" />
                             </div>
-                            <div className="font-medium text-muted-foreground">Add team</div>
+                            <div className="font-medium text-muted-foreground">Modül Ekle</div>
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

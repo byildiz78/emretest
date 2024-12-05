@@ -34,7 +34,9 @@ export const formatDateTimeDMY = (date: Date | undefined) => {
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-    return `${day}-${month}-${year}`;
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
 }
 
 export const formatDateTimeYMDHIS = (date: Date | undefined) => {
@@ -49,6 +51,20 @@ export const formatDateTimeYMDHIS = (date: Date | undefined) => {
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
+
+export const formatDateTimeYMDHI = (date: Date | undefined) => {
+    if (!date) return '';
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
+}
+
+
 
 export const formatNumber = (
     value: number | string | null | undefined,

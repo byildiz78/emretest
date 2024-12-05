@@ -3,7 +3,7 @@
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { cn, formatDateTimeDMY } from "../lib/utils";
+import { cn, formatDateTimeYMDHI } from "../lib/utils";
 import {
   Calendar as CalendarIcon,
   ChevronDown,
@@ -14,7 +14,6 @@ import {
   Bell,
   Settings,
   User,
-  X,
   Trash2,
   CheckCircle2,
   Filter,
@@ -61,6 +60,7 @@ import {
 } from "date-fns";
 import { Efr_Branches } from "../types/tables";
 import { BranchProvider } from "../providers/branch-provider";
+import { TimePicker } from "./ui/time-picker";
 
 const translations = {
   tr: {
@@ -86,6 +86,7 @@ const translations = {
     thisYear: "Bu Yıl",
     clearSelected: "Seçimleri Temizle",
     customRange: "Özel Aralık",
+    cancel: "İptal",
   },
   en: {
     startDate: "Start Date",
@@ -110,6 +111,7 @@ const translations = {
     thisYear: "This Year",
     clearSelected: "Clear Selected",
     customRange: "Custom Range",
+    cancel: "Cancel",
   },
   ar: {
     startDate: "تاريخ البدء",
@@ -134,6 +136,7 @@ const translations = {
     thisYear: "هذه السنة",
     clearSelected: "مسح المحدد",
     customRange: "النطاق المخصص",
+    cancel: "إلغاء",
   },
 };
 
@@ -142,27 +145,40 @@ export default function Header() {
   const [desktopBranchOpen, setDesktopBranchOpen] = useState(false);
   const [mobileBranchOpen, setMobileBranchOpen] = useState(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
-  const { selectedFilter, setFilter } = useFilterStore();
+  const { selectedFilter, setFilter, handleStartDateSelect, handleEndDateSelect } = useFilterStore();
   const [pendingBranches, setPendingBranches] = useState(
     selectedFilter.selectedBranches
   );
 
-  const [selectedStartDate, setSelectedStartDate] = useState<Date | undefined>(
-    selectedFilter.date.from
-  );
-  const [selectedEndDate, setSelectedEndDate] = useState<Date | undefined>(
-    selectedFilter.date.to
-  );
+  const [tempStartDate, setTempStartDate] = useState<Date | undefined>(selectedFilter.date.from);
+  const [tempEndDate, setTempEndDate] = useState<Date | undefined>(selectedFilter.date.to);
+  const [tempStartTime, setTempStartTime] = useState<string>("00:00");
+  const [tempEndTime, setTempEndTime] = useState<string>("23:59");
+
   const { setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const t = translations[language as keyof typeof translations];
 
   const applyFilters = () => {
+    if (tempStartDate) {
+      const [hours, minutes] = tempStartTime.split(':');
+      const newStartDate = new Date(tempStartDate);
+      newStartDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      handleStartDateSelect(newStartDate);
+    }
+
+    if (tempEndDate) {
+      const [hours, minutes] = tempEndTime.split(':');
+      const newEndDate = new Date(tempEndDate);
+      newEndDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+      handleEndDateSelect(newEndDate);
+    }
+
     setFilter({
       ...selectedFilter,
       date: {
-        from: selectedStartDate,
-        to: selectedEndDate,
+        from: tempStartDate,
+        to: tempEndDate,
       },
       selectedBranches: pendingBranches,
     });
@@ -177,45 +193,45 @@ export default function Header() {
     const tomorrow = addDays(new Date(), 1);
     switch (value) {
       case "today":
-        setSelectedStartDate(today);
-        setSelectedEndDate(tomorrow);
+        setTempStartDate(today);
+        setTempEndDate(tomorrow);
         break;
       case "yesterday":
         const yesterday = subDays(today, 1);
-        setSelectedStartDate(yesterday);
-        setSelectedEndDate(today);
+        setTempStartDate(yesterday);
+        setTempEndDate(today);
         break;
       case "thisWeek":
-        setSelectedStartDate(startOfWeek(today, { weekStartsOn: 1 }));
-        setSelectedEndDate(endOfWeek(today, { weekStartsOn: 1 }));
+        setTempStartDate(startOfWeek(today, { weekStartsOn: 1 }));
+        setTempEndDate(endOfWeek(today, { weekStartsOn: 1 }));
         break;
 
       case "lastWeek":
         const lastWeek = subWeeks(today, 1);
-        setSelectedStartDate(startOfWeek(lastWeek, { weekStartsOn: 1 }));
-        setSelectedEndDate(endOfWeek(lastWeek, { weekStartsOn: 1 }));
+        setTempStartDate(startOfWeek(lastWeek, { weekStartsOn: 1 }));
+        setTempEndDate(endOfWeek(lastWeek, { weekStartsOn: 1 }));
         break;
       case "thisMonth":
-        setSelectedStartDate(startOfMonth(today));
-        setSelectedEndDate(endOfMonth(today));
+        setTempStartDate(startOfMonth(today));
+        setTempEndDate(endOfMonth(today));
         break;
       case "lastMonth":
         const lastMonth = subMonths(today, 1);
-        setSelectedStartDate(startOfMonth(lastMonth));
-        setSelectedEndDate(endOfMonth(lastMonth));
+        setTempStartDate(startOfMonth(lastMonth));
+        setTempEndDate(endOfMonth(lastMonth));
         break;
       case "thisYear":
-        setSelectedStartDate(startOfYear(today));
-        setSelectedEndDate(endOfYear(today));
+        setTempStartDate(startOfYear(today));
+        setTempEndDate(endOfYear(today));
         break;
       case "lastYear":
         const lastYear = subYears(today, 1);
-        setSelectedStartDate(startOfYear(lastYear));
-        setSelectedEndDate(endOfYear(lastYear));
+        setTempStartDate(startOfYear(lastYear));
+        setTempEndDate(endOfYear(lastYear));
         break;
       case "lastSevenDays":
-        setSelectedStartDate(subDays(today, 7));
-        setSelectedEndDate(today);
+        setTempStartDate(subDays(today, 7));
+        setTempEndDate(today);
         break;
       default:
         break;
@@ -254,12 +270,12 @@ export default function Header() {
                       "w-full justify-start text-left font-normal bg-background/60 backdrop-blur-sm",
                       "border-border/50 shadow-sm hover:shadow-md transition-all duration-300",
                       "hover:border-border hover:bg-background/80",
-                      !selectedStartDate && "text-muted-foreground"
+                      !tempStartDate && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedStartDate
-                      ? formatDateTimeDMY(selectedStartDate)
+                    {tempStartDate
+                      ? formatDateTimeYMDHI(tempStartDate)
                       : t.startDate}
                   </Button>
                 </PopoverTrigger>
@@ -267,16 +283,39 @@ export default function Header() {
                   className="w-auto p-0 bg-background/95 backdrop-blur-md border-border/50 shadow-xl"
                   align="start"
                 >
-                  <Calendar
-                    mode="single"
-                    selected={selectedStartDate}
-                    onSelect={setSelectedStartDate}
-                    initialFocus
-                    disabled={(date: Date) =>
-                      selectedEndDate ? date > selectedEndDate : false
-                    }
-                    className="rounded-md border-border/50"
-                  />
+                  <div className="p-4 space-y-4">
+                    <Calendar
+                      mode="single"
+                      selected={tempStartDate}
+                      onSelect={(date) => {
+                        if (date) {
+                          const [hours, minutes] = tempStartTime.split(':');
+                          const newDate = new Date(date);
+                          newDate.setHours(parseInt(hours), parseInt(minutes), 0);
+                          setTempStartDate(newDate);
+                        } else {
+                          setTempStartDate(undefined);
+                        }
+                      }}
+                      initialFocus
+                      disabled={(date: Date) =>
+                        tempEndDate ? date > tempEndDate : false
+                      }
+                      className="rounded-md border-border/50"
+                    />
+                    <TimePicker
+                      value={tempStartTime}
+                      onChange={(value) => {
+                        setTempStartTime(value);
+                        if (tempStartDate) {
+                          const [hours, minutes] = value.split(':');
+                          const newDate = new Date(tempStartDate);
+                          newDate.setHours(parseInt(hours), parseInt(minutes), 0);
+                          setTempStartDate(newDate);
+                        }
+                      }}
+                    />
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
@@ -290,12 +329,12 @@ export default function Header() {
                       "w-full justify-start text-left font-normal bg-background/60 backdrop-blur-sm",
                       "border-border/50 shadow-sm hover:shadow-md transition-all duration-300",
                       "hover:border-border hover:bg-background/80",
-                      !selectedEndDate && "text-muted-foreground"
+                      !tempEndDate && "text-muted-foreground"
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {selectedEndDate
-                      ? formatDateTimeDMY(selectedEndDate)
+                    {tempEndDate
+                      ? formatDateTimeYMDHI(tempEndDate)
                       : t.endDate}
                   </Button>
                 </PopoverTrigger>
@@ -303,16 +342,39 @@ export default function Header() {
                   className="w-auto p-0 bg-background/95 backdrop-blur-md border-border/50 shadow-xl"
                   align="start"
                 >
-                  <Calendar
-                    mode="single"
-                    selected={selectedEndDate}
-                    onSelect={setSelectedEndDate}
-                    initialFocus
-                    disabled={(date: Date) =>
-                      selectedStartDate ? date < selectedStartDate : false
-                    }
-                    className="rounded-md border-border/50"
-                  />
+                  <div className="p-4 space-y-4">
+                    <Calendar
+                      mode="single"
+                      selected={tempEndDate}
+                      onSelect={(date) => {
+                        if (date) {
+                          const [hours, minutes] = tempEndTime.split(':');
+                          const newDate = new Date(date);
+                          newDate.setHours(parseInt(hours), parseInt(minutes), 0);
+                          setTempEndDate(newDate);
+                        } else {
+                          setTempEndDate(undefined);
+                        }
+                      }}
+                      initialFocus
+                      disabled={(date: Date) =>
+                        tempStartDate ? date < tempStartDate : false
+                      }
+                      className="rounded-md border-border/50"
+                    />
+                    <TimePicker
+                      value={tempEndTime}
+                      onChange={(value) => {
+                        setTempEndTime(value);
+                        if (tempEndDate) {
+                          const [hours, minutes] = value.split(':');
+                          const newDate = new Date(tempEndDate);
+                          newDate.setHours(parseInt(hours), parseInt(minutes), 0);
+                          setTempEndDate(newDate);
+                        }
+                      }}
+                    />
+                  </div>
                 </PopoverContent>
               </Popover>
             </div>
@@ -369,10 +431,10 @@ export default function Header() {
 
                               const newSelectedBranches = isSelected
                                 ? pendingBranches.filter(
-                                    (selectedBranch: Efr_Branches) =>
-                                      selectedBranch.BranchID !==
-                                      branch.BranchID
-                                  )
+                                  (selectedBranch: Efr_Branches) =>
+                                    selectedBranch.BranchID !==
+                                    branch.BranchID
+                                )
                                 : [...pendingBranches, branch];
 
                               setPendingBranches(newSelectedBranches);
@@ -565,8 +627,8 @@ export default function Header() {
                   className="w-full justify-start text-left font-normal bg-background/60 backdrop-blur-sm border-border/50 shadow-sm"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {selectedStartDate
-                    ? formatDateTimeDMY(selectedStartDate)
+                  {tempStartDate
+                    ? formatDateTimeYMDHI(tempStartDate)
                     : t.startDate}
                 </Button>
               </PopoverTrigger>
@@ -574,16 +636,39 @@ export default function Header() {
                 className="w-auto p-0 bg-background/95 backdrop-blur-md border-border/50 shadow-xl"
                 align="start"
               >
-                <Calendar
-                  mode="single"
-                  selected={selectedStartDate}
-                  onSelect={setSelectedStartDate}
-                  initialFocus
-                  disabled={(date: Date) =>
-                    selectedEndDate ? date > selectedEndDate : false
-                  }
-                  className="rounded-md border-border/50"
-                />
+                <div className="p-4 space-y-4">
+                  <Calendar
+                    mode="single"
+                    selected={tempStartDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        const [hours, minutes] = tempStartTime.split(':');
+                        const newDate = new Date(date);
+                        newDate.setHours(parseInt(hours), parseInt(minutes), 0);
+                        setTempStartDate(newDate);
+                      } else {
+                        setTempStartDate(undefined);
+                      }
+                    }}
+                    initialFocus
+                    disabled={(date: Date) =>
+                      tempEndDate ? date > tempEndDate : false
+                    }
+                    className="rounded-md border-border/50"
+                  />
+                  <TimePicker
+                    value={tempStartTime}
+                    onChange={(value) => {
+                      setTempStartTime(value);
+                      if (tempStartDate) {
+                        const [hours, minutes] = value.split(':');
+                        const newDate = new Date(tempStartDate);
+                        newDate.setHours(parseInt(hours), parseInt(minutes), 0);
+                        setTempStartDate(newDate);
+                      }
+                    }}
+                  />
+                </div>
               </PopoverContent>
             </Popover>
 
@@ -594,8 +679,8 @@ export default function Header() {
                   className="w-full justify-start text-left font-normal bg-background/60 backdrop-blur-sm border-border/50 shadow-sm"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {selectedEndDate
-                    ? formatDateTimeDMY(selectedEndDate)
+                  {tempEndDate
+                    ? formatDateTimeYMDHI(tempEndDate)
                     : t.endDate}
                 </Button>
               </PopoverTrigger>
@@ -603,16 +688,39 @@ export default function Header() {
                 className="w-auto p-0 bg-background/95 backdrop-blur-md border-border/50 shadow-xl"
                 align="start"
               >
-                <Calendar
-                  mode="single"
-                  selected={selectedEndDate}
-                  onSelect={setSelectedEndDate}
-                  initialFocus
-                  disabled={(date: Date) =>
-                    selectedStartDate ? date < selectedStartDate : false
-                  }
-                  className="rounded-md border-border/50"
-                />
+                <div className="p-4 space-y-4">
+                  <Calendar
+                    mode="single"
+                    selected={tempEndDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        const [hours, minutes] = tempEndTime.split(':');
+                        const newDate = new Date(date);
+                        newDate.setHours(parseInt(hours), parseInt(minutes), 0);
+                        setTempEndDate(newDate);
+                      } else {
+                        setTempEndDate(undefined);
+                      }
+                    }}
+                    initialFocus
+                    disabled={(date: Date) =>
+                      tempStartDate ? date < tempStartDate : false
+                    }
+                    className="rounded-md border-border/50"
+                  />
+                  <TimePicker
+                    value={tempEndTime}
+                    onChange={(value) => {
+                      setTempEndTime(value);
+                      if (tempEndDate) {
+                        const [hours, minutes] = value.split(':');
+                        const newDate = new Date(tempEndDate);
+                        newDate.setHours(parseInt(hours), parseInt(minutes), 0);
+                        setTempEndDate(newDate);
+                      }
+                    }}
+                  />
+                </div>
               </PopoverContent>
             </Popover>
 
@@ -664,10 +772,10 @@ export default function Header() {
 
                               const newSelectedBranches = isSelected
                                 ? pendingBranches.filter(
-                                    (selectedBranch: Efr_Branches) =>
-                                      selectedBranch.BranchID !==
-                                      branch.BranchID
-                                  )
+                                  (selectedBranch: Efr_Branches) =>
+                                    selectedBranch.BranchID !==
+                                    branch.BranchID
+                                )
                                 : [...pendingBranches, branch];
 
                               setPendingBranches(newSelectedBranches);

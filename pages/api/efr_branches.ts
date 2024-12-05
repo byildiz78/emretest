@@ -3,12 +3,6 @@ import { executeQuery } from '@/lib/dataset';
 import { Efr_Branches } from '@/types/tables';
 import { jwtVerify } from 'jose';
 
-interface Branch {
-    BranchID: number;
-    BranchName: string;
-    IsActive: boolean;
-    CountryName: string;
-}
 
 export default async function handler(
     req: NextApiRequest,

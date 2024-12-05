@@ -3,6 +3,8 @@ import type { NextRequest } from 'next/server'
 import { getDatabase} from './lib/dataset';
 import { CACHE_CONSTANTS } from './pages/api/constants';
 import { jwtVerify, SignJWT, decodeJwt } from 'jose';
+import { checkTenantDatabase } from './lib/utils';
+import { DatabaseResponse } from './types/tables';
 
 const textEncoder = new TextEncoder();
 const ACCESS_TOKEN_SECRET = textEncoder.encode(process.env.ACCESS_TOKEN_SECRET);
@@ -20,33 +22,7 @@ export const config = {
     ]
 }
 
-interface DatabaseResponse {
-    id: string;
-    databaseId: string;
-    server: string;
-    database: string;
-}
 
-const databaseCache = new Map<string, { exists: boolean; timestamp: number }>();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 dakika
-
-async function checkTenantDatabase(tenantId: string): Promise<boolean> {
-    const cached = databaseCache.get(tenantId);
-    if (cached && Date.now() - cached.timestamp < CACHE_DURATION && cached.exists) {
-        return true
-    }
-    try {
-        const databases = await getDatabase<DatabaseResponse[]>();
-
-        const exists = databases.some(item => {
-            return item.id === tenantId
-        })
-        databaseCache.set(tenantId, { exists, timestamp: Date.now() });
-        return exists;
-    } catch (error) {
-        return false;
-    }
-}
 
 function getTenantId(request: NextRequest): string {
     if (request.nextUrl.pathname.includes("/api/")) {
@@ -92,8 +68,8 @@ export async function middleware(request: NextRequest) {
 
     if (isNotFoundRoute) {
         if (tenantId && !isApiRoute) {
-            const databaseExists = await checkTenantDatabase(tenantId);
-            if (databaseExists) {
+            const database = await checkTenantDatabase(tenantId);
+            if (database !== undefined) {
                 return NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
             }
         }
@@ -105,8 +81,8 @@ export async function middleware(request: NextRequest) {
     }
 
     if (!isApiRoute && !tenantId.includes("api")) {
-        const databaseExists = await checkTenantDatabase(tenantId);
-        if (!databaseExists) {
+        const database = await checkTenantDatabase(tenantId);
+        if (!database === undefined) {
             return NextResponse.redirect(new URL(`/${tenantId}/notfound`, request.url));
         }
     }

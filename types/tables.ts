@@ -209,3 +209,10 @@ export type ProjectSettings = {
     Description: string;
     Project: string;
 }
+
+export type DatabaseResponse = {
+    id: string;
+    databaseId: string;
+    server: string;
+    database: string;
+}

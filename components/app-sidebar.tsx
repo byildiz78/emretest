@@ -129,16 +129,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             isActive: true,
             expanded: true,
             items: [
+                
                 {
-                    title: "Chatbot",
-                    url: "chatbot",
-                    icon: Command,
-                },
-                {
-                    title: "Ask Your Database",
+                    title: "Veri tabanı ile konuşun",
                     url: "askdatabase",
                     icon: Bot,
+                },
+
+                {
+                    title: "Analizci",
+                    url: "chatbot",
+                    icon: Command,
                 }
+
+
             ],
         },
     ], [supersetMenuItems, getSupersetNavItems]);

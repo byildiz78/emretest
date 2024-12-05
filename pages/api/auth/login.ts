@@ -45,7 +45,15 @@ export default async function handler(
     }
 
     try {
-        const tenantId = new URL(req.headers.referer || '').pathname.split('/')[1];
+        // Get tenant ID from request headers or URL
+        let tenantId = '';
+        if (req.headers.referer) {
+            try {
+                tenantId = new URL(req.headers.referer).pathname.split('/')[1];
+            } catch (error) {
+                console.error('Error parsing referer:', error);
+            }
+        }
         const { username, password } = req.body;
         const encryptedpass = encrypt(password);
         
@@ -53,10 +61,11 @@ export default async function handler(
 
         const response = await executeQuery<{ UserID: number; UserName: string }[]>({
             query,
-            parameters : {
+            parameters: {
                 username: username,
                 password: encryptedpass?.toString()
-            }
+            },
+            tenantId
         });
         const user = response[0]
         if (user) {
@@ -71,34 +80,32 @@ export default async function handler(
 
             const accessToken = await new SignJWT(tokenPayload)
                 .setProtectedHeader({ alg: ACCESS_TOKEN_ALGORITHM })
-                .setExpirationTime(currentTimestamp + ACCESS_TOKEN_LIFETIME)
+                //.setExpirationTime(currentTimestamp + ACCESS_TOKEN_LIFETIME)
                 .setIssuer(NEXT_PUBLIC_DOMAIN)
                 .setAudience(tenantId)
                 .setIssuedAt(currentTimestamp)
                 .sign(ACCESS_TOKEN_SECRET);
             const accessTokenCookie = serialize('access_token', accessToken, {
                 httpOnly: true,
-                //secure: NODE_ENV === 'production',
-                //sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
+                secure: NODE_ENV === 'production',
+                sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
-                maxAge: ACCESS_TOKEN_LIFETIME,
-                //...(cookieDomain ? { domain: cookieDomain } : {})
+                ...(cookieDomain ? { domain: cookieDomain } : {})
             });
 
             const refreshToken = await new SignJWT(tokenPayload)
                 .setProtectedHeader({ alg: REFRESH_TOKEN_ALGORITHM })
-                .setExpirationTime(currentTimestamp + REFRESH_TOKEN_LIFETIME)
+                //.setExpirationTime(currentTimestamp + REFRESH_TOKEN_LIFETIME)
                 .setIssuer(NEXT_PUBLIC_DOMAIN)
                 .setAudience(tenantId)
                 .setIssuedAt(currentTimestamp)
                 .sign(REFRESH_TOKEN_SECRET);
             const refreshTokenCookie = serialize('refresh_token', refreshToken, {
                 httpOnly: true,
-                //secure: NODE_ENV === 'production',
-                //sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
+                secure: NODE_ENV === 'production',
+                sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
-                maxAge: REFRESH_TOKEN_LIFETIME,
-                //...(cookieDomain ? { domain: cookieDomain } : {})
+                ...(cookieDomain ? { domain: cookieDomain } : {})
             });
 
             res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);

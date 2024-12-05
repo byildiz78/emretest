@@ -54,14 +54,9 @@ export default async function handler(
             query: chatbotConfig.ChatbotQuery,
             parameters
         }).catch(error => {
-            console.log('Parameters:', parameters);
-            console.log('Original query:', chatbotConfig.ChatbotQuery);
             console.error('Query execution error:', error);
             throw new Error('Failed to execute analysis query');
         });
-        console.log(parameters)
-        console.log(chatbotConfig.ChatbotQuery)
-        console.log(queryResult)
 
         // Set up SSE headers
         res.writeHead(200, {

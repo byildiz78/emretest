@@ -136,7 +136,6 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
                     
                     if (retryCount < maxRetries) {
                         retryCount++;
-                        console.log(`Retrying dashboard load attempt ${retryCount} of ${maxRetries}...`);
                         
                         // Clear any cached token and wait briefly before retry
                         await getGuestToken(dashboardId, true); 

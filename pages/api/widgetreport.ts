@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 import { WebWidget, WebWidgetData } from '@/types/tables';
 
 export default async function handler(
@@ -31,12 +31,14 @@ export default async function handler(
             AND (ReportQuery != '' OR ReportQuery2 != '')
             ORDER BY ReportIndex ASC
         `;
+        const instance = Dataset.getInstance();
 
-        const response = await executeQuery<WebWidget[]>({
+        const response = await instance.executeQuery<WebWidget[]>({
             query: widgetQuery,
             parameters: {
                 reportId: reportIdNumber
-            }
+            },
+            req
         });
         const widget = response[0];
         if (!widget) {
@@ -49,13 +51,14 @@ export default async function handler(
             date1Obj.setHours(6, 0, 0, 0);
             date2Obj.setHours(6, 0, 0, 0);
 
-            const result = await executeQuery<WebWidgetData[]>({
+            const result = await instance.executeQuery<WebWidgetData[]>({
                 query: widget.ReportQuery?.toString() + "",
                 parameters: {
                     date1: date1Obj.toISOString(),
                     date2: date2Obj.toISOString(),
                     BranchID: branches
-                }
+                },
+                req
             });
             if (!result ) {
                 return res.status(404).json({ error: 'No data found for widget' });

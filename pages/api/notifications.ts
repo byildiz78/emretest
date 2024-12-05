@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 
 
 interface Notification {
@@ -175,12 +175,12 @@ ORDER BY orderDateTime DESC
 
         `;
 
+        const instance = Dataset.getInstance();
 
-        const result = await executeQuery<Notification[]>({
+        const result = await instance.executeQuery<Notification[]>({
 
             query,
-
-            parameters: {}
+            req
 
         });
 

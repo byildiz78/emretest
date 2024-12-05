@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 import { OrderDetail } from '@/types/tables';
 
 export default async function handler(
@@ -53,12 +53,14 @@ export default async function handler(
                     FOR JSON PATH
                 ) as transactions
         `;
+        const instance = Dataset.getInstance();
 
-        const result = await executeQuery<OrderDetail[]>({
+        const result = await instance.executeQuery<OrderDetail[]>({
             query,
             parameters: {
                 orderKey: orderKey
-            }
+            },
+            req
         });
 
         if (!result) {

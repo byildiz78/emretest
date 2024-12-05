@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 import { WebReportGroup } from '@/types/tables';
 
 export default async function handler(
@@ -28,10 +28,11 @@ export default async function handler(
             WHERE i.ShowDesktop = 1 
             ORDER BY g.DisplayOrderID, i.DisplayOrderID
         `;
+        const instance = Dataset.getInstance();
 
-        const result = await executeQuery<WebReportGroup[]>({
+        const result = await instance.executeQuery<WebReportGroup[]>({
             query,
-            parameters: {}
+            req
         });
 
         if (!result || result.length === 0) {

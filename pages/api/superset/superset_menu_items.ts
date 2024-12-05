@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 import { SupersetDashboard } from '@/types/tables';
 
 export default async function handler(
@@ -11,9 +11,12 @@ export default async function handler(
     }
 
     try {
+        const instance = Dataset.getInstance();
+
         const query = `SELECT * FROM dm_supersetDashboard`;
-        const result = await executeQuery<(Omit<SupersetDashboard, 'ExtraParams'> & { ExtraParams: string })[]>({
-            query
+        const result = await instance.executeQuery<(Omit<SupersetDashboard, 'ExtraParams'> & { ExtraParams: string })[]>({
+            query,
+            req
         });
 
         const parsedResult = result.map(item => ({

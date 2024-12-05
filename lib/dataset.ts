@@ -56,7 +56,7 @@ export async function datasetApi<T>(endpoint: string, options: RequestOptions = 
 }
 
 export async function executeQuery<T>(params: ExecuteParams): Promise<T> {
-    const { query, parameters = {}, databaseId = '3' } = params;
+    const { query, parameters = {}, databaseId = '5' } = params;
     return datasetApi<T>('/query/execute', {
         method: 'POST',
         body: {

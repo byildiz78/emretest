@@ -29,6 +29,7 @@ export default async function handler(
             FROM dm_webWidgets6 
             WHERE IsActive = 1 
             AND ReportID NOT IN (522) 
+            AND BranchDetail = '0'
             ORDER BY ReportIndex ASC
         `;
         const instance = Dataset.getInstance();

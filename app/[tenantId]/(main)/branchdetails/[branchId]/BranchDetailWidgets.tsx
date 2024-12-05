@@ -13,13 +13,13 @@ interface WebWidget {
   V1Value: string | number;
 }
 
-export default function BranchStats() {
+export default function BranchDetailWidgets() {
   const [widgets, setWidgets] = useState<WebWidget[]>([]);
 
   useEffect(() => {
     const fetchWidgets = async () => {
       try {
-        const response = await fetch('/api/webwidgets');
+        const response = await fetch('/api/branchdetailwidgets');
         const data = await response.json();
         console.log('Widget Data:', data);
         setWidgets(data);

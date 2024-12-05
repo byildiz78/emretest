@@ -1,41 +1,59 @@
 "use client";
 
-import { Card } from "@/components/ui/card";
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    PieChart,
-    Pie,
-    Cell,
-    Legend
-} from "recharts";
-import { BranchModel } from "@/types/tables";
+import { useEffect, useState } from "react";
+import * as LucideIcons from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
-interface CustomTooltipProps {
-    active?: boolean;
-    payload?: Array<{ value: number; name: string }>;
-    label?: string;
+interface ChartWidget {
+    AutoID: number;
+    ReportName: string;
+    ReportIcon: string;
+    ReportIndex: number;
+    V1Type: string;
+    V2Type: string;
+    V3Type: string;
 }
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
+export default function BranchCharts() {
+    const [chartWidgets, setChartWidgets] = useState<ChartWidget[]>([]);
 
-export default function BranchCharts({ data }: { data: BranchModel }) {
-    const chartData = [
-        { name: "Cari Dönem", value: Number(data.reportValue2) || 0 },
-        { name: "Geçen Hafta", value: Number(data.reportValue3) || 0 },
-        { name: "Geçen Hafta (Tüm Gün)", value: Number(data.reportValue4) || 0 }
+    useEffect(() => {
+        const fetchChartWidgets = async () => {
+            try {
+                const response = await fetch('/api/chartwidgets');
+                const data = await response.json();
+                console.log('Chart Widgets:', data);
+                setChartWidgets(data);
+            } catch (error) {
+                console.error('Error fetching chart widgets:', error);
+            }
+        };
+
+        fetchChartWidgets();
+    }, []);
+
+    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+
+    const getColorByIndex = (index: number): string => {
+        return COLORS[index % COLORS.length];
+    };
+
+    // Grup Satış Dağılımı için örnek veri
+    const salesDistributionData = [
+        { name: 'Grup A', value: 35 },
+        { name: 'Grup B', value: 25 },
+        { name: 'Grup C', value: 20 },
+        { name: 'Grup D', value: 15 },
+        { name: 'Diğer', value: 5 },
     ];
 
-    // Grup satış dağılımı için örnek veri
-    const salesDistribution = [
-        { name: "Yemek", value: 60 },
-        { name: "İçecek", value: 25 },
-        { name: "Tatlı", value: 15 }
+    // Diğer grafikler için geçici veri
+    const tempBarData = [
+        { name: 'A', value: 400 },
+        { name: 'B', value: 300 },
+        { name: 'C', value: 200 },
+        { name: 'D', value: 100 },
     ];
 
     const formatCurrency = (value: number) => {
@@ -46,70 +64,119 @@ export default function BranchCharts({ data }: { data: BranchModel }) {
         }).format(value);
     };
 
-    const formatPercentage = (value: number) => {
-        return `%${value}`;
-    };
-
-    const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
+    const CustomTooltip = ({ active, payload, label }: any) => {
         if (active && payload && payload.length) {
             return (
-                <div className="bg-background/95 border border-border p-2 rounded-lg shadow-lg backdrop-blur-sm">
-                    <p className="text-sm font-medium">{payload[0].name}</p>
-                    <p className="text-sm text-muted-foreground">
-                        {label ? formatCurrency(payload[0].value) : formatPercentage(payload[0].value)}
-                    </p>
+                <div className="bg-white p-2 border rounded-lg shadow-lg">
+                    <p className="text-sm">{`${label}: ${payload[0].value}%`}</p>
                 </div>
             );
         }
         return null;
     };
 
-    return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="p-6 hover:shadow-lg transition-all duration-300">
-                <h3 className="text-lg font-semibold mb-4">{data.reportValue1 || 'Şube'} - TOPLAM CİRO ANALİZİ</h3>
-                <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                            <XAxis dataKey="name" />
-                            <YAxis tickFormatter={formatCurrency} />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Bar
-                                dataKey="value"
-                                fill="hsl(var(--primary))"
-                                radius={[4, 4, 0, 0]}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </Card>
+    const getChartTypeFromIcon = (iconName: string): 'bar' | 'pie' => {
+        const pieChartIcons = ['PieChart', 'Circle', 'Donut'];
+        return pieChartIcons.includes(iconName) ? 'pie' : 'bar';
+    };
 
-            <Card className="p-6 hover:shadow-lg transition-all duration-300">
-                <h3 className="text-lg font-semibold mb-4">{data.reportValue1 || 'Şube'} - GRUP SATIŞ DAĞILIMI</h3>
-                <div className="h-[300px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie
-                                data={salesDistribution}
-                                cx="50%"
-                                cy="50%"
-                                labelLine={false}
-                                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                outerRadius={100}
-                                fill="#8884d8"
-                                dataKey="value"
-                            >
-                                {salesDistribution.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                ))}
-                            </Pie>
-                            <Tooltip content={<CustomTooltip />} />
-                            <Legend />
-                        </PieChart>
-                    </ResponsiveContainer>
-                </div>
-            </Card>
+    const renderChart = (widget: ChartWidget, index: number) => {
+        const color = getColorByIndex(index);
+        
+        // Özel olarak "Grup Satış Dağılımı" için pasta grafik
+        if (widget.ReportName === "Grup Satış Dağılımı") {
+            return (
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie
+                            data={salesDistributionData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={80}
+                            paddingAngle={5}
+                            dataKey="value"
+                        >
+                            {salesDistributionData.map((entry, i) => (
+                                <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
+                            ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                        <Legend 
+                            layout="vertical" 
+                            align="right"
+                            verticalAlign="middle"
+                            formatter={(value, entry: any) => (
+                                <span style={{ color: entry.color }}>{value}</span>
+                            )}
+                        />
+                    </PieChart>
+                </ResponsiveContainer>
+            );
+        }
+
+        // Diğer grafikler için varsayılan davranış
+        const chartType = getChartTypeFromIcon(widget.ReportIcon);
+        return (
+            <ResponsiveContainer width="100%" height="100%">
+                {chartType === 'bar' ? (
+                    <BarChart data={tempBarData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" />
+                        <YAxis />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Bar dataKey="value" fill={color} radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                ) : (
+                    <PieChart>
+                        <Pie
+                            data={tempBarData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={80}
+                            fill={color}
+                            paddingAngle={5}
+                            dataKey="value"
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        >
+                            {tempBarData.map((entry, i) => (
+                                <Cell key={`cell-${i}`} fill={getColorByIndex(i)} />
+                            ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                    </PieChart>
+                )}
+            </ResponsiveContainer>
+        );
+    };
+
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {chartWidgets.map((widget, index) => {
+                const Icon = LucideIcons[widget.ReportIcon as keyof typeof LucideIcons] || LucideIcons.BarChart;
+                const color = getColorByIndex(index);
+
+                return (
+                    <Card key={widget.AutoID} className="w-full">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                            <CardTitle className="text-sm font-medium">
+                                <div className="flex items-center space-x-2">
+                                    <div className={`p-2 rounded-lg`} style={{ backgroundColor: color }}>
+                                        <Icon className="h-4 w-4 text-white" />
+                                    </div>
+                                    <span>{widget.ReportName}</span>
+                                </div>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="h-[300px] w-full">
+                                {renderChart(widget, index)}
+                            </div>
+                        </CardContent>
+                    </Card>
+                );
+            })}
         </div>
     );
 }

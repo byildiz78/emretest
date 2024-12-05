@@ -360,7 +360,7 @@ export default function ChatBotComponent() {
                                             <span className="font-medium">Tarih Aralığı</span>
                                         </div>
                                         <div className="text-sm text-gray-600 dark:text-gray-300">
-                                            {format(new Date(selectedFilter.date.from), 'd MMMM yyyy', { locale: tr })} - {format(new Date(selectedFilter.date.to), 'd MMMM yyyy', { locale: tr })}
+                                            {format(new Date(selectedFilter.date.from || new Date()), 'd MMMM yyyy', { locale: tr })} - {format(new Date(selectedFilter.date.to || ''), 'd MMMM yyyy', { locale: tr })}
                                         </div>
                                     </div>
                                     <div className="bg-white/70 dark:bg-slate-800/70 rounded-lg p-4 border border-blue-100/50 dark:border-blue-900/30">
@@ -426,7 +426,7 @@ export default function ChatBotComponent() {
                                                     li: ({node, ...props}) => (
                                                         <li className="flex items-start gap-2 text-gray-600 dark:text-gray-300">
                                                             <div className="mt-2 w-1.5 h-1.5 rounded-full bg-blue-400 flex-shrink-0"></div>
-                                                            <div {...props} />
+                                                            <div {...props} > </div>
                                                         </li>
                                                     ),
                                                     code: ({node, inline, ...props}) => (

@@ -24,7 +24,6 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { BranchModel } from "@/types/tables";
 import { useTabStore } from "@/stores/tab-store";
 
 interface BranchData {
@@ -98,7 +97,7 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
     };
 
     // BranchModel verisi oluştur
-    const chartData: BranchModel = {
+    const chartData = {
         BranchID: parseInt(branchData.id),
         reportValue1: branchData.name,
         reportValue2: branchData.revenue.total,

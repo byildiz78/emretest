@@ -17,26 +17,25 @@ async function copyFiles() {
       path.join('.next', 'standalone', 'public')
     );
 
-    try {
-      await fs.copy(
-        '.env.local',
-        path.join('.next', 'standalone', '.env')
-      );
-    } catch (err) {
+    // .env dosyalarını kopyala
+    const envFiles = ['.env', '.env.local', '.env.production'];
+    for (const envFile of envFiles) {
+      try {
+        if (fs.existsSync(envFile)) {
+          await fs.copy(
+            envFile,
+            path.join('.next', 'standalone', '.env')
+          );
+          console.log(`${envFile} dosyası başarıyla kopyalandı`);
+          break; // İlk bulunan .env dosyasını kopyaladıktan sonra döngüden çık
+        }
+      } catch (err) {
+        console.error(`${envFile} kopyalanırken hata oluştu:`, err);
+      }
     }
-    // .env dosyasını kopyala (varsa)
-    try {
-      await fs.copy(
-        '.env',
-        path.join('.next', 'standalone', '.env')
-      );
-    } catch (err) {
-    }
-
-
 
   } catch (err) {
-    console.error('Hata:', err);
+    console.error('Dosya kopyalama hatası:', err);
     process.exit(1);
   }
 }

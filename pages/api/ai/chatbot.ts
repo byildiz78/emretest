@@ -1,4 +1,4 @@
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 import { ChatBot } from '@/types/tables';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { OpenAI } from 'openai';
@@ -24,12 +24,14 @@ export default async function handler(
             return res.status(400).json({ error: 'ChatBotID is required' });
         }
 
+        const instance = Dataset.getInstance();
         const query = `SELECT TOP 1 ChatbotQuery, ChatbotRole, ChatbotContent, ChatbotQueryParams FROM dm_ChatBot WHERE ChatBotID = @ChatBotID`;
-        const config = await executeQuery<ChatBot[]>({
+        const config = await instance.executeQuery<ChatBot[]>({
             query,
             parameters: {
                 ChatBotID
-            }
+            },
+            req
         });
 
         const chatbotConfig = config[0];
@@ -50,9 +52,10 @@ export default async function handler(
             ...(chatbotConfig.ChatbotQueryParams ? JSON.parse(chatbotConfig.ChatbotQueryParams) : {})
         };
         // Execute the analysis query
-        const queryResult = await executeQuery<any[]>({
+        const queryResult = await instance.executeQuery<any[]>({
             query: chatbotConfig.ChatbotQuery,
-            parameters
+            parameters,
+            req
         }).catch(error => {
             console.error('Query execution error:', error);
             throw new Error('Failed to execute analysis query');

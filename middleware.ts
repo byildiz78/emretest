@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { getDatabase} from './lib/dataset';
-import { CACHE_CONSTANTS } from './pages/api/constants';
 import { jwtVerify, SignJWT, decodeJwt } from 'jose';
 import { checkTenantDatabase } from './lib/utils';
-import { DatabaseResponse } from './types/tables';
 
 const textEncoder = new TextEncoder();
 const ACCESS_TOKEN_SECRET = textEncoder.encode(process.env.ACCESS_TOKEN_SECRET);
@@ -17,7 +14,7 @@ const REFRESH_TOKEN_ALGORITHM = process.env.REFRESH_TOKEN_ALGORITHM || 'HS512';
 
 export const config = {
     matcher: [
-        '/((?!api|_next/static|_next/image|images|favicon.ico).*)',
+        '/((?!api|_next/static|_next/image|images|avatars|favicon.ico).*)',
         '/api/((?!auth).)*'
     ]
 }
@@ -89,8 +86,7 @@ export async function middleware(request: NextRequest) {
 
     const accessToken = request.cookies.get("access_token")?.value;
     const refreshToken = request.cookies.get("refresh_token")?.value;
-    console.log("accessToken",accessToken)
-    console.log("refreshToken",refreshToken)
+    
     if (!accessToken || !refreshToken) {
         
         if (isLoginRoute || isApiRoute) {
@@ -106,12 +102,10 @@ export async function middleware(request: NextRequest) {
         audience: tenantId,
         issuer: NEXT_PUBLIC_DOMAIN,
     };
-
     const isValidRefresh = await verifyToken(refreshToken, REFRESH_TOKEN_SECRET, {
         ...baseTokenOptions,
         algorithms: [REFRESH_TOKEN_ALGORITHM]
     });
-
 
     if (!isValidRefresh) {
         const response = NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
@@ -136,9 +130,9 @@ export async function middleware(request: NextRequest) {
         response.cookies.set('access_token', newAccessToken, {
             httpOnly: true,
             secure: NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
             path: '/',
-            ...(NODE_ENV === 'production' ? { domain: NEXT_PUBLIC_DOMAIN } : {})
+            //...(NODE_ENV === 'production' ? { domain: NEXT_PUBLIC_DOMAIN } : {})
         });
 
         return response;
@@ -150,9 +144,3 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next();
 }
-
-const cleanupCache = async () => {
-    await getDatabase<DatabaseResponse[]>();
-}
-
-setInterval(cleanupCache, CACHE_CONSTANTS.DATABASE.TTL);

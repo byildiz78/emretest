@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { serialize } from 'cookie';
 import { SignJWT } from 'jose';
 import crypto from 'crypto';
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 
 const ACCESS_TOKEN_SECRET = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
 const REFRESH_TOKEN_SECRET = new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET);
@@ -56,17 +56,19 @@ export default async function handler(
         }
         const { username, password } = req.body;
         const encryptedpass = encrypt(password);
+        const instance = Dataset.getInstance();
         
         const query = "SELECT TOP 1 UserID, UserName FROM Efr_Users WHERE UserName = @username AND EncryptedPass = @password AND IsActive=1";
 
-        const response = await executeQuery<{ UserID: number; UserName: string }[]>({
+        const response = await instance.executeQuery<{ UserID: number; UserName: string }[]>({
             query,
             parameters: {
                 username: username,
                 password: encryptedpass?.toString()
             },
-            tenantId
+            req
         });
+
         const user = response[0]
         if (user) {
             let tokenPayload = {

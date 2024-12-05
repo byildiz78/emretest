@@ -1,4 +1,4 @@
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 import { ProjectSettings } from '@/types/tables';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -15,10 +15,11 @@ export default async function handler(
     try {
         const query = "SELECT * FROM ProjectSettings";
 
+        const instance = Dataset.getInstance();
 
-        const result = await executeQuery<ProjectSettings[]>({
+        const result = await instance.executeQuery<ProjectSettings[]>({
             query,
-            parameters: {}
+            req
         });
 
         if (!result || result.length === 0) {

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 import { WebWidget } from '@/types/tables';
 
 export default async function handler(
@@ -31,9 +31,11 @@ export default async function handler(
             AND ReportID NOT IN (522) 
             ORDER BY ReportIndex ASC
         `;
+        const instance = Dataset.getInstance();
 
-        const result = await executeQuery<WebWidget[]>({
-            query
+        const result = await instance.executeQuery<WebWidget[]>({
+            query,
+            req
         });
 
         if (!result || result.length === 0) {

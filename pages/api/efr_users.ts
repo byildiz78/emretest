@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 import { Efr_Users } from '@/types/tables';
 
 export default async function handler(
@@ -19,10 +19,11 @@ export default async function handler(
             FROM Efr_users 
             WHERE IsActive = 1
         `;
+        const instance = Dataset.getInstance();
 
-        const result = await executeQuery<Efr_Users[]>({
+        const result = await instance.executeQuery<Efr_Users[]>({
             query,
-            parameters: {}
+            req
         });
 
         if (!result || result.length === 0) {

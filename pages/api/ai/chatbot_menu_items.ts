@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { executeQuery } from '@/lib/dataset';
 import { ChatBot } from '@/types/tables';
+import { Dataset } from '@/pages/api/dataset';
+
 
 export default async function handler(
     req: NextApiRequest,
@@ -11,9 +12,12 @@ export default async function handler(
     }
 
     try {
+        const instance = Dataset.getInstance();
+
         const query = `SELECT ChatBotID, AnalysisTitle, Icon FROM dm_ChatBot`;
-        const result = await executeQuery<ChatBot[]>({
-            query
+        const result = await instance.executeQuery<ChatBot[]>({
+            query,
+            req
         });
 
         return res.status(200).json(result);

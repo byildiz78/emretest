@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { executeQuery } from '@/lib/dataset';
+import { Dataset } from '@/pages/api/dataset';
 import { Efr_Branches } from '@/types/tables';
 import { jwtVerify } from 'jose';
 
@@ -45,11 +45,14 @@ export default async function handler(
                     AND (u.Category = 5 OR CHARINDEX(',' + CAST(b.BranchID AS VARCHAR) + ',', ',' + u.UserBranchs + ',') > 0)
                 )
             `;  
-            const result = await executeQuery<Efr_Branches[]>({
+            const instance = Dataset.getInstance();
+
+            const result = await instance.executeQuery<Efr_Branches[]>({
                 query,
                 parameters: {
                     userId
-                }
+                },
+                req
             });
             if (!result || result.length === 0) {
                 return res.status(404).json({ error: 'No branches found for user' });

@@ -201,3 +201,11 @@ export type ChatBot = {
     Icon: string;
     FunctionName?: string;
 }
+
+export type ProjectSettings = {
+    AutoID: number;
+    Kod: string;
+    Value: string;
+    Description: string;
+    Project: string;
+}

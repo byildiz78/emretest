@@ -89,10 +89,10 @@ export default async function handler(
                 .sign(ACCESS_TOKEN_SECRET);
             const accessTokenCookie = serialize('access_token', accessToken, {
                 httpOnly: true,
-                secure: NODE_ENV === 'production',
-                sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
+                //secure: NODE_ENV === 'production',
+                //sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
-                ...(cookieDomain ? { domain: cookieDomain } : {})
+                //...(cookieDomain ? { domain: cookieDomain } : {})
             });
 
             const refreshToken = await new SignJWT(tokenPayload)
@@ -104,10 +104,10 @@ export default async function handler(
                 .sign(REFRESH_TOKEN_SECRET);
             const refreshTokenCookie = serialize('refresh_token', refreshToken, {
                 httpOnly: true,
-                secure: NODE_ENV === 'production',
-                sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
+                //secure: NODE_ENV === 'production',
+                //sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
-                ...(cookieDomain ? { domain: cookieDomain } : {})
+                //...(cookieDomain ? { domain: cookieDomain } : {})
             });
 
             res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);

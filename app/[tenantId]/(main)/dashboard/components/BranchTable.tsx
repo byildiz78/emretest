@@ -40,13 +40,13 @@ export default function BranchTable({ data }: BranchTableProps) {
         <TableHeader>
           <TableRow>
             <TableHead>Şube</TableHead>
-            <TableHead className="text-right">Güncel Değer</TableHead>
+            {/* <TableHead className="text-right">Güncel Değer</TableHead>
             <TableHead className="text-right">Geçen Hafta</TableHead>
             <TableHead className="text-right">Fark</TableHead>
             <TableHead className="text-right">Günlük Toplam</TableHead>
             <TableHead className="text-right">Müşteri Sayısı</TableHead>
             <TableHead className="text-right">Kişi Sayısı</TableHead>
-            <TableHead className="text-right">Değişim %</TableHead>
+            <TableHead className="text-right">Değişim %</TableHead> */}
           </TableRow>
         </TableHeader>
         <TableBody>

@@ -123,8 +123,7 @@ export default async function handler(
                     } else {
                         res.write(`data: ${JSON.stringify({ content })}\n\n`);
                     }
-                    // Ensure the content is sent immediately
-                    if (res.flush) res.flush();
+                    
                 }
             }
 

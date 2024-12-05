@@ -133,6 +133,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     title: "Chatbot",
                     url: "chatbot",
                     icon: Command,
+                },
+                {
+                    title: "Ask Your Database",
+                    url: "askdatabase",
+                    icon: Bot,
                 }
             ],
         },

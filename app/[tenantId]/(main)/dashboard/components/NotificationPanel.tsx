@@ -177,7 +177,7 @@ export default function NotificationPanel() {
                                         onClick={() => fetchOrderDetail(notification.orderKey)}
                                         disabled={loading}
                                         className={cn(
-                                            "w-full group rounded-lg p-3 text-left transition-colors relative",
+                                            "w-full group rounded-lg p-3 text-left transition-colors relative min-h-[100px]",
                                             "hover:bg-muted/50",
                                             loading && "opacity-50 cursor-not-allowed",
                                             style.borderColor,
@@ -185,7 +185,7 @@ export default function NotificationPanel() {
                                         )}
                                     >
                                         <div className="flex items-start gap-3">
-                                            <Icon className={cn("h-5 w-5 mt-0.5", style.color)} />
+                                            <Icon className={cn("h-5 w-5 mt-0.5 flex-shrink-0", style.color)} />
                                             
                                             <div className="flex-1 min-w-0">
                                                 <Tooltip>
@@ -198,23 +198,27 @@ export default function NotificationPanel() {
                                                         <p>{notification.branchName}</p>
                                                     </TooltipContent>
                                                 </Tooltip>
-                                                <div className="flex items-baseline gap-1.5 mt-1">
+                                                <div className="flex items-baseline justify-center gap-1.5 mt-3 mb-8">
                                                     <p className={cn(
-                                                        "text-base font-semibold",
+                                                        "text-lg font-semibold",
                                                         style.color
                                                     )}>
                                                         {formatCurrency(notification.amountDue)}
-                                                    </p>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        tutarında {notification.type === 'sale' ? 'satış' : 
-                                                                  notification.type === 'discount' ? 'indirim' : 
-                                                                  notification.type === 'cancel' ? 'iptal' : 'uyarı'}
                                                     </p>
                                                 </div>
                                                 <div className="flex items-center gap-1.5 absolute bottom-3 left-3 text-xs font-medium text-muted-foreground">
                                                     <Clock className="h-3.5 w-3.5" />
                                                     {formatTime(notification.orderDateTime)}
                                                 </div>
+                                                <span className={cn(
+                                                    "absolute bottom-3 right-3 px-2 py-0.5 rounded-md text-xs font-medium",
+                                                    style.bgColor,
+                                                    style.color
+                                                )}>
+                                                    {notification.type === 'sale' ? 'satış' : 
+                                                     notification.type === 'discount' ? 'indirim' : 
+                                                     notification.type === 'cancel' ? 'iptal' : 'uyarı'}
+                                                </span>
                                             </div>
                                         </div>
                                         

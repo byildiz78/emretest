@@ -444,7 +444,7 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
 
                         <div>
 
-                            <p className="text-muted-foreground text-xs mb-0.5 sm:mb-1">Geçen Hafta</p>
+                            <p className="text-muted-foreground text-xs mb-0.5 sm:mb-1">Geçen Hafta Bu an</p>
 
                             <p className="font-semibold text-foreground text-sm sm:text-base">
 
@@ -456,7 +456,7 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
 
                         <div>
 
-                            <p className="text-muted-foreground text-xs mb-0.5 sm:mb-1">Günlük Toplam</p>
+                            <p className="text-muted-foreground text-xs mb-0.5 sm:mb-1">Geçen Hafta aynı gün</p>
 
                             <p className="font-semibold text-foreground text-sm sm:text-base">
 

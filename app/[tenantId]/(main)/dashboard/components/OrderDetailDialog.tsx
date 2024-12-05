@@ -94,6 +94,14 @@ export function OrderDetailDialog({ isOpen, onOpenChange, orderDetail, loading }
                                                     <Badge variant="secondary" className="bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 transition-colors">
                                                         {header.SatisTuru}
                                                     </Badge>
+                                                    {header["Masa No"] && (
+                                                        <>
+                                                            <span className="text-slate-400 dark:text-slate-500">•</span>
+                                                            <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors">
+                                                                Masa {header["Masa No"]}
+                                                            </Badge>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>

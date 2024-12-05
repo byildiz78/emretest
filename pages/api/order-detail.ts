@@ -28,6 +28,7 @@ export default async function handler(
                             WHEN OrderType = 4 THEN 'Tazgah Satış'
                             WHEN OrderType = 5 THEN 'Paket Satış'
                         END SatisTuru,
+                        isnull(DineInTableName,'') as 'Masa No',
                         CONVERT(VARCHAR, OrderDateTime, 120) as TarihText
                     FROM dbo.OrderHeaders as row WITH (NOLOCK)
                     WHERE row.OrderKey = @orderKey

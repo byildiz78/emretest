@@ -100,9 +100,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 className: "bg-blue-200",
             },
             {
-                name: "robotPOS Operation",
+                name: "robotPOS Operation Manager",
                 logo: AudioWaveform,
                 plan: "operation manager",
+                className: "bg-blue-200",
+            },
+            {
+                name: "robotPOS Franchise Manager",
+                logo: GalleryVerticalEnd,
+                plan: "franchise manager",
                 className: "bg-blue-200",
             },
         ],
@@ -118,7 +124,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             items: getSupersetNavItems(supersetMenuItems),
         },
         {
-            title: "AI",
+            title: "AI (Yapay Zeka)",
             icon: Bot,
             isActive: true,
             expanded: true,

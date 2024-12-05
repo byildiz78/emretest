@@ -8,6 +8,7 @@ interface RequestOptions {
 
 interface ExecuteParams {
     databaseId?: string;
+    tenantId?: string;
     query: string;
     parameters?: {
         date1?: string;
@@ -56,27 +57,30 @@ export async function datasetApi<T>(endpoint: string, options: RequestOptions = 
 }
 
 export async function executeQuery<T>(params: ExecuteParams): Promise<T> {
-    const { query, parameters = {} } = params;
-    let tenantId;
-    if (typeof window !== 'undefined') {
-        tenantId = window.location.pathname.split('/')[1];
-    } else {
-        const { headers } = require('next/headers');
-        const referer = headers().get('referer') || '';
-        tenantId = new URL(referer).pathname.split('/')[1];
-    }
-    const database = await checkTenantDatabase(tenantId)
-
-    const databaseId = database?.databaseId || '3';
-
-    return datasetApi<T>('/query/execute', {
-        method: 'POST',
-        body: {
-            databaseId,
-            query,
-            parameters
+    const { query, parameters = {}, tenantId: paramTenantId } = params;
+    let tenantId = paramTenantId;
+    const isClient = typeof window !== 'undefined';
+    try {
+        if (!tenantId && isClient) {
+            tenantId = window.location.pathname.split('/')[1];
         }
-    });
+        const database = await checkTenantDatabase(tenantId || '');
+        const databaseId = database?.databaseId || params.databaseId;
+        if(databaseId !== undefined && databaseId !== null) {
+            return datasetApi<T>('/query/execute', {
+                method: 'POST',
+                body: {
+                    databaseId,
+                    query,
+                    parameters
+                }
+            });
+        }
+        return [] as T;
+    } catch (error) {
+        console.error('executeQuery error:', error);
+        throw error;
+    }
 }
 
 export async function getDatabase<T>(tenantId: string = ""): Promise<T> {

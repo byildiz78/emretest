@@ -17,6 +17,13 @@ async function copyFiles() {
       path.join('.next', 'standalone', 'public')
     );
 
+    try {
+      await fs.copy(
+        '.env.local',
+        path.join('.next', 'standalone', '.env')
+      );
+    } catch (err) {
+    }
     // .env dosyasını kopyala (varsa)
     try {
       await fs.copy(
@@ -25,6 +32,8 @@ async function copyFiles() {
       );
     } catch (err) {
     }
+
+
 
   } catch (err) {
     console.error('Hata:', err);

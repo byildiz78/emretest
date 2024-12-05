@@ -79,8 +79,9 @@ export default async function handler(
             const accessTokenCookie = serialize('access_token', accessToken, {
                 httpOnly: true,
                 secure: NODE_ENV === 'production',
-                sameSite: 'strict',
+                sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
+                maxAge: ACCESS_TOKEN_LIFETIME,
                 ...(cookieDomain ? { domain: cookieDomain } : {})
             });
 
@@ -94,14 +95,14 @@ export default async function handler(
             const refreshTokenCookie = serialize('refresh_token', refreshToken, {
                 httpOnly: true,
                 secure: NODE_ENV === 'production',
-                sameSite: 'strict',
+                sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
                 path: '/',
+                maxAge: REFRESH_TOKEN_LIFETIME,
                 ...(cookieDomain ? { domain: cookieDomain } : {})
             });
 
-            return res.status(200)
-                .setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie])
-                .json({ message: 'Login successful' });
+            res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
+            return res.status(200).json({ message: 'Login successful' });
         }
 
         return res.status(401).json({ message: 'Invalid credentials' });

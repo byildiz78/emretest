@@ -32,10 +32,10 @@ export default async function handler(
             );
 
             // Token payload'ından branches'i al
-            const userBranches = decoded.payload.userBranches;
+            const userId = decoded.payload.userId?.toString();
 
-            if (!userBranches) {
-                return res.status(400).json({ error: 'No branches found in token' });
+            if (!userId) {
+                return res.status(400).json({ error: 'No userId found in token' });
             }
 
             const query = `
@@ -54,7 +54,7 @@ export default async function handler(
             const result = await executeQuery<Efr_Branches[]>({
                 query,
                 parameters: {
-                    userId: 1297
+                    userId
                 }
             });
             if (!result || result.length === 0) {

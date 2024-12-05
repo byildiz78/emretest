@@ -26,7 +26,6 @@ export async function datasetApi<T>(endpoint: string, options: RequestOptions = 
             ...headers,
         },
     };
-
     if (body) {
         requestOptions.body = JSON.stringify(body);
     }

@@ -1,3 +1,4 @@
+import { checkTenantDatabase } from "./utils";
 
 interface RequestOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -55,7 +56,19 @@ export async function datasetApi<T>(endpoint: string, options: RequestOptions = 
 }
 
 export async function executeQuery<T>(params: ExecuteParams): Promise<T> {
-    const { query, parameters = {}, databaseId = '5' } = params;
+    const { query, parameters = {} } = params;
+    let tenantId;
+    if (typeof window !== 'undefined') {
+        tenantId = window.location.pathname.split('/')[1];
+    } else {
+        const { headers } = require('next/headers');
+        const referer = headers().get('referer') || '';
+        tenantId = new URL(referer).pathname.split('/')[1];
+    }
+    const database = await checkTenantDatabase(tenantId)
+
+    const databaseId = database?.databaseId || '3';
+
     return datasetApi<T>('/query/execute', {
         method: 'POST',
         body: {

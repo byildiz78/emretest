@@ -1,5 +1,7 @@
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { getDatabase } from "./dataset";
+import { DatabaseResponse } from "@/types/tables";
 
 interface FormatNumberOptions {
     decimals?: number;
@@ -16,6 +18,31 @@ interface IntlFormatNumberOptions {
     maximumFractionDigits?: number;
     currency?: string;
 }
+
+
+
+const databaseCache = new Map<string, { database: DatabaseResponse | undefined; timestamp: number }>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 dakika
+
+export async function checkTenantDatabase(tenantId: string): Promise<DatabaseResponse | undefined> {
+    const cached = databaseCache.get(tenantId);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION && cached.database !== undefined) {
+        return cached.database
+    }
+       
+    try {
+        const databases = await getDatabase<DatabaseResponse[]>();
+
+        const database = databases.find(item => {
+            return item.id === tenantId
+        })
+        databaseCache.set(tenantId, { database, timestamp: Date.now() });
+        return database;
+    } catch (error) {
+        return undefined;
+    }
+}
+
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))

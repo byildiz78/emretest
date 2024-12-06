@@ -22,7 +22,8 @@ export default async function handler(
                     V5Type,
                     V6Type,
                     IsActive,
-                    ReportColor 
+                    ReportColor,
+                    ReportType 
                 FROM dm_webWidgets6 
                 WHERE IsActive = 1 
                 AND ReportID NOT IN (522)

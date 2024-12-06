@@ -51,8 +51,6 @@ export default function OrdersTable() {
         setError(null);
 
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        
         const date1 = new Date(today);
         date1.setHours(6, 0, 0, 0);
         
@@ -90,7 +88,10 @@ export default function OrdersTable() {
       }
     };
 
-    fetchTableData();
+    // Sadece bir şube seçili olduğunda veriyi çek
+    if (selectedFilter?.branches?.length === 1) {
+      fetchTableData();
+    }
   }, [selectedFilter?.branches, tableWidget]);
 
   const formatCurrency = (value: string) => {

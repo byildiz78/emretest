@@ -24,7 +24,7 @@ export default async function handler(
                     IsActive,
                     ReportColor,
                     ReportType 
-                FROM dm_webWidgets6 
+                FROM dm_webWidgets7 
                 WHERE IsActive = 1 
                 AND ReportID NOT IN (522)
                 AND BranchDetail = '1' 

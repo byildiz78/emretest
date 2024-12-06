@@ -44,9 +44,12 @@ export default function BranchStats() {
         data.forEach(async (widget, index) => {
           if (widget.ReportID) {
             try {
-              const date1 = new Date();
-              const date2 = new Date();
+              const today = new Date();
+              const date1 = new Date(today);
               date1.setHours(6, 0, 0, 0);
+              
+              const date2 = new Date(today);
+              date2.setDate(date2.getDate() + 1);
               date2.setHours(6, 0, 0, 0);
 
               const params = {
@@ -75,7 +78,7 @@ export default function BranchStats() {
                 newStates[index] = {
                   ...newStates[index],
                   loading: false,
-                  value: reportData[0]
+                  value: reportData[0]  // Sadece seçili şubenin verisi olacak
                 };
                 return newStates;
               });
@@ -86,7 +89,7 @@ export default function BranchStats() {
                 newStates[index] = {
                   ...newStates[index],
                   loading: false,
-                  value: 'Error'
+                  value: null
                 };
                 return newStates;
               });
@@ -98,7 +101,8 @@ export default function BranchStats() {
       }
     };
 
-    if (selectedFilter?.branches?.length) {
+    // Sadece bir şube seçili olduğunda veriyi çek
+    if (selectedFilter?.branches?.length === 1) {
       fetchWidgets();
     }
   }, [selectedFilter?.branches]);

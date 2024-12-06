@@ -65,7 +65,7 @@ const dateRanges = [
 
 export default function DetailsBranch({ branchData, allBranches }: DetailsClientProps) {
     const { addTab, tabs, setActiveTab } = useTabStore();
-    const { selectedFilter } = useFilterStore();
+    const { selectedFilter, setBranchs } = useFilterStore();
     const [date, setDate] = useState<Date>(new Date());
     const [dateRange, setDateRange] = useState("today");
     const [startDate, setStartDate] = useState<Date>();
@@ -93,6 +93,29 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
             maintainFocus();
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        if (branchData?.id) {
+            const selectedBranch = {
+                BranchID: parseInt(branchData.id),
+                BranchName: branchData.name
+            };
+            setBranchs([selectedBranch]);
+        }
+    }, [branchData, setBranchs]);
+
+    useEffect(() => {
+        const today = new Date();
+        const date1 = new Date(today);
+        date1.setHours(6, 0, 0, 0);
+        
+        const date2 = new Date(today);
+        date2.setDate(date2.getDate() + 1);
+        date2.setHours(6, 0, 0, 0);
+
+        setStartDate(date1);
+        setEndDate(date2);
+    }, []);
 
     useEffect(() => {
         if (branchData?.id) {

@@ -29,7 +29,6 @@ const ReportTable = ({ report }: ReportPageProps) => {
         filter: true,
         resizable: true,
         floatingFilter: true,
-        flex: 1,
         enableValue: true,
         enableRowGroup: true,
         enablePivot: true,
@@ -151,6 +150,8 @@ const ReportTable = ({ report }: ReportPageProps) => {
                         enableRangeHandle={true}
                         pagination={true}
                         paginationPageSize={100}
+                        autoSizeColumns={true}
+
                     />
                 )}
             </div>

@@ -104,9 +104,8 @@ export default function Dashboard() {
     }, []);
 
     return (
-        <div className="h-full overflow-hidden flex">
-            <div
-                className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent 
+        <div className="h-screen overflow-hidden flex">
+            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent 
                 [&::-webkit-scrollbar]:w-2
                 [&::-webkit-scrollbar-thumb]:bg-gray-300/50
                 [&::-webkit-scrollbar-thumb]:rounded-full
@@ -115,7 +114,7 @@ export default function Dashboard() {
                 hover:[&::-webkit-scrollbar-thumb]:bg-gray-300/80
                 dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700/80"
             >
-                <div className="flex justify-between items-center py-3 px-3 bg-background/95 backdrop-blur-sm border-b border-border/60">
+                <div className="flex justify-between items-center py-3 px-3 bg-background/95 backdrop-blur-sm border-b border-border/60 sticky top-0 z-10">
                     <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
                         <Store className="h-5 w-5" />
                         Özet Bilgiler
@@ -145,7 +144,7 @@ export default function Dashboard() {
                     </div>
                 </div>
 
-                <div className="p-3 space-y-4 md:space-y-6">
+                <div className="p-3 space-y-4 md:space-y-6 pb-20">
                     {widgets.length <= 0 || widgets === null || widgets === undefined ? (
                         <div className="flex items-center justify-center min-h-[200px]">
                             <RingLoader color="#fff" loading size={30} speedMultiplier={2} />

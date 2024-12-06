@@ -2,7 +2,6 @@
 
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { useFilterStore } from "@/stores/filters-store";
 import { Loader2 } from "lucide-react";
 import {
   Area,
@@ -20,6 +19,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  LabelList
 } from "recharts";
 
 interface ChartWidget {
@@ -36,6 +36,15 @@ interface ChartData {
   data: any[];
 }
 
+interface BranchChartsProps {
+  selectedBranch: {
+    BranchID: number;
+    BranchName: string;
+  };
+  startDate?: Date;
+  endDate?: Date;
+}
+
 const COLORS = [
   '#0088FE',  // Mavi
   '#00C49F',  // Yeşil
@@ -47,8 +56,7 @@ const COLORS = [
   '#ff7300',  // Koyu Turuncu
 ];
 
-export default function BranchCharts() {
-  const { selectedFilter } = useFilterStore();
+export default function BranchCharts({ selectedBranch, startDate, endDate }: BranchChartsProps) {
   const [chartStates, setChartStates] = useState<ChartData[]>([]);
 
   useEffect(() => {
@@ -65,18 +73,13 @@ export default function BranchCharts() {
         setChartStates(initialStates);
 
         data.forEach(async (widget, index) => {
-          if (widget.ReportID) {
+          if (widget.ReportID && startDate && endDate) {
             try {
-              const date1 = new Date();
-              const date2 = new Date();
-              date1.setHours(6, 0, 0, 0);
-              date2.setHours(6, 0, 0, 0);
-
               const params = {
-                date1: date1.toISOString(),
-                date2: date2.toISOString(),
+                date1: startDate.toISOString(),
+                date2: endDate.toISOString(),
                 reportId: widget.ReportID,
-                branches: selectedFilter?.branches?.map(b => b.BranchID) || []
+                branches: [selectedBranch.BranchID]
               };
 
               const response = await fetch('/api/widgetreport', {
@@ -125,10 +128,10 @@ export default function BranchCharts() {
       }
     };
 
-    if (selectedFilter?.branches?.length) {
+    if (selectedBranch && startDate && endDate) {
       fetchCharts();
     }
-  }, [selectedFilter?.branches]);
+  }, [selectedBranch, startDate, endDate]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('tr-TR', {
@@ -151,7 +154,7 @@ export default function BranchCharts() {
     return null;
   };
 
-  const renderChart = (chartState: ChartData, index: number) => {
+  const renderChart = (chartState: ChartData) => {
     if (chartState.loading) {
       return (
         <div className="flex items-center justify-center h-[300px]">
@@ -160,94 +163,101 @@ export default function BranchCharts() {
       );
     }
 
-    if (!chartState.data.length) {
+    const renderValue = (value: number) => 
+      new Intl.NumberFormat('tr-TR', {
+        style: 'currency',
+        currency: 'TRY',
+        maximumFractionDigits: 0
+      }).format(value);
+
+    const renderCompactValue = (value: number) => 
+      new Intl.NumberFormat('tr-TR', {
+        style: 'currency',
+        currency: 'TRY',
+        notation: 'compact',
+        maximumFractionDigits: 1
+      }).format(value);
+
+    // ReportID 530 - Günlük/Haftalık/Aylık Karşılaştırma
+    if (chartState.widget.ReportID === 530) {
+      const data = [
+        {
+          name: "Bugün",
+          value: Number(chartState.data[0]?.name) || 0,
+        },
+        {
+          name: "Geçen Hafta",
+          value: Number(chartState.data[0]?.value) || 0,
+        },
+        {
+          name: "Geçen Ay",
+          value: Number(chartState.data[0]?.percentage) || 0,
+        }
+      ];
+
       return (
-        <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-          Veri bulunamadı
+        <div className="h-[300px] w-full p-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart 
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              barSize={40}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis tickFormatter={renderValue} />
+              <Tooltip formatter={renderValue} />
+              <Bar dataKey="value" fill="#8884d8">
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+                <LabelList dataKey="value" position="top" formatter={renderCompactValue} />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       );
     }
 
-    // ReportID 530 için özel pasta grafik
-    if (chartState.widget.ReportID === 530) {
+    // ReportID 531 - Kategori Dağılımı
+    if (chartState.widget.ReportID === 531) {
       return (
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={chartState.data}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, percentage }) => `${name} (%${percentage.toFixed(1)})`}
-              outerRadius={100}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {chartState.data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+        <div className="h-[300px] w-full p-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartState.data}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                outerRadius={100}
+                label={(entry) => `${entry.name}: ${renderCompactValue(entry.value)}`}
+              >
+                {chartState.data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip formatter={renderValue} />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       );
     }
 
-    switch (chartState.widget.ChartType?.toLowerCase()) {
-      case 'bar':
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartState.data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value" fill={COLORS[0]} name="Değer" />
-            </BarChart>
-          </ResponsiveContainer>
-        );
-      
-      case 'area':
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={chartState.data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Area type="monotone" dataKey="value" fill={COLORS[0]} stroke={COLORS[0]} name="Değer" />
-            </AreaChart>
-          </ResponsiveContainer>
-        );
-      
-      default:
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartState.data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="value" stroke={COLORS[0]} name="Değer" />
-            </LineChart>
-          </ResponsiveContainer>
-        );
-    }
+    return null;
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {chartStates.map((chartState, index) => (
-        <Card key={chartState.widget.AutoID} className="p-6">
-          <div className="flex flex-col space-y-3">
-            <div className="space-y-0.5">
-              <h3 className="text-base font-medium">{chartState.widget.ReportName}</h3>
+        <Card key={index} className="p-4">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">{chartState.widget.ReportName}</h3>
             </div>
-            {renderChart(chartState, index)}
+            {renderChart(chartState)}
           </div>
         </Card>
       ))}

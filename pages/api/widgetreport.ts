@@ -25,7 +25,7 @@ export default async function handler(
         // Get widget query
         const widgetQuery = `
             SELECT TOP 1 ReportID, ReportQuery, ReportQuery2
-            FROM dm_webWidgets6
+            FROM dm_webWidgets7
             WHERE ReportID = @reportId
             AND IsActive = 1
             AND (ReportQuery != '' OR ReportQuery2 != '')

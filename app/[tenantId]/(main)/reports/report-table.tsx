@@ -9,13 +9,20 @@ import axios from 'axios';
 import { ReportPageProps } from './types';
 import { useFilterStore } from '@/stores/filters-store';
 
-const ReportTable = ({ report, reportGroup }: ReportPageProps) => {
-    const gridRef = useRef<any>(null);
-    const [columnDefs, setColumnDefs] = useState<any[]>([]);
+interface ColumnDef {
+field: string;
+headerName: string;
+filter: boolean;
+sortable: boolean;
+}
+
+const ReportTable = ({ report }: ReportPageProps) => {
+    const gridRef = useRef<AgGridReact>(null);
+    const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
     const [rowData, setRowData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const { selectedFilter } = useFilterStore()
+    const { selectedFilter } = useFilterStore();
 
     const defaultColDef = useMemo(() => ({
         sortable: true,
@@ -55,8 +62,7 @@ const ReportTable = ({ report, reportGroup }: ReportPageProps) => {
                 width: 225
             },
         ],
-        position: 'right',
-        defaultToolPanel: 'columns'
+        position: 'right'
     }), []);
 
     const chartThemeOverrides = useMemo(() => ({
@@ -72,60 +78,59 @@ const ReportTable = ({ report, reportGroup }: ReportPageProps) => {
         },
     }), []);
 
-    const popupParent = useMemo(() => {
-        return document.body;
-    }, []);
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const branchIds = selectedFilter.selectedBranches.length > 0
+                ? selectedFilter.selectedBranches.map(item => item.BranchID)
+                : selectedFilter.branches.map(item => item.BranchID);
 
-    const cellSelection = useMemo(() => {
-        return true;
-    }, []);
+            const response = await axios.post('/api/reports-table', {
+                date1: selectedFilter.date.from,
+                date2: selectedFilter.date.to,
+                reportId: report.ReportID,
+                branches: branchIds
+            });
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const response = await axios.post('/api/reports-table', {
-                    date1: selectedFilter.date.from,
-                    date2: selectedFilter.date.to,
-                    reportId: report.ReportID,
-                    branches: selectedFilter.selectedBranches.length > 0 ? selectedFilter.selectedBranches.map(item => item.BranchID) : selectedFilter.branches.map(item => item.BranchID) || []
-
-                });
-
-                if (response.data && response.data.length > 0) {
-                    const cols = Object.keys(response.data[0]).map(key => ({
-                        field: key,
-                        headerName: key,
-                        filter: true,
-                        sortable: true
-                    }));
-                    setColumnDefs(cols);
-                }
-
+            if (response.data?.length > 0) {
+                const cols = Object.keys(response.data[0]).map(key => ({
+                    field: key,
+                    headerName: key,
+                    filter: true,
+                    sortable: true
+                }));
+                setColumnDefs(cols);
                 setRowData(response.data);
                 setError(null);
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'An error occurred');
+            } else {
                 setRowData([]);
-            } finally {
-                setLoading(false);
+                setError('Veri bulunamadı');
             }
-        };
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Bir hata oluştu');
+            setRowData([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         if (report?.ReportID) {
             fetchData();
         }
     }, [report?.ReportID, selectedFilter.date.from, selectedFilter.date.to, selectedFilter.selectedBranches]);
 
     if (loading) {
-        return <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        </div>;
+        return (
+            <div className="flex items-center justify-center h-64">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+            </div>
+        );
     }
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="ag-theme-alpine" style={{ height: 'calc(100vh - 250px)', width: '100%' }}>
+            <div className="ag-theme-alpine h-[calc(100vh-250px)] w-full">
                 {error ? (
                     <div className="text-red-500 p-4">{error}</div>
                 ) : (
@@ -133,7 +138,7 @@ const ReportTable = ({ report, reportGroup }: ReportPageProps) => {
                         ref={gridRef}
                         enableCharts={true}
                         chartThemeOverrides={chartThemeOverrides}
-                        popupParent={popupParent}
+                        popupParent={document.body}
                         columnDefs={columnDefs}
                         rowData={rowData}
                         defaultColDef={defaultColDef}
@@ -149,7 +154,7 @@ const ReportTable = ({ report, reportGroup }: ReportPageProps) => {
                     />
                 )}
             </div>
-            <div id="myChart" className="w-full h-[400px]"></div>
+            <div id="myChart" className="w-full h-[400px]" />
         </div>
     );
 };

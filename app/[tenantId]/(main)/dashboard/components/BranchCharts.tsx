@@ -163,10 +163,23 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
       );
     }
 
-    if (chartState.widget.ReportID === 530) {
-      console.log('Original Chart Data:', chartState.data);
+    const renderValue = (value: number) => 
+      new Intl.NumberFormat('tr-TR', {
+        style: 'currency',
+        currency: 'TRY',
+        maximumFractionDigits: 0
+      }).format(value);
 
-      // API'den gelen veriyi doğru formata dönüştürüyoruz
+    const renderCompactValue = (value: number) => 
+      new Intl.NumberFormat('tr-TR', {
+        style: 'currency',
+        currency: 'TRY',
+        notation: 'compact',
+        maximumFractionDigits: 1
+      }).format(value);
+
+    // ReportID 530 - Günlük/Haftalık/Aylık Karşılaştırma
+    if (chartState.widget.ReportID === 530) {
       const data = [
         {
           name: "Bugün",
@@ -182,8 +195,6 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
         }
       ];
 
-      console.log('Transformed Data:', data);
-
       return (
         <div className="h-[300px] w-full p-4">
           <ResponsiveContainer width="100%" height="100%">
@@ -194,78 +205,48 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
-              <YAxis 
-                tickFormatter={(value) => 
-                  new Intl.NumberFormat('tr-TR', {
-                    style: 'currency',
-                    currency: 'TRY',
-                    maximumFractionDigits: 0
-                  }).format(value)
-                }
-              />
-              <Tooltip 
-                formatter={(value) => 
-                  new Intl.NumberFormat('tr-TR', {
-                    style: 'currency',
-                    currency: 'TRY',
-                    maximumFractionDigits: 0
-                  }).format(Number(value))
-                }
-              />
+              <YAxis tickFormatter={renderValue} />
+              <Tooltip formatter={renderValue} />
               <Bar dataKey="value" fill="#8884d8">
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
-                <LabelList
-                  dataKey="value"
-                  position="top"
-                  formatter={(value) => 
-                    new Intl.NumberFormat('tr-TR', {
-                      style: 'currency',
-                      currency: 'TRY',
-                      notation: 'compact',
-                      maximumFractionDigits: 1
-                    }).format(Number(value))
-                  }
-                />
+                <LabelList dataKey="value" position="top" formatter={renderCompactValue} />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
       );
-    } else {
-      // Kategori dağılım grafiği (Pie Chart)
+    }
+
+    // ReportID 531 - Kategori Dağılımı
+    if (chartState.widget.ReportID === 531) {
       return (
-        <div className="h-[300px] w-full">
+        <div className="h-[300px] w-full p-4">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
                 data={chartState.data}
+                dataKey="value"
+                nameKey="name"
                 cx="50%"
                 cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(1)}%)`}
                 outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
+                label={(entry) => `${entry.name}: ${renderCompactValue(entry.value)}`}
               >
                 {chartState.data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip
-                formatter={(value: number) => 
-                  new Intl.NumberFormat('tr-TR', {
-                    style: 'currency',
-                    currency: 'TRY'
-                  }).format(value)
-                }
-              />
+              <Tooltip formatter={renderValue} />
+              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </div>
       );
     }
+
+    return null;
   };
 
   return (

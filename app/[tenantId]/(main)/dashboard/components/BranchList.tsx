@@ -42,7 +42,7 @@ export default function BranchList() {
 
     return (
         <div className="w-full">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-h-0">
                 {branchDatas.map((branchData, index) => {
                     if (!branchData) return null;
                     const transformedData = transformBranchData(branchData);

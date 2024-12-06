@@ -1,74 +1,46 @@
 "use client";
 
 import * as React from "react";
-import {
-    AudioWaveform,
-    Command,
-    GalleryVerticalEnd,
-    BarChart3,
-    ShoppingCart,
-    PieChart,
-    Smartphone,
-    Calendar,
-    DollarSign,
-    XCircle,
-    Bot,
-    LayoutDashboard,
-    FileText,
-    ClipboardList,
-    LucideIcon
-} from "lucide-react";
+import * as LucideIcons from "lucide-react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar";
 import { TeamSwitcher } from "@/components/team-switcher";
 import { NavMain } from "@/components/nav-main";
-import { NavProjects } from "@/components/nav-projects";
 import { NavUser } from "@/components/nav-user";
-import { useReport } from "@/hooks/use-reportlist";
-import { WebReportGroup } from "@/types/tables";
+import { RawReportData } from "@/types/tables";
 import { SupersetDashboard } from "@/types/tables";
-import * as AllIcons from "lucide-react";
 import SupersetDashboardComponent from "@/app/[tenantId]/(main)/superset/dashboard";
+import axios from "axios";
+import { getLucideIcon } from "@/lib/utils";
+import { ReportPage } from "@/app/[tenantId]/(main)/reports/page";
 
 interface NavItem {
     title: string;
-    icon?: LucideIcon;
+    icon?: LucideIcons.LucideIcon;
     isActive?: boolean;
     expanded?: boolean;
-    securityLevel?: string;
-    displayOrder?: number;
     url?: string;
     component?: React.ComponentType<any>;
     items?: NavItem[];
     onClick?: () => void;
 }
 
-interface RawReportData {
-    GroupAutoID: number;
-    GroupName: string;
-    GroupSecurityLevel: string | number;
-    GroupDisplayOrderID: number;
-    GroupIcon: string;
-    ReportAutoID: number;
-    ReportID: string | number;
-    ReportName: string;
-    ReportSecurityLevel: string | number;
-    ReportDisplayOrderID: number;
-}
-
-const getDynamicIcon = (iconName: string): LucideIcon => {
-    // @ts-expect-error - Dynamic icon import from lucide-react
-    return AllIcons[iconName];
-};
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-    const { data: reportData, isLoading, execute } = useReport<RawReportData[]>();
     const [supersetMenuItems, setSupersetMenuItems] = React.useState<SupersetDashboard[]>([]);
+    const [webreportMenuItems, setWebreportMenuItems] = React.useState<RawReportData[]>([]);
 
     const fetchSupersetMenuItems = React.useCallback(async () => {
         try {
-            const response = await fetch('/api/superset/superset_menu_items');
-            const data = await response.json();
-            setSupersetMenuItems(data);
+            const response = await axios.get<SupersetDashboard[]>('/api/superset/superset_menu_items');
+            setSupersetMenuItems(response.data);
+        } catch (error) {
+            console.error('Error fetching superset menu items:', error);
+        }
+    }, []);
+
+    const fetchReportMenuItems = React.useCallback(async () => {
+        try {
+            const response = await axios.get<RawReportData[]>('/api/webreportlist');
+            setWebreportMenuItems(response.data);
         } catch (error) {
             console.error('Error fetching superset menu items:', error);
         }
@@ -79,11 +51,32 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             .filter(item => item.DashboardID)
             .map(item => ({
                 title: item.Title,
-                icon: getDynamicIcon(item.Icon),
+                icon: getLucideIcon(item.Icon),
                 component: () => (
                     <SupersetDashboardComponent dashboardId={item.DashboardID} standalone={item.Standalone} extraParams={item.ExtraParams} />
                 )
             }));
+    }, []);
+
+    const getReportNavItems = React.useCallback((reportData: RawReportData[]): NavItem[] => {
+        if (!reportData?.length) return [];
+
+        return reportData.map(reportGroup => ({
+            title: reportGroup.Group.GroupName || '',
+            icon: getLucideIcon(reportGroup.Group.GroupIcon, LucideIcons.FileText),
+            isActive: true,
+            expanded: false,
+            items: reportGroup.Reports.map(rawReport => ({
+                title: rawReport.ReportName || '',
+                icon: getLucideIcon(rawReport.ReportIcon, LucideIcons.FileText),
+                isActive: true,
+                expanded: false,
+                component: () => (
+                    <ReportPage report={rawReport} reportGroup={reportGroup.Group} />
+                )
+            }))
+        }));
+
     }, []);
 
     const baseData = React.useMemo(() => ({
@@ -95,19 +88,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         teams: [
             {
                 name: "robotPOS Enterprise",
-                logo: GalleryVerticalEnd,
+                logo: LucideIcons.GalleryVerticalEnd,
                 plan: "data manager",
                 className: "bg-blue-200",
             },
             {
                 name: "robotPOS Operation Manager",
-                logo: AudioWaveform,
+                logo: LucideIcons.AudioWaveform,
                 plan: "operation manager",
                 className: "bg-blue-200",
             },
             {
                 name: "robotPOS Franchise Manager",
-                logo: GalleryVerticalEnd,
+                logo: LucideIcons.GalleryVerticalEnd,
                 plan: "franchise manager",
                 className: "bg-blue-200",
             },
@@ -115,17 +108,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         projects: [],
     }), []);
 
-    const staticNavItems = React.useMemo(() => [
+    const navItems = React.useMemo(() => [
         {
             title: "Dashboard",
-            icon: LayoutDashboard,
+            icon: LucideIcons.LayoutDashboard,
             isActive: true,
             expanded: true,
             items: getSupersetNavItems(supersetMenuItems),
         },
         {
             title: "AI (Yapay Zeka)",
-            icon: Bot,
+            icon: LucideIcons.Bot,
             isActive: true,
             expanded: true,
             items: [
@@ -133,93 +126,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {
                     title: "Veri tabanı ile konuşun",
                     url: "askdatabase",
-                    icon: Bot,
+                    icon: LucideIcons.Bot,
                 },
 
                 {
                     title: "Analizci",
                     url: "chatbot",
-                    icon: Command,
+                    icon: LucideIcons.Command,
                 }
 
 
             ],
         },
-    ], [supersetMenuItems, getSupersetNavItems]);
-
-    const processReports = React.useCallback((rawData: RawReportData[]): WebReportGroup[] => {
-        if (!Array.isArray(rawData) || !rawData.length) return [];
-
-        const groupedData = rawData.reduce<{ [key: number]: WebReportGroup }>((acc, item) => {
-            if (!acc[item.GroupAutoID]) {
-                const IconComponent = getDynamicIcon(item.GroupIcon);
-                acc[item.GroupAutoID] = {
-                    GroupAutoID: item.GroupAutoID,
-                    GroupName: item.GroupName,
-                    GroupSecurityLevel: String(item.GroupSecurityLevel),
-                    GroupDisplayOrderID: item.GroupDisplayOrderID,
-                    GroupIcon: IconComponent,
-                    reports: []
-                };
-            }
-
-            acc[item.GroupAutoID].reports.push({
-                ReportAutoID: item.ReportAutoID,
-                ReportID: String(item.ReportID),
-                ReportName: item.ReportName,
-                ReportSecurityLevel: String(item.ReportSecurityLevel),
-                ReportDisplayOrderID: item.ReportDisplayOrderID
-            });
-
-            return acc;
-        }, {});
-
-        return Object.values(groupedData)
-            .filter(group => group.reports.length > 0)
-            .map(group => ({
-                ...group,
-                reports: [...group.reports].sort((a, b) => a.ReportDisplayOrderID - b.ReportDisplayOrderID)
-            }))
-            .sort((a, b) => a.GroupDisplayOrderID - b.GroupDisplayOrderID);
-    }, []);
-
-    const getReportNavItems = React.useCallback((rawData: RawReportData[]): NavItem[] => {
-        if (!rawData?.length) return [];
-    
-        const groups = processReports(rawData);
-        
-        return [{
+        {
             title: "Raporlar",
-            icon: ClipboardList,
+            icon: LucideIcons.ScrollText,
             isActive: true,
-            expanded: false,
-            items: groups.map(group => ({
-                title: group.GroupName,
-                icon: group.GroupIcon,
-                isActive: true,
-                expanded: false,
-                securityLevel: group.GroupSecurityLevel,
-                displayOrder: group.GroupDisplayOrderID,
-                items: group.reports.map(report => ({
-                    title: report.ReportName,
-                    icon: FileText,
-                    url: `reports/${report.ReportID}`,
-                    securityLevel: report.ReportSecurityLevel,
-                    displayOrder: report.ReportDisplayOrderID
-                }))
-            }))
-        }];
-    }, [processReports]);
+            expanded: true,
+            items: getReportNavItems(webreportMenuItems)
+        },
+    ], [supersetMenuItems, webreportMenuItems, getSupersetNavItems, getReportNavItems]);
 
-    const navMain = React.useMemo(() => {
-        if (!reportData) return staticNavItems;
-        return [...staticNavItems, ...getReportNavItems(reportData)];
-    }, [reportData, staticNavItems, getReportNavItems]);
+
 
     React.useEffect(() => {
-        execute();
+        fetchReportMenuItems();
         fetchSupersetMenuItems();
-    }, [execute, fetchSupersetMenuItems]);
+    }, [fetchReportMenuItems, fetchSupersetMenuItems]);
 
     return (
         <Sidebar {...props}>
@@ -228,7 +161,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarHeader>
             <SidebarContent>
                 <nav className="flex flex-col gap-4">
-                    <NavMain items={navMain} />
+                    <NavMain items={navItems} />
                 </nav>
             </SidebarContent>
             <SidebarFooter>

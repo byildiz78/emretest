@@ -104,20 +104,30 @@ export type WebWidgetData = {
 }
 
 export type WebReport = {
-    ReportAutoID: number;
-    ReportID: string;
-    ReportName: string;
-    ReportSecurityLevel: string;
-    ReportDisplayOrderID: number;
+    AutoID: number;
+    ReportID: number;
+    GroupID: number;
+    ReportName?: string;
+    ReportType?: number;
+    ShowDesktop?: number;
+    ShowMobile?: number;
+    DisplayOrderID?: number;
+    SecurityLevel?: number;
+    ReportQuery?: string;
+    ReportIcon?: string;
 }
 
 export type WebReportGroup = {
     GroupAutoID: number;
-    GroupName: string;
-    GroupSecurityLevel: string;
-    GroupDisplayOrderID: number;
-    GroupIcon: LucideIcon;
-    reports: WebReport[];
+    GroupName?: string;
+    GroupDisplayOrderID?: number;
+    GroupSecurityLevel?: number;
+    GroupIcon?: string;
+}
+
+export interface RawReportData {
+    Group: WebReportGroup;
+    Reports: WebReport[];
 }
 
 export type Notification = {
@@ -189,7 +199,7 @@ export type SupersetDashboard = {
     Icon: string;
 }
 
-export type ChatBotRole = 'system' | 'user' | 'assistant' | 'function';
+export type ChatBotRole = 'system' | 'user' | 'assistant' | 'function'
 
 export type ChatBot = {
     AutoID: number;

@@ -86,6 +86,7 @@ export type WebWidget = {
     ReportQuery2?: string;
     IsActive?: boolean;
     ReportColor?: string;
+    ReportType?: string;
 }
 
 export type WebWidgetData = {

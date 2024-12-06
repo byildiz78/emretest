@@ -68,7 +68,6 @@ export default async function handler(
             },
             req
         });
-
         const user = response[0]
         if (user) {
             let tokenPayload = {

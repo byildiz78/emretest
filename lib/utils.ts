@@ -2,6 +2,9 @@ import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { DatabaseResponse } from "@/types/tables";
 import { Dataset } from "@/pages/api/dataset";
+import * as LucideIcons from "lucide-react";
+import { ComponentType } from "react";
+import { LucideIcon } from "lucide-react";
 
 interface FormatNumberOptions {
     decimals?: number;
@@ -20,6 +23,12 @@ interface IntlFormatNumberOptions {
 }
 
 
+export const getLucideIcon = (iconName: string | undefined, defaultIcon?: LucideIcon): LucideIcon => {
+    if (!iconName) return defaultIcon || LucideIcons.HelpCircle;
+    
+    const Icon = LucideIcons[iconName as keyof typeof LucideIcons] as LucideIcon;
+    return Icon || defaultIcon || LucideIcons.HelpCircle;
+};
 
 const databaseCache = new Map<string, { database: DatabaseResponse | undefined; timestamp: number }>();
 const CACHE_DURATION = 5 * 60 * 1000; // 5 dakika

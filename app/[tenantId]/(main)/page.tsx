@@ -9,10 +9,11 @@ import { Home as HomeIcon } from 'lucide-react';
 
 const DashboardPage = memo(dynamic(() => import('./dashboard/page'), {
     loading: () => <div>Loading...</div>,
+    ssr: false
 }));
 
 export default function MainPage() {
-    const { tabs, activeTab, setActiveTab, removeTab, removeAllTabs } = useTabStore();
+    const { tabs, activeTab, setActiveTab, removeTab, removeAllTabs, renderedComponents, setRenderedComponent } = useTabStore();
 
     const handleCloseTab = (tabId: string) => {
         if (activeTab === tabId) {
@@ -57,22 +58,34 @@ export default function MainPage() {
                                 </TabsList>
 
                                 <div className="flex-1 mt-4 overflow-hidden">
-                                    <div style={{ display: activeTab === "dashboard" ? "block" : "none", height: "100%" }}>
+                                    <div 
+                                        style={{ 
+                                            visibility: activeTab === "dashboard" ? "visible" : "hidden",
+                                            height: "100%",
+                                            position: activeTab === "dashboard" ? "relative" : "absolute"
+                                        }}
+                                    >
                                         <DashboardPage />
                                     </div>
                                     {tabs.map((tab) => {
-                                        const TabComponent = dynamic(tab.lazyComponent, {
-                                            ssr: false
-                                        });
+                                        if (!renderedComponents[tab.id]) {
+                                            const TabComponent = dynamic(tab.lazyComponent, {
+                                                ssr: false
+                                            });
+                                            setRenderedComponent(tab.id, <TabComponent />);
+                                        }
+                                        
                                         return (
                                             <div
                                                 key={tab.id}
                                                 style={{
-                                                    display: activeTab === tab.id ? "block" : "none",
-                                                    height: "100%"
+                                                    visibility: activeTab === tab.id ? "visible" : "hidden",
+                                                    height: "100%",
+                                                    position: activeTab === tab.id ? "relative" : "absolute",
+                                                    width: "100%"
                                                 }}
                                             >
-                                                <TabComponent />
+                                                {renderedComponents[tab.id]}
                                             </div>
                                         );
                                     })}

@@ -1,9 +1,9 @@
 "use client";
 
-import { Calendar, Store, Search } from "lucide-react";
+import { Calendar, Store, Search, Check, ChevronDown } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { format } from "date-fns";
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths, startOfYear, endOfYear } from "date-fns";
 import { tr } from "date-fns/locale";
 import BranchStats from "@/app/[tenantId]/(main)/dashboard/components/BranchStats";
 import BranchCharts from "@/app/[tenantId]/(main)/dashboard/components/BranchCharts";
@@ -18,8 +18,15 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useTabStore } from "@/stores/tab-store";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
 
 interface BranchData {
     id: string;
@@ -65,6 +72,7 @@ const dateRanges = [
     { value: "thisMonth", label: "Bu Ay", color: "bg-orange-500" },
     { value: "lastMonth", label: "Geçen Ay", color: "bg-red-500" },
     { value: "custom", label: "Özel Tarih", color: "bg-gray-500" },
+    { value: "thisYear", label: "Bu Yıl", color: "bg-pink-500" },
 ];
 
 export default function DetailsBranch({ branchData, allBranches }: DetailsClientProps) {
@@ -78,7 +86,13 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
     const [isOpen, setIsOpen] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [availableBranches, setAvailableBranches] = useState<Efr_Branches[]>([]);
+    
+    // Mevcut şube (görüntülenen)
+    const [currentBranch, setCurrentBranch] = useState<Efr_Branches | null>(null);
+    // Seçilen şube (henüz uygulanmamış)
     const [selectedBranch, setSelectedBranch] = useState<Efr_Branches | null>(null);
+    // Seçilen tarih aralığı (henüz uygulanmamış)
+    const [tempDateRange, setTempDateRange] = useState("today");
 
     // Şubeleri çek
     useEffect(() => {
@@ -95,16 +109,17 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
         fetchBranches();
     }, []);
 
-    // Başlangıçta seçili şubeyi ayarla
+    // Başlangıçta mevcut şubeyi ayarla
     useEffect(() => {
-        if (branchData?.id && !selectedBranch) {
+        if (branchData?.id && !currentBranch) {
             const branch = {
                 BranchID: parseInt(branchData.id),
                 BranchName: branchData.name
             };
+            setCurrentBranch(branch);
             setSelectedBranch(branch);
         }
-    }, [branchData, selectedBranch]);
+    }, [branchData, currentBranch]);
 
     // API istekleri için tarih aralığını ayarla
     useEffect(() => {
@@ -120,15 +135,118 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
         setEndDate(date2);
     }, []);
 
+    const handleApply = () => {
+        if (!selectedBranch) return;
+
+        // Tarih aralığını güncelle
+        setDateRange(tempDateRange);
+
+        // Tarih değerlerini ayarla
+        const today = new Date();
+        let newStartDate = startDate;
+        let newEndDate = endDate;
+
+        switch (tempDateRange) {
+            case "today":
+                newStartDate = new Date(today);
+                newStartDate.setHours(6, 0, 0, 0);
+                newEndDate = new Date(today);
+                newEndDate.setDate(newEndDate.getDate() + 1);
+                newEndDate.setHours(6, 0, 0, 0);
+                break;
+            case "yesterday":
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                newStartDate = new Date(yesterday);
+                newStartDate.setHours(6, 0, 0, 0);
+                newEndDate = new Date(today);
+                newEndDate.setHours(6, 0, 0, 0);
+                break;
+            case "thisWeek":
+                newStartDate = startOfWeek(today, { weekStartsOn: 1 });
+                newStartDate.setHours(6, 0, 0, 0);
+                newEndDate = endOfWeek(today, { weekStartsOn: 1 });
+                newEndDate.setHours(6, 0, 0, 0);
+                break;
+            case "lastWeek":
+                const lastWeek = subWeeks(today, 1);
+                newStartDate = startOfWeek(lastWeek, { weekStartsOn: 1 });
+                newStartDate.setHours(6, 0, 0, 0);
+                newEndDate = endOfWeek(lastWeek, { weekStartsOn: 1 });
+                newEndDate.setHours(6, 0, 0, 0);
+                break;
+            case "thisMonth":
+                newStartDate = startOfMonth(today);
+                newStartDate.setHours(6, 0, 0, 0);
+                newEndDate = endOfMonth(today);
+                newEndDate.setHours(6, 0, 0, 0);
+                break;
+            case "lastMonth":
+                const lastMonth = subMonths(today, 1);
+                newStartDate = startOfMonth(lastMonth);
+                newStartDate.setHours(6, 0, 0, 0);
+                newEndDate = endOfMonth(lastMonth);
+                newEndDate.setHours(6, 0, 0, 0);
+                break;
+            case "thisYear":
+                newStartDate = startOfYear(today);
+                newStartDate.setHours(6, 0, 0, 0);
+                newEndDate = endOfYear(today);
+                newEndDate.setHours(6, 0, 0, 0);
+                break;
+        }
+
+        setStartDate(newStartDate);
+        setEndDate(newEndDate);
+
+        // Şube değişti mi kontrol et
+        if (currentBranch?.BranchID !== selectedBranch.BranchID) {
+            // Farklı şube seçildiyse yeni tab aç
+            const tabId = `branch-${selectedBranch.BranchID}`;
+            
+            const newTab = {
+                id: tabId,
+                title: selectedBranch.BranchName,
+                url: `/[tenantId]/(main)/branchdetails/${selectedBranch.BranchID}`,
+                lazyComponent: () => import("./DetailsBranch").then(mod => ({
+                    default: () => (
+                        <DetailsBranch 
+                            branchData={{
+                                id: selectedBranch.BranchID.toString(),
+                                name: selectedBranch.BranchName,
+                                stats: {
+                                    checkCount: 0,
+                                    checkAverage: 0,
+                                    discount: 0,
+                                    peopleCount: 0,
+                                    peopleAverage: 0,
+                                    canceled: 0
+                                },
+                                revenue: {
+                                    openChecks: 0,
+                                    closedChecks: 0,
+                                    total: 0
+                                },
+                                orders: []
+                            }}
+                            allBranches={availableBranches}
+                        />
+                    )
+                }))
+            };
+            
+            addTab(newTab);
+            setActiveTab(newTab.id);
+            setCurrentBranch(selectedBranch);
+        } else {
+            // Aynı şube seçildiyse mevcut tabı güncelle
+            setCurrentBranch(selectedBranch);
+        }
+    };
+
     const filteredBranches = availableBranches.filter((branch) =>
         branch.BranchName.toLowerCase().includes(searchQuery.toLowerCase())
     );
-
-    const handleBranchChange = (branchId: string) => {
-        const newSelectedBranch = availableBranches.find(b => b.BranchID.toString() === branchId);
-        if (!newSelectedBranch) return;
-        setSelectedBranch(newSelectedBranch);
-    };
 
     return (
         <div className="h-[calc(90vh-4rem)] overflow-y-auto w-full
@@ -147,53 +265,72 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                             <h2 className="text-lg font-semibold">Filtreler</h2>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Select 
-                                value={selectedBranch?.BranchID.toString()} 
-                                onValueChange={handleBranchChange}
+                        <div className="flex flex-row items-center gap-4">
+                            <Popover 
                                 open={isOpen}
-                                onOpenChange={(open) => {
-                                    setIsOpen(open);
-                                    if (!open) {
-                                        setSearchQuery("");
-                                    }
-                                }}
+                                onOpenChange={setIsOpen}
+                                className="flex-1"
                             >
-                                <SelectTrigger className="bg-card border-2 border-border/60 rounded-xl h-12">
-                                    <div className="flex items-center gap-2">
-                                        <Store className="h-4 w-4 text-muted-foreground" />
-                                        <SelectValue placeholder="Şube seçiniz" />
-                                    </div>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <div className="p-2">
-                                        <input
-                                            ref={searchInputRef}
-                                            className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        role="combobox"
+                                        aria-expanded={isOpen}
+                                        className={cn(
+                                            "w-full justify-between bg-background/60 backdrop-blur-sm",
+                                            "border-border/50 shadow-sm hover:shadow-md transition-all duration-300",
+                                            "hover:border-border hover:bg-background/80"
+                                        )}
+                                    >
+                                        {selectedBranch ? selectedBranch.BranchName : "Şube seçiniz"}
+                                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-[300px] p-0 bg-background/95 backdrop-blur-md border-border/50 shadow-xl">
+                                    <Command>
+                                        <CommandInput 
                                             placeholder="Şube ara..."
                                             value={searchQuery}
-                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            onValueChange={setSearchQuery}
+                                            className="h-9"
                                         />
-                                    </div>
-                                    {filteredBranches.map((branch) => (
-                                        <SelectItem 
-                                            key={branch.BranchID} 
-                                            value={branch.BranchID.toString()}
-                                        >
-                                            {branch.BranchName}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                        <CommandList>
+                                            <CommandEmpty>Şube bulunamadı.</CommandEmpty>
+                                            <CommandGroup>
+                                                {filteredBranches.map((branch) => (
+                                                    <CommandItem
+                                                        key={branch.BranchID}
+                                                        value={branch.BranchName}
+                                                        onSelect={() => {
+                                                            setSelectedBranch(branch);
+                                                            setIsOpen(false);
+                                                        }}
+                                                    >
+                                                        <Store className="mr-2 h-4 w-4" />
+                                                        {branch.BranchName}
+                                                        {selectedBranch?.BranchID === branch.BranchID && (
+                                                            <Check className="ml-auto h-4 w-4" />
+                                                        )}
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </PopoverContent>
+                            </Popover>
 
-                            <Select value={dateRange} onValueChange={setDateRange}>
-                                <SelectTrigger className="bg-card border-2 border-border/60 rounded-xl h-12">
+                            <Select 
+                                value={tempDateRange} 
+                                onValueChange={setTempDateRange} 
+                                className="flex-1"
+                            >
+                                <SelectTrigger className="bg-background/60 backdrop-blur-sm border-border/50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-border">
                                     <div className="flex items-center gap-2">
                                         <Calendar className="h-4 w-4 text-muted-foreground" />
                                         <SelectValue placeholder="Tarih Aralığı Seçin" />
                                     </div>
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="bg-background/95 backdrop-blur-md border-border/50 shadow-xl">
                                     {dateRanges.map((range) => (
                                         <SelectItem
                                             key={range.value}
@@ -208,9 +345,18 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                                     ))}
                                 </SelectContent>
                             </Select>
+
+                            <Button 
+                                variant="default"
+                                className="px-8 h-10"
+                                onClick={handleApply}
+                                disabled={!selectedBranch}
+                            >
+                                Uygula
+                            </Button>
                         </div>
 
-                        {dateRange === "custom" && (
+                        {tempDateRange === "custom" && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <Popover>
                                     <PopoverTrigger asChild>
@@ -270,11 +416,23 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                     </div>
                 </Card>
 
-                {selectedBranch && (
+                {currentBranch && (
                     <>
-                        <BranchStats selectedBranch={selectedBranch} startDate={startDate} endDate={endDate} />
-                        <BranchCharts selectedBranch={selectedBranch} startDate={startDate} endDate={endDate} />
-                        <OrdersTable selectedBranch={selectedBranch} startDate={startDate} endDate={endDate} />
+                        <BranchStats 
+                            selectedBranch={currentBranch} 
+                            startDate={startDate} 
+                            endDate={endDate}
+                        />
+                        <BranchCharts 
+                            selectedBranch={currentBranch} 
+                            startDate={startDate} 
+                            endDate={endDate}
+                        />
+                        <OrdersTable 
+                            selectedBranch={currentBranch} 
+                            startDate={startDate} 
+                            endDate={endDate}
+                        />
                     </>
                 )}
             </div>

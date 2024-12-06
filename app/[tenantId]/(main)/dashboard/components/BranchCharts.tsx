@@ -19,6 +19,7 @@ import {
   PieChart,
   Pie,
   Cell,
+  LabelList
 } from "recharts";
 
 interface ChartWidget {
@@ -153,7 +154,7 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
     return null;
   };
 
-  const renderChart = (chartState: ChartData, index: number) => {
+  const renderChart = (chartState: ChartData) => {
     if (chartState.loading) {
       return (
         <div className="flex items-center justify-center h-[300px]">
@@ -162,94 +163,120 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
       );
     }
 
-    if (!chartState.data.length) {
-      return (
-        <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-          Veri bulunamadı
-        </div>
-      );
-    }
-
-    // ReportID 530 için özel pasta grafik
     if (chartState.widget.ReportID === 530) {
-      return (
-        <ResponsiveContainer width="100%" height={300}>
-          <PieChart>
-            <Pie
-              data={chartState.data}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, percentage }) => `${name} (%${percentage.toFixed(1)})`}
-              outerRadius={100}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {chartState.data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      );
-    }
+      console.log('Original Chart Data:', chartState.data);
 
-    switch (chartState.widget.ChartType?.toLowerCase()) {
-      case 'bar':
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={chartState.data}>
+      // API'den gelen veriyi doğru formata dönüştürüyoruz
+      const data = [
+        {
+          name: "Bugün",
+          value: Number(chartState.data[0]?.name) || 0,
+        },
+        {
+          name: "Geçen Hafta",
+          value: Number(chartState.data[0]?.value) || 0,
+        },
+        {
+          name: "Geçen Ay",
+          value: Number(chartState.data[0]?.percentage) || 0,
+        }
+      ];
+
+      console.log('Transformed Data:', data);
+
+      return (
+        <div className="h-[300px] w-full p-4">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart 
+              data={data}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              barSize={40}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value" fill={COLORS[0]} name="Değer" />
+              <YAxis 
+                tickFormatter={(value) => 
+                  new Intl.NumberFormat('tr-TR', {
+                    style: 'currency',
+                    currency: 'TRY',
+                    maximumFractionDigits: 0
+                  }).format(value)
+                }
+              />
+              <Tooltip 
+                formatter={(value) => 
+                  new Intl.NumberFormat('tr-TR', {
+                    style: 'currency',
+                    currency: 'TRY',
+                    maximumFractionDigits: 0
+                  }).format(Number(value))
+                }
+              />
+              <Bar dataKey="value" fill="#8884d8">
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+                <LabelList
+                  dataKey="value"
+                  position="top"
+                  formatter={(value) => 
+                    new Intl.NumberFormat('tr-TR', {
+                      style: 'currency',
+                      currency: 'TRY',
+                      notation: 'compact',
+                      maximumFractionDigits: 1
+                    }).format(Number(value))
+                  }
+                />
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
-        );
-      
-      case 'area':
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={chartState.data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Area type="monotone" dataKey="value" fill={COLORS[0]} stroke={COLORS[0]} name="Değer" />
-            </AreaChart>
+        </div>
+      );
+    } else {
+      // Kategori dağılım grafiği (Pie Chart)
+      return (
+        <div className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={chartState.data}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(1)}%)`}
+                outerRadius={100}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {chartState.data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value: number) => 
+                  new Intl.NumberFormat('tr-TR', {
+                    style: 'currency',
+                    currency: 'TRY'
+                  }).format(value)
+                }
+              />
+            </PieChart>
           </ResponsiveContainer>
-        );
-      
-      default:
-        return (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartState.data}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="value" stroke={COLORS[0]} name="Değer" />
-            </LineChart>
-          </ResponsiveContainer>
-        );
+        </div>
+      );
     }
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {chartStates.map((chartState, index) => (
-        <Card key={chartState.widget.AutoID} className="p-6">
-          <div className="flex flex-col space-y-3">
-            <div className="space-y-0.5">
-              <h3 className="text-base font-medium">{chartState.widget.ReportName}</h3>
+        <Card key={index} className="p-4">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-medium">{chartState.widget.ReportName}</h3>
             </div>
-            {renderChart(chartState, index)}
+            {renderChart(chartState)}
           </div>
         </Card>
       ))}

@@ -1,0 +1,16 @@
+﻿Detail|
+
+
+SET LANGUAGE Turkish;
+
+SELECT 
+      DATENAME(dw, OrderDateTime) AS gun,SUM(AmountDue)AS Tutar
+      
+FROM   Orderheaders
+WHERE linedeleted=0 and orderdatetime>=@date1 and orderdatetime<=@date2 and orderheaders.@BranchID
+
+GROUP BY
+      DATENAME(dw, OrderDateTime)
+
+
+order by SUM(AmountDue)

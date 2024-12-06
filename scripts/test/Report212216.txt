@@ -1,0 +1,30 @@
+﻿
+
+SELECT 
+efr_Branchs.BranchName AS Şube,
+
+t.MenuItemText                     AS Ürün,
+   
+       SUM(t.Quantity)                    AS Adet,
+       SUM(t.ExtendedPrice) AS Tutar
+   
+FROM   efr_Branchs
+       RIGHT OUTER JOIN OrderHeaders
+            ON  efr_Branchs.BranchID = OrderHeaders.BranchID
+       LEFT OUTER JOIN OrderTransactions  AS t WITH (NOLOCK)
+            ON  OrderHeaders.OrderKey = t.OrderKey
+WHERE  (OrderHeaders.LineDeleted = 0)
+       AND (t.LineDeleted = 0)
+       AND (OrderHeaders.OrderType = 5)
+       AND (OrderHeaders.FiscalPrinted = 0)
+       
+       AND t.OrderDateTime>=@date1 AND   t.OrderDateTime<=@date2
+
+AND t.@BranchID
+GROUP BY
+       t.MenuItemText,
+ 
+       efr_Branchs.BranchName
+ORDER BY
+       adet DESC
+            

@@ -1,0 +1,50 @@
+-- FAZLA KASALARI TEMİZLE
+;WITH cte AS 
+(
+	SELECT
+		BranchID,
+		DbName,
+		MIN(LastDailyControlDatetime) AS LastDailyControlDatetime
+	FROM
+		efr_BranchTerminals 
+	WHERE
+		DbName NOT LIKE '%iade%'
+	GROUP BY
+		BranchID,
+		DbName 
+	HAVING
+		COUNT(*) > 1
+)
+
+DELETE t FROM efr_BranchTerminals t
+INNER JOIN cte c ON c.BranchID = t.BranchId AND c.DbName = t.DbName AND ( c.LastDailyControlDatetime = t.LastDailyControlDatetime OR t.LastDailyControlDatetime is NULL )
+-----
+
+
+SELECT * FROM (
+SELECT
+	br.BranchName AS [Şube],
+	t.BranchId AS [Şube No],
+	t.TerminalOrder AS [Kasa No],
+	t.LocalIpAddress AS [Lokal IP],
+	FORMAT(t.LastDailyControlDatetime, 'dd.MM.yyyy') AS [Son Günlük Paket Tarihi],
+	t.LastDailyControl_Notes AS [Not],
+	(SELECT COUNT(*) FROM OrderHeaders h WHERE h.BranchId = t.BranchId AND OrderDateTime BETWEEN DATEADD(DAY, -1, CONVERT(VARCHAR,GETDATE(),23)) AND DATEADD(SECOND, -1, CONVERT(VARCHAR,GETDATE(),23)) ) [Dünkü Çek Sayısı (Kontrol Amaçlı)]
+FROM
+	efr_BranchTerminals t
+	INNER JOIN efr_Branchs br ON br.BranchID = t.BranchId AND br.IsActive=1
+WHERE
+	( ISNULL(t.LastDailyControlDatetime,'2019-01-01') < DATEADD(DAY, -1, CONVERT ( VARCHAR, GETDATE(), 23 ) ) OR ISNULL(t.LastDailyControl_Notes, '') <> '' )
+	AND DbName NOT LIKE '%iade%'
+GROUP BY 
+	t.BranchId,
+	br.BranchName,
+	t.TerminalOrder,
+	t.LocalIpAddress,
+	FORMAT(t.LastDailyControlDatetime, 'dd.MM.yyyy'),
+	t.LastDailyControl_Notes
+) AS k
+WHERE
+	 [Dünkü Çek Sayısı (Kontrol Amaçlı)] = 0
+ORDER BY
+	k.[Şube]

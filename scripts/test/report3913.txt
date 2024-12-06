@@ -1,0 +1,22 @@
+﻿SELECT  r.OrderID AS ÇekID,CONVERT(VARCHAR(19), r.OrderDateTime, 120)AS [Fatura Tarihi], (r.OrderAmount-r.Tax_18-r.Tax_08) AS [Fatura Matrahı], r.Tax_08 AS [Kdv 8], (r.Tax_08*100/8) AS [Kdv 8 Matrah], r.Tax_18 AS [KDV 18], (r.Tax_18*100/18) AS [KDV 18 Matrah], r.OrderAmount AS [Fatura Tutarı]
+FROM 
+(
+SELECT 
+ result.OrderID,result.OrderDateTime,(result.OtherPayment) AS OrderAmount,
+0.0 Tax_08,
+CASE result.Tax18 WHEN 0 THEN 0	ELSE (result.Tax18*18/118*result.OtherPayment/result.ExtendedPrice) END AS Tax_18
+FROM 
+(
+ SELECT h.OrderID AS [OrderID], h.OrderDateTime AS OrderDateTime,
+ isnull(h.DiscountAmountUsed,0) AS DiscountAmount, isnull(h.CashDiscountAmount,0) AS CashDiscount, h.AmountDue AS AmountPaid,
+ (SELECT Round(isnull(SUM(t.ExtendedPrice),0),2) FROM gsOrderTransactions AS t WHERE t.BranchID=h.BranchID AND t.OrderID=h.OrderID AND t.TransactionStatus='1') AS ExtendedPrice,
+ (SELECT isnull(SUM(p.AmountPaid),0) FROM gsOrderPayments AS p WHERE p.BranchID=h.BranchID AND p.OrderID=h.OrderID AND p.PaymentMethod in (2,4,5,8)) AS ChequePayment,
+ (SELECT Round(isnull(SUM(p.AmountPaid),0),2) FROM gsOrderPayments AS p WHERE p.BranchID=h.BranchID AND p.OrderID=h.OrderID AND p.PaymentMethod not in (2,4,5,8)) AS OtherPayment,
+ (SELECT Round(isnull(SUM(t.ExtendedPrice),0),2) FROM gsOrderTransactions AS t WHERE t.BranchID=h.BranchID AND t.OrderID=h.OrderID AND t.TransactionStatus='1') AS Tax18,
+ 0.0 AS Tax08
+  FROM gsOrderHeaders AS h WHERE h.OrderStatus='2' AND h.BranchID=3 AND 
+   h.OrderDateTime>=DATEADD(hour,-6,@ilkTarih) AND  h.OrderDateTime<DATEADD(hour,-6,@sonTarih)  AND h.AmountDue>0 
+) AS result 
+) AS r 
+where r.OrderAmount >0
+ORDER BY r.OrderDateTime

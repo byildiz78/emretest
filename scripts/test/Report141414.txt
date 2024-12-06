@@ -1,0 +1,14 @@
+select 
+cast(datepart(hour,t.OrderDateTime) as VARCHAR )+':00' as Saat,
+round(sum(t.ExtendedPrice),2) as Tutar ,
+count(distinct t.OrderKey) as [Çek Sayısı],
+sum(case when p.CustomField12='TABAKLAR' then t.Quantity else 0 end) as [Kişi Sayısı]
+from OrderTransactions t
+inner join posProducts p on p.ProductKey=t.MenuItemkey
+where
+t.OrderDateTime between @date1 and @date2
+and t.LineDeleted=0
+and t.@BranchID
+
+group by datepart(hour,t.OrderDateTime)
+order by datepart(hour,t.OrderDateTime) asc

@@ -1,0 +1,10 @@
+﻿Detail|
+SELECT 'Kapalı Çekler' AS Tipi,SUM(CASE WHEN OrderStatus = 2 THEN AmountDue ELSE 0 END) as Tutar
+,cast (DATEADD(hour,-0,@date1) as nvarchar(30)) as d1,cast(DATEADD(hour,-0,@date2) as nvarchar(30)) as d2
+ FROM OrderHeaders WITH(NOLOCK)
+WHERE 
+
+     LineDeleted = 0
+       AND orderdateTime > DATEADD(hour,-0,@date1)
+       AND OrderDateTime <= DATEADD(hour,-0,@date2)
+       AND OrderHeaders.@BranchID

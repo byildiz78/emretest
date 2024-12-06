@@ -1,0 +1,17 @@
+SELECT
+	br.BranchName AS [Şube],
+	h.OrderID AS [Çek No],
+	FORMAT(h.OrderDateTime, 'dd.MM.yyyy HH:mm:ss') AS [Tarih],
+	ROUND(h.AmountDue,2) AS [Tutar],
+	h.AddUserName AS [Ekleyen Personel]
+FROM
+	OrderHeaders h 
+	INNER JOIN efr_Branchs br ON br.BranchID = h.BranchID
+WHERE
+	h.OrderDateTime BETWEEN @date1 AND @date2
+	AND h.@BranchID
+	AND h.OrderStatus = 1
+	AND h.LineDeleted = 0
+ORDER BY 
+	br.BranchName,
+	h.OrderID

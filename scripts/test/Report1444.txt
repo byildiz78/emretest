@@ -1,0 +1,9 @@
+﻿SELECT     h.OrderDateTime AS Tarih, t.OrderID AS [Çek No], d.DiscountText AS [İndirim Adı], h.SpecificCustomerName AS Açıklama, t.DiscountAmountUsed AS [İndirim Tutarı], 
+                      MenuItems.MenuItemText as Urun
+FROM         gsOrderTransactions AS t INNER JOIN
+                      Discounts AS d ON d.DiscountID = t.DiscountID AND t.BranchID = d.BranchID INNER JOIN
+                      gsOrderHeaders AS h ON h.OrderID = t.OrderID AND h.BranchID = t.BranchID LEFT OUTER JOIN
+                      MenuItems ON t.MenuItemID = MenuItems.MenuItemID AND t.BranchID = MenuItems.BranchID
+ 
+ 
+WHERE h.@BranchID AND (h.OrderDateTime >= @ilkTarih) AND (h.OrderDateTime <= @sonTarih) AND (t.DiscountID IS NOT NULL)

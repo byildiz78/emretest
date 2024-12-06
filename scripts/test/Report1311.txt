@@ -1,0 +1,20 @@
+ SELECT 
+ ISNULL(efr_Branchs.BranchName, 'TANIMSIZ') AS [ŞUBE],
+ t.MenuItemText[ÜRÜN],
+ t.MenuItemGroupText [GRUP],
+ t.MenumItemCategoryText [KATEGORİ],
+ t.MenuItemUnitPrice [BİRİM FİYAT],
+ SUM(t.Quantity) [MİKTAR],
+ SUM(t.ExtendedPrice) AS Tutar
+ FROM OrderTransactions AS t
+ LEFT OUTER JOIN efr_Branchs ON t.BranchID = efr_Branchs.BranchID
+ WHERE t.LineDeleted = 0
+ AND t.OrderDateTime >= @date1
+ AND t.OrderDateTime <= @date2
+ AND t.@BranchID
+ GROUP BY
+ t.MenuItemText,
+ t.MenuItemGroupText,
+ t.MenumItemCategoryText,
+ t.MenuItemUnitPrice,
+ t.BranchID,efr_Branchs.BranchName

@@ -1,0 +1,16 @@
+SELECT
+	eb.BranchName AS [Şube Adı],
+	t.OrderDateTime AS [Tarih],
+	t.MenuItemText AS [Ürün Adı],
+	t.IntegrationProductName AS [Pazar Yeri Ürün Adı],
+	t.Quantity AS [Miktar],
+	t.ExtendedPrice AS [Tutar] 
+FROM
+	OrderTransactions AS t
+	INNER JOIN efr_Branchs AS eb ON t.BranchID= eb.BranchID 
+WHERE
+	t.MenuItemKey IN ( '3DC77669-A38C-4493-A7E3-BD2DE338E5CA','04C68745-FD3C-4C27-855A-CBDC4B123373','2A734897-F076-46A7-BB7B-FFDA2BBCB1FD') 
+	AND t.OrderDateTime BETWEEN @date1 
+	AND @date2 
+	AND t.@BranchID 
+	AND t.LineDeleted= 0

@@ -1,0 +1,15 @@
+﻿WITH sonuc1 AS 
+(SELECT t.BranchID,t.MenuItemText,SUM(t.ExtendedPrice) AS Tutar
+FROM OrderTransactions AS t WITH (NOLOCK) WHERE t.OrderDateTime>@date1 AND t.OrderDateTime<@date2 AND t.@BranchID
+AND t.LineDeleted=0
+GROUP BY t.BranchID,t.MenuItemText)
+SELECT isnull(sonuc1.MenuItemText,sonuc2.MenuItemText) AS [Ürün], isnull(sonuc1.Tutar,0) AS [@bname1],isnull(sonuc2.Tutar,0) AS [@bname2]
+FROM (
+SELECT t.BranchID,t.MenuItemText,SUM(t.ExtendedPrice) AS Tutar
+FROM OrderTransactions AS t WITH (NOLOCK)
+WHERE t.OrderDateTime>@date3 AND t.OrderDateTime<@date4 AND t.@Branch2 AND t.LineDeleted=0
+GROUP BY t.BranchID,t.MenuItemText) AS sonuc2
+LEFT OUTER JOIN sonuc1 ON sonuc1.MenuItemText=sonuc2.MenuItemText
+LEFT OUTER JOIN efr_Branchs AS b1 ON b1.BranchID = sonuc1.BranchID
+LEFT OUTER JOIN efr_Branchs AS b2 ON b2.BranchID = sonuc2.BranchID
+ORDER BY [Ürün]

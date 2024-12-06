@@ -1,0 +1,16 @@
+select 
+b.ExternalCode,
+b.BranchName,
+CAST(sum(amountdue) AS DECIMAL(18, 2))
+from OrderHeaders h 
+INNER JOIN efr_Branchs b ON h.BranchID=b.BranchID 
+where 
+b.CustomField7='TDUN' 
+AND OrderDateTime between @date1 and @date2 
+and h.LineDeleted=0 
+AND b.@BranchID
+GROUP BY 
+b.ExternalCode,
+b.BranchName 
+Order By 
+sum(AmountDue) desc

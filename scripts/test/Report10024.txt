@@ -1,0 +1,8 @@
+﻿Detail|SELECT SUM(Orderheaders.AmountDue) AS Tutar, efr_Branchs.BranchName AS [Şube Adı]
+FROM Orderheaders INNER JOIN
+ efr_Branchs ON orderheaders.BranchID = efr_Branchs.BranchID
+ WHERE orderheaders.orderdatetime >= DATEADD(hour,6,@ilkTarih)
+ AND orderheaders.orderdatetime <= DATEADD(hour,6,@SonTarih)
+AND orderheaders.@BranchID
+ AND orderheaders.linedeleted=0 
+GROUP BY efr_Branchs.BranchName ORDER BY Tutar DESC 

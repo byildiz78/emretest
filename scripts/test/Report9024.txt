@@ -1,0 +1,14 @@
+Detail|
+WITH 
+al AS (
+SELECT p.CustomerKey,sum(p.AmountPaid) AS paid FROM OrderPayments AS p WHERE p.IsAccountPayment=1 and p.PaymentDateTime<@SonTarih and p.@BranchID
+GROUP BY p.CustomerKey),
+
+bl AS (
+SELECT p.CustomerKey,sum(p.AmountPaid) AS paid FROM OrderPayments AS p WHERE p.IsAccountSale=1 AND p.PaymentDateTime<@SonTarih and p.@BranchID
+GROUP BY p.CustomerKey)
+
+SELECT c.CustomerKey, c.CustomerName,isnull(al.paid,0) AS Alacak,isnull(bl.paid,0) AS Borc,(isnull(bl.paid,0)-isnull(al.paid,0)) AS Bakiye 
+FROM al 
+FULL OUTER JOIN bl ON bl.CustomerKey=al.CustomerKey
+INNER JOIN CustomerFiles  AS c ON c.CustomerKey=isnull(bl.CustomerKey,al.CustomerKey)

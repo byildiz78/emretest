@@ -1,0 +1,46 @@
+DECLARE @tarih1 DATETIME;
+DECLARE @tarih2 DATETIME;
+IF OBJECT_ID('tempdb..#baslama') IS NOT NULL DROP TABLE #baslama;
+create table #baslama(DevirTarihi DATETIME,WarehouseID INT,ProductID INT, Devir FLOAT);
+INSERT INTO #baslama (DevirTarihi,WarehouseID,ProductID,Devir)
+SELECT h.StartDateTime,h.WarehouseID,d.ProductID,d.Sayim
+ FROM PnlDailyHeader AS h WITH (NOLOCK)
+INNER JOIN PnlDailyDetail AS d ON d.PnlKey = h.PnlKey
+WHERE h.BranchID=2
+AND dateadd(hour,5,h.EndDateTime)>=@date1
+AND dateadd(hour,-24,h.EndDateTime)<=@date1;
+SET @tarih1=(SELECT MAX(b.DevirTarihi) FROM #baslama AS b);
+
+IF OBJECT_ID('tempdb..#bitis') IS NOT NULL DROP TABLE #bitis;
+create table #bitis(DevirTarihi DATETIME,WarehouseID INT,ProductID INT, Sayim FLOAT);
+INSERT INTO #bitis (DevirTarihi,WarehouseID,ProductID,Sayim)
+SELECT h.EndDateTime,d.WarehouseID,d.ProductID,d.Sayim
+ FROM PnlDailyHeader AS h WITH (NOLOCK)
+INNER JOIN PnlDailyDetail AS d ON d.PnlKey = h.PnlKey
+WHERE h.BranchID=2
+AND dateadd(hour,10,h.EndDateTime)>=@date2
+AND dateadd(hour,0,h.EndDateTime)<=@date2;
+SET @tarih2=(SELECT MAX(b.DevirTarihi) FROM #bitis AS b);
+
+SELECT ISNULL(pb.BranchName, '') AS Şube,b.DevirTarihi AS [Dönem Başlangıcı],son.DevirTarihi AS [Hesaplanma Zamanı],ISNULL(pmc.PickValue, '') AS [Ana Kategori],ISNULL(pc.PickValue, '') AS Kategori,
+ISNULL(pg.PickValue, '') AS Grubu,p.ProductCode AS [Stok Kodu],p.ProductName AS [Stok Adı],u.UnitName AS Birim,w.WarehouseName AS Depo,b.Devir AS Açılış,sum(d.Giren) AS Sevk,sum(d.IadeGiren) AS [İade Gelen],
+sum(d.TransferGiren) AS [Transfer Giren],sum(d.UretimdenGiren) AS [Üretimden Giren],sum((d.Giren + d.TransferGiren + d.UretimdenGiren + d.IadeGiren)) AS [Toplam Giren],sum(d.SatisCikan) AS Satılan,
+sum(d.IadeCikan) AS [İade Çıkan],sum(d.TransferCikan) AS [Transfer Çıkan],sum(d.FireCikan) AS [Fire Çıkan],sum(d.UretimeCikan) AS [Üretime Çıkan],sum(d.ReceteTuketim) AS [Reçete Tüketim],
+sum((d.SatisCikan+d.ReceteTuketim + d.IadeCikan + d.UretimeCikan + d.TransferCikan+d.FireCikan)) AS [Toplam Çıkan] ,sum(d.OlmasiGereken) AS [Olması Gereken], son.Sayim AS [Sayım],sum(d.Fark) AS [Fark]
+ FROM PnlDailyHeader AS h WITH (NOLOCK)
+INNER JOIN PnlDailyDetail AS d ON d.PnlKey = h.PnlKey
+INNER JOIN posProducts AS p ON p.ProductID=d.ProductID
+INNER JOIN posProductUnits AS u ON u.UnitID = p.UnitID
+INNER JOIN posWarehouse AS w ON w.WarehouseID=h.WarehouseID
+LEFT OUTER JOIN posPickList AS pg ON pg.ListID=p.GroupID
+LEFT OUTER JOIN posPickList AS pc ON pc.ListID=p.CategoryID
+LEFT OUTER JOIN posPickList AS pmc ON pmc.ListID=p.MainCategoryID
+LEFT OUTER JOIN posBranchs AS pb ON pb.WarehouseID=h.WarehouseID
+LEFT OUTER JOIN #baslama AS b ON b.ProductID = p.ProductID AND b.WarehouseID = h.WarehouseID
+LEFT OUTER JOIN #bitis AS son ON son.ProductID = p.ProductID AND son.WarehouseID = h.WarehouseID
+WHERE h.BranchID=2
+AND h.EndDateTime>=@tarih1
+AND h.EndDateTime<=@tarih2
+--AND p.ProductName LIKE '%soda%'
+GROUP BY ISNULL(pb.BranchName, ''),b.DevirTarihi,son.DevirTarihi,ISNULL(pmc.PickValue, ''),ISNULL(pc.PickValue, ''),ISNULL(pg.PickValue, ''),p.ProductCode,p.ProductName ,u.UnitName
+,w.WarehouseName ,b.Devir, son.Sayim

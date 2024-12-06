@@ -1,0 +1,18 @@
+﻿SELECT  ISNULL(efr_Branchs.BranchName,'TANIMSIZ' )AS [ŞUBE],
+gm.MenuItemText AS  [ÜRÜN],
+gmg.MenuSubCategoryText [GRUP],
+gmc.MenuCategoryText [KATEGORİ],
+OrderTransactions.MenuItemUnitPrice [BİRİM FİYAT],
+SUM(OrderTransactions.Quantity) [MİKTAR] 
+FROM summaryOrderTransactions as OrderTransactions WITH (NOLOCK,INDEX(ind_summaryOrderTransactions))
+LEFT OUTER JOIN efr_Branchs ON OrderTransactions.BranchID = efr_Branchs.BranchID
+LEFT OUTER JOIN GlobalMenuItems AS gm ON gm.BranchID = efr_Branchs.BranchID AND gm.MenuItemKey=OrderTransactions.MenuItemKey
+LEFT OUTER JOIN GlobalMenuCategories gmc ON gmc.BranchID = efr_Branchs.BranchID AND gm.MenuCategoryKey=gmc.MenuCategoryKey
+LEFT OUTER JOIN GlobalMenuSubCategories gmg ON gmg.BranchID=efr_Branchs.BranchID AND gm.MenuGroupKey=gmg.MenuSubCategoryKey
+WHERE OrderTransactions.LineDeleted=0 AND OrderTransactions.OrderDateTime>=@date1 AND OrderTransactions.OrderDateTime<=@date2 
+and OrderTransactions.@BranchID
+GROUP BY efr_Branchs.BranchName ,
+gm.MenuItemText,
+gmg.MenuSubCategoryText,
+gmc.MenuCategoryText,
+OrderTransactions.MenuItemUnitPrice

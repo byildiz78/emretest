@@ -1,0 +1,23 @@
+select 
+t.Tarih as Tarih,
+round( sum(t.Ciro) ,2) as Ciro,
+round( sum(t.paket) ,2) as [Paket Ciro],
+round( (100*sum(t.paket))/isnull(nullif(sum(t.Ciro),0),1) ,2) as [Paket %]
+from (
+select 
+convert(varchar,dateadd(minute,-361,h.OrderDateTime),104) as Tarih,
+h.AmountDue as Ciro,
+case when h.OrderType=5 then h.AmountDue else 0 end as paket
+from OrderHeaders h
+
+inner join efr_Branchs b on h.BranchID=b.BranchID
+
+where 
+1=1
+and OrderDateTime between @date1 and @date2
+and h.LineDeleted=0
+and h.@BranchID
+) as t
+group by convert(varchar,t.Tarih,104)
+
+order by t.Tarih

@@ -1,0 +1,24 @@
+SET NOCOUNT ON;
+IF OBJECT_ID('tempdb..#tempMenu') IS NOT NULL DROP TABLE #tempMenu; 
+CREATE TABLE #tempMenu (ProductCode NVARCHAR(100),MenuItemKey UNIQUEIDENTIFIER,UnitName NVARCHAR(10)); 
+INSERT INTO #tempMenu(ProductCode, MenuItemKey,UnitName)
+SELECT distinct p.ProductCode,m.MenuItemKey,
+case WHEN ISNULL(m.OrderByWeight, 0) = 0 THEN 'Adet' ELSE 'Kg'  END AS UnitName
+ FROM posProducts AS p WITH (NOLOCK)
+INNER JOIN GlobalMenuItems AS m ON m.MenuItemGlobalKey=p.ProductKey
+WHERE p.IsSaleProduct=1;
+SELECT efr_Branchs.BranchName AS Şube,t.MenuItemText AS [Ürün Adı],t.MenuItemGroupText AS Grubu,t.MenumItemCategoryText AS Kategorisi
+,ROUND(SUM(t.Quantity), 3) AS Miktar,p.ProductCode AS [Stok Kodu],CONVERT(VARCHAR, DATEADD(hour, -4, h.OrderDateTime), 103) AS Gün,DATEPART(MM, h.OrderDateTime) AS 
+ Ay,ROUND(SUM(isnull((t.ExtendedPrice * h.AmountDue / NULLIF(h.SubTotal, 0)),0)), 2) AS Tutar,DATEPART(hour, h.OrderDateTime) AS Saat, 
+isnull(p.UnitName,'Adet') AS Birim,'' AS [Üst Kategori]
+FROM orderheaders AS h WITH (NOLOCK)
+INNER JOIN efr_Branchs ON h.BranchID = efr_Branchs.BranchID
+INNER JOIN OrderTransactions as t ON t.OrderKey = h.OrderKey AND t.BranchID = h.BranchID AND t.LineDeleted = 0 AND t.MenuItemtext <> '??'
+LEFT OUTER JOIN #tempMenu AS p ON p.MenuItemKey =t.MenuItemKey
+WHERE h.OrderDateTime >= @date1 
+AND h.OrderDateTime <= @date2 
+AND h.LineDeleted=0
+AND h.@BranchID
+GROUP BY t.MenuItemText,t.MenuItemGroupText,t.MenumItemCategoryText,efr_Branchs.BranchName,p.ProductCode,CONVERT(VARCHAR, DATEADD(hour, -4, h.OrderDateTime), 
+ 103),DATEPART(MM, h.OrderDateTime),DATEPART(hour, h.OrderDateTime),p.UnitName;
+ IF OBJECT_ID('tempdb..#tempMenu') IS NOT NULL DROP TABLE #tempMenu; 

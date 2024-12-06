@@ -1,0 +1,31 @@
+SELECT 
+SUM(OrderPayments.AmountPaid) AS GenelTOPLAM,
+(OrderPayments.PaymentMethodName + (CASE WHEN ISNULL(OrderPayments.GlobalBankName,'') = '' THEN '' ELSE (' - ' + OrderPayments.GlobalBankName) END) + (CASE WHEN OrderHeaders.IsInvoice = 1 THEN ' (FATURA)' ELSE '' END)) AS [ÖDEME TİPİ],
+efr_Branchs.BranchName AS SUBE,
+CONVERT(VARCHAR, OrderPayments.PaymentDateTime, 103) AS GUN,
+ CASE DATEPART(month, OrderPayments.PaymentDateTime)
+                       WHEN 1 THEN 'OCAK'
+                       WHEN 2 THEN 'ŞUBAT'
+                       WHEN 3 THEN 'MART'
+                       WHEN 4 THEN 'NİSAN'
+                       WHEN 5 THEN 'MAYIS'
+                       WHEN 6 THEN 'HAZİRAN'
+                       WHEN 7 THEN 'TEMMUZ'
+                       WHEN 8 THEN 'AĞUSTOS'
+                       WHEN 9 THEN 'EYLÜL'
+                       WHEN 10 THEN 'EKİM'
+                       WHEN 11 THEN 'KASIM'
+                       WHEN 12 THEN 'ARALIK'
+                  END AS AY
+FROM  OrderPayments WITH (NOLOCK)
+INNER JOIN OrderHeaders WITH (NOLOCK) ON OrderHeaders.OrderKey=OrderPayments.OrderKey
+LEFT OUTER JOIN efr_Branchs
+ON  OrderPayments.BranchID = efr_Branchs.BranchID
+WHERE  orderpayments.PaymentDateTime >= @date1
+AND orderpayments.PaymentDateTime <= @date2
+AND OrderPayments.LineDeleted = 0
+AND orderpayments.@BranchID
+GROUP BY
+(OrderPayments.PaymentMethodName + (CASE WHEN ISNULL(OrderPayments.GlobalBankName,'') = '' THEN '' ELSE (' - ' + OrderPayments.GlobalBankName) END) + (CASE WHEN OrderHeaders.IsInvoice = 1 THEN ' (FATURA)' ELSE '' END)),
+efr_Branchs.BranchName,  OrderPayments.PaymentDateTime,
+CONVERT(VARCHAR, OrderPayments.PaymentDateTime, 103)

@@ -1,0 +1,54 @@
+﻿
+
+SELECT result.DocumentID AS BelgeID,
+       result.SerialNumber AS [Belge Seri No],
+       result.DocumentDate AS [Belge Tarihi],
+       result.TypeName AS [Belge Tipi],
+       result.Quantity AS Miktar,
+       result.UnitPrice AS [Birim Fiyatı],
+       result.Total AS Tutar,
+       result.TaxTotal AS [KDV Tutarı],
+       result.Debt AS Borç,
+       result.Credit AS Alacak,
+       result.Remaining AS Bakiye,
+       result.DiscountTotal AS [İndirim],
+       result.[Description] AS Açıklama,
+       result.LineDetail1 AS Detay1,
+       result.LineDetail2 AS Detay2,
+       result.DateCredit AS [Vade Tarihi],
+       result.CurrentFullName as [Cari Adı]
+    
+FROM   (
+ 
+SELECT h.OrderID AS DocumentID,
+       h.OrderSerialNo AS SerialNumber,
+       h.DocumentDateTime AS DocumentDate,
+       t.TypeName,
+       d.Incoming + d.Outgoing AS Quantity,
+       d.UnitPrice,
+       d.TotalPrice AS Total,
+       d.TaxAmount1 AS TaxTotal,
+       h.TotalAmount AS Debt,
+       0 AS Credit,
+       ct.RemainingAmount AS Remaining,
+       d.DiscountAmount AS DiscountTotal,
+       h.Description,
+       d.ProductCode AS LineDetail1,
+       d.ProductName AS LineDetail2,
+       h.CreditDate AS DateCredit,
+       posCurrents.CurrentName,
+       posCurrents.CurrentFullName
+FROM   posOrderHeader AS h
+       INNER JOIN posOrderDetail AS d
+            ON  h.OrderID = d.OrderID
+       INNER JOIN posDocumentTypes AS t
+            ON  h.OrderTypeID = t.DocumentTypeID
+       INNER JOIN posCurrentTransaction AS ct
+            ON  h.OrderID = ct.DocumentID
+            AND h.OrderTypeID = ct.TransactionTypeID
+       INNER JOIN posCurrents
+            ON  h.CurrentID = posCurrents.CurrentID
+WHERE  (h.DocumentDateTime >= @date1)
+       AND (h.DocumentDateTime <= @date2)
+       AND (h.OrderTypeID = 5)) as result
+  

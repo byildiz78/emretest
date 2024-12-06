@@ -1,0 +1,19 @@
+select pt.PriceTemplateName [Fiyat Şablonu], p.ProductCode [Stok Kodu], p.ProductName [Stok Adı], 
+pc.DefaultUnitPrice [Önceki Varsayılan Fiyat], 
+pc.DefaultUnitPriceNew [Yeni Varsayılan Fiyat], 
+pc.DineInPrice [Önceki Masa Fiyatı], 
+pc.DineInPriceNew [Yeni Masa Fiyatı], 
+pc.BarTabPrice [Önceki Bar Çeki Fiyatı], 
+pc.BarTabPriceNew [Yeni Bar Çeki Fiyatı], 
+pc.TakeOutPrice [Önceki Kasa Satış Ürün Fiyatı], 
+pc.TakeOutPriceNew [Yeni Kasa Satış Ürün Fiyatı], 
+pc.DriveThruPrice [Önce Tezgah Fiyatı], 
+pc.DriveThruPriceNew [Yeni Tezgah Fiyatı], 
+pc.DeliveryPrice [Önceki Paket Fiyatı] ,
+pc.DeliveryPriceNew [Yeni Paket Fiyatı],
+pc.AddDateTime [Tarih]
+from NewGlobalMenuItemPricesPrevious as pc with(nolock)
+inner join posProducts as p with(nolock) on pc.MenuItemKey=p.ProductKey
+inner join NewGlobalPriceTemplates as pt with(nolock) on pc.PriceTemplateKey = pt.PriceTemplateKey
+--where pc.AddDateTime>=@date1 and pc.AddDateTime<=@date2
+order by pt.PriceTemplateName

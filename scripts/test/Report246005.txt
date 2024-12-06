@@ -1,0 +1,28 @@
+SELECT b.BranchName AS [Sube Adı],
+COUNT(1) AS [TOPLAM ADET],
+ROUND(SUM(h.AmountDue), 2) AS [TOPLAM CİRO],
+
+SUM(CASE WHEN h.OrderType=1 THEN 1 ELSE 0 END) [MASA ADET],
+ROUND(SUM(CASE WHEN h.OrderType=1 THEN h.AmountDue ELSE 0 END),2) [MASA CİRO],
+
+SUM(CASE WHEN h.OrderType=2 THEN 1 ELSE 0 END) [İSME ÇEK ADET],
+ROUND(SUM(CASE WHEN h.OrderType=2 THEN h.AmountDue ELSE 0 END),2) [İSME ÇEK CİRO],
+
+SUM(CASE WHEN h.OrderType=3 THEN 1 ELSE 0 END) [ALGÖTÜR ADET],
+ROUND(SUM(CASE WHEN h.OrderType=3 THEN h.AmountDue ELSE 0 END),2) [ALGÖTÜR CİRO],
+
+SUM(CASE WHEN h.OrderType=4 THEN 1 ELSE 0 END) [TEZGAH ADET],
+ROUND(SUM(CASE WHEN h.OrderType=4 THEN h.AmountDue ELSE 0 END),2) [TEZGAH CİRO],
+
+SUM(CASE WHEN h.OrderType=5 THEN 1 ELSE 0 END) [PAKET ADET],
+ROUND(SUM(CASE WHEN h.OrderType=5 THEN h.AmountDue ELSE 0 END),2) [PAKET CİRO]
+
+FROM OrderHeaders h
+LEFT OUTER JOIN efr_Branchs b ON h.BranchID = b.BranchID
+WHERE 
+h.LineDeleted = 0
+AND h.OrderDateTime BETWEEN @date1 and @date2
+AND h.OrderType IS NOT NULL
+AND h.@BranchID
+GROUP BY b.BranchName
+order by b.BranchName

@@ -1,0 +1,15 @@
+Select Top 10
+  OrderTransactions.MenuItemText As Tipi,
+  Sum(OrderTransactions.ExtendedPrice) As Tutar
+From
+  OrderTransactions 
+   
+where 
+  OrderTransactions.linedeleted=0 AND TransactionDateTime>=@date1 AND TransactionDateTime<=@date2 AND ordertransactions.@BranchID
+AND OrderTransactions.MenuItemUnitPrice<>0
+Group By
+ OrderTransactions.MenuItemText
+
+order by tutar desc
+
+

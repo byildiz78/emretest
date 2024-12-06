@@ -1,0 +1,38 @@
+DECLARE @startDate DATETIME = CONVERT(VARCHAR,CAST(@date1 AS DATETIME),23)
+DECLARE @endDate DATETIME = DATEADD(second,-1,CONVERT(VARCHAR,CAST(@date2 AS DATETIME),23))
+
+SELECT
+	br.BranchName AS [ŞUBE],
+	FORMAT(s.SheetDate, 'dd.MM.yyyy') AS [TARİH],
+	ISNULL(s.CashAdvanceAmount, 0) AS [AÇILIŞ BAKİYESİ],
+	SUM(CASE WHEN si.PaymentTypeID = 3 THEN si.SheetPaid ELSE 0 END) AS [YEMEK KARTI],
+	SUM(CASE WHEN si.PaymentTypeID = 2 THEN si.SheetPaid ELSE 0 END) AS [KREDİ KARTI],
+	SUM(CASE WHEN si.PaymentMethodName IN ('FATURA CARİ', 'FATURA CARI', 'CARİ FATURA', 'CARI FATURA') THEN si.SheetPaid ELSE 0 END) AS [CARİ SATIŞ],
+	SUM(CASE WHEN si.PaymentMethodName = 'NAKİT' THEN si.SheetPaid ELSE 0 END) AS [NAKİT],
+	SUM(CASE WHEN si.PaymentMethodName = 'NAKİT (DÖVİZDEN)' THEN si.SheetPaid ELSE 0 END) AS [NAKİT (DÖVİZDEN)],
+	SUM(CASE WHEN si.PaymentMethodName = 'DOLAR' THEN si.SheetPaid ELSE 0 END) AS [DOLAR],
+	SUM(CASE WHEN si.PaymentMethodName = 'EURO' THEN si.SheetPaid ELSE 0 END) AS [EURO],
+	SUM(CASE WHEN si.PaymentMethodName = 'BANKA TESLİMAT TL' THEN si.SheetPaid ELSE 0 END) AS [NAKİT TESLİM],
+	SUM(CASE WHEN si.PaymentMethodName = 'BANKA TESLİMAT DOLAR' THEN si.SheetPaid ELSE 0 END) AS [DOLAR TESLİM],
+	SUM(CASE WHEN si.PaymentMethodName = 'BANKA TESLİMAT EURO' THEN si.SheetPaid ELSE 0 END) AS [EURO TESLİM],
+	ISNULL(s.ExpenseAmount, 0) AS [ÖDEMELER],
+	ISNULL(s.YesterdayTransferAmount, 0) AS [KAPANIŞ BAKİYESİ],
+	ISNULL(s.ReturnAmount, 0) AS [NAKİT İADE],
+	ISNULL(s.ReturnCreditAmount, 0) AS [KREDİ İADE]
+FROM
+	posSheets s 
+	INNER JOIN efr_Branchs br ON br.BranchID = s.BranchID
+	INNER JOIN posSheetItems si ON si.SheetKey = s.SheetKey
+WHERE
+	s.SheetDate BETWEEN @startDate AND @endDate
+	AND s.@BranchID
+GROUP BY
+	br.BranchName,
+	s.SheetDate,
+	s.CashAdvanceAmount,
+	s.ExpenseAmount,
+	s.YesterdayTransferAmount,
+	s.ReturnAmount,
+	s.ReturnCreditAmount
+ORDER BY
+	s.SheetDate DESC

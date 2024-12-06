@@ -1,0 +1,28 @@
+SELECT 
+		   br.BranchName as Şube,
+                                        OrderTransactions.OrderID AS [ÇEK NO],
+		   OrderTransactions.MenuItemText[Ürün],
+                  OrderTransactions.MenuItemGroupText [Grup],
+                 ---  OrderTransactions.OrderID [çek],
+                  OrderTransactions.MenumItemCategoryText  [Kategori],
+                  OrderTransactions.MenuItemUnitPrice [Birim Fiyat],
+                  SUM(OrderTransactions.Quantity) [Miktar],
+                  ROUND(SUM(OrderTransactions.ExtendedPrice * isnull(nullif(oh.AmountDue,0),1) / isnull(nullif(oh.SubTotal,0),1) ), 2) AS [Tutar],
+                  OrderTransactions.BranchID
+				  
+           FROM   OrderTransactions
+		   inner join efr_Branchs br on OrderTransactions.BranchID=br.BranchID
+		    INNER JOIN Orderheaders as oh on oh.Orderkey=OrderTransactions.Orderkey and oh.branchID=OrderTransactions.branchID
+           WHERE  OrderTransactions.LineDeleted = 0
+                  AND OrderTransactions.TransactionDateTime >= @date1
+                  AND OrderTransactions.TransactionDateTime <= @date2
+                  AND OrderTransactions.@BranchID
+           GROUP BY
+		   br.BranchName,
+                  OrderTransactions.MenuItemText,
+                  OrderTransactions.MenuItemGroupText,
+                  OrderTransactions.MenumItemCategoryText,
+                  ---OrderTransactions.OrderID,
+                  OrderTransactions.MenuItemUnitPrice,
+                  OrderTransactions.BranchID,
+				  OrderTransactions.AccountingCode

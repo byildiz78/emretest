@@ -1,0 +1,35 @@
+SELECT
+		b.BranchName,
+		convert(varchar, h.OrderDateTime, 104) as [Tarih],
+		ISNULL(h.OrderTypeSourceExternalNo,'') as [Satış Kanalı],
+		h.OrderID as [Çek No],
+		ef.FirstName+' '+ef.lastname as [Kurye Adı],
+		CONVERT(VARCHAR, w.OrderDateTime,108) AS [SİPARİŞ GELİŞ SAATİ],
+		CONVERT(VARCHAR, h.DriverDepartureTime,108) AS [KURYE TESLİM SAATİ],
+		(SELECT top 1 CONVERT(VARCHAR, p.PaymentDateTime,108) FROM OrderPayments p where p.OrderKey=h.OrderKey and p.LineDeleted=0) [MÜŞTERİYE TESLİM SAATİ],
+		--CONVERT(VARCHAR, h.DriverArrivalTime,108) AS [KURYE DÖNÜŞ SAATİ],
+	  DATEDIFF( MINUTE, CONVERT ( VARCHAR, h.Orderdatetime , 120 ), CONVERT ( VARCHAR, h.DriverArrivalTime, 120 ) ) 	as [TOPLAM DENEYİM SÜRESİ (DK)]
+	FROM
+		OrderHeaders AS h WITH ( NOLOCK )
+		INNER JOIN efr_Branchs b WITH ( NOLOCK ) ON b.BranchID= h.BranchID
+		INNER JOIN EmployeeFiles ef on ef.EmployeeID=h.DriverEmployeeID and ef.BranchID=h.BranchID
+		LEFT JOIN webIntegrationOrderHeaders as w  ON w.OrderKey=h.OrderKey
+	WHERE
+		1=1
+		AND h.OrderDateTime BETWEEN @date1 AND @date2 
+		AND h.LineDeleted = 0 
+		AND ISNULL(h.OrderTypeSourceExternalNo,'')<>''
+		AND h.OrderType = 5
+		AND h.DriverEmployeeID <> 0 
+	 AND h.@BranchID
+	GROUP BY
+		b.BranchName,
+		convert(varchar, h.OrderDateTime, 104),
+		ISNULL(h.OrderTypeSourceExternalNo,''),
+		h.OrderID,
+		ef.FirstName+' '+ef.lastname,
+		CONVERT(VARCHAR, w.OrderDateTime,108),
+		CONVERT(VARCHAR, h.DriverDepartureTime  , 108),
+		CONVERT(VARCHAR, h.DriverArrivalTime , 108),
+		 DATEDIFF( MINUTE, CONVERT ( VARCHAR, h.Orderdatetime , 120 ), CONVERT ( VARCHAR, h.DriverArrivalTime, 120 ) ) ,
+		h.OrderKey

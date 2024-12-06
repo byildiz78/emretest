@@ -1,0 +1,18 @@
+﻿SELECT     OrderHeaders.CustomerName AS [MÜŞTERİ ADI], 
+
+  OrderHeaders.OrderID AS [ÇEK NO], 
+                      OrderHeaders.OrderDateTime AS TARİH, OrderHeaders.AmountDue AS TUTAR, efr_Branchs.BranchName AS [ŞUBE ADI], OrderHeaders.OrderPhone AS TELEFON, 
+                      CASE OrderHeaders.OrderTypeSourceID WHEN 2 THEN 'YEMEK SEPETİ' WHEN 3 THEN 'ÇAĞRI MERKEZİ' ELSE 'EVE SERVİS' END AS 'TİPİ'
+                     
+FROM         OrderHeaders with(nolock)  INNER JOIN
+                      efr_Branchs ON OrderHeaders.BranchID = efr_Branchs.BranchID LEFT OUTER JOIN
+              
+                      CustomerFiles ON OrderHeaders.CustomerKey = CustomerFiles.CustomerKey
+
+WHERE  OrderHeaders.OrderType = 5
+       AND OrderHeaders.LineDeleted = 0
+       AND OrderHeaders.OrderDateTime >= @ilkTarih
+       AND OrderHeaders.OrderDateTime <= @SonTarih
+       AND OrderHeaders.@BranchID
+   
+                      

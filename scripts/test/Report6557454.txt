@@ -1,0 +1,54 @@
+SELECT 
+	br.BranchName AS [Şube],
+	DATEPART(MONTH, t.OrderDateTime) AS [Ay],
+	DATEADD(D,0,DATEDIFF(dd, 0,h.OrderDateTime)) AS Gün,
+    DATEPART(hour,h.OrderDateTime) AS Saat,
+	( 
+	CASE ISNULL(h.OrderType, 0)
+		WHEN 1 THEN 'MASA SERVIS'
+		WHEN 2 THEN 'İSME ÇEK'
+		WHEN 3 THEN 'AL GÖTÜR'
+		WHEN 4 THEN 'TEZGAH'
+		WHEN 5 THEN 'PAKET SERVIS'
+		ELSE 'TANIMSIZ'
+	END
+	) AS [Satış Türü],
+	t.MenumItemCategoryText AS [Kategori],
+	t.MenuItemGroupText AS [Grup],
+	t.MenuItemText AS [Ürün],
+	t.MenuItemUnitPrice AS [Birim Fiyat],
+	SUM(t.Quantity) AS [Miktar],
+	ROUND( (t.MenuItemUnitPrice * SUM(t.Quantity)) ,5) AS [Satır Toplamı],
+	ROUND( SUM(t.DiscountLineAmount + t.DiscountCashAmount) ,5) AS [Ürün İndirimi],
+	ROUND( SUM(h.DiscountCashAmount * ISNULL(((t.MenuItemUnitPrice * t.Quantity) / NULLIF(h.SubTotal,0)) ,0) ) ,5) AS [Nakit İndirim],
+	ROUND( SUM(h.DiscountOrderAmount * ISNULL(((t.MenuItemUnitPrice * t.Quantity) / NULLIF(h.SubTotal,0)) ,0) ) ,5) AS [Çek İndirimi],
+	ROUND( (
+		SUM(t.DiscountLineAmount + t.DiscountCashAmount)
+		+ SUM(h.DiscountCashAmount * ISNULL(((t.MenuItemUnitPrice * t.Quantity) / NULLIF(h.SubTotal,0)) ,0) )
+		+ SUM(h.DiscountOrderAmount * ISNULL(((t.MenuItemUnitPrice * t.Quantity) / NULLIF(h.SubTotal,0)) ,0) )
+	) ,5) AS [Toplam İndirim],
+	ROUND( SUM( (t.ExtendedPrice * ISNULL((h.AmountDue / NULLIF(h.SubTotal,0) ),0)) ) ,5) AS [Toplam (KDV Dahil)],
+	ROUND( SUM( (t.ExtendedPrice * ISNULL((h.AmountDue / NULLIF(h.SubTotal,0) ),0)) / ( 1+t.TaxPercent / 100.0 ) ) ,5) AS [Toplam (KDV Hariç)],
+	ROUND( SUM((t.ExtendedPrice * ISNULL((h.AmountDue / NULLIF(h.SubTotal,0) ),0))) - SUM( (t.ExtendedPrice * ISNULL((h.AmountDue / NULLIF(h.SubTotal,0) ),0)) / ( 1+t.TaxPercent / 100.0 ) ) ,5) AS [Kdv Tutarı],
+	t.TaxPercent AS [Kdv Oranı]
+FROM
+	OrderTransactions t WITH (NOLOCK)
+	INNER JOIN OrderHeaders h WITH (NOLOCK) ON h.OrderKey=t.OrderKey
+	INNER JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = t.BranchID
+WHERE
+	1=1
+	AND t.@BranchID
+	AND t.OrderDateTime BETWEEN @date1 and @date2
+	AND t.LineDeleted =0
+	AND h.LineDeleted =0
+GROUP BY
+	br.BranchName,
+	DATEPART(MONTH, t.OrderDateTime),
+	DATEADD(D,0,DATEDIFF(dd, 0,h.OrderDateTime)),
+    DATEPART(hour,h.OrderDateTime),
+	t.MenumItemCategoryText,
+	t.MenuItemGroupText,
+	t.MenuItemText,
+	t.MenuItemUnitPrice,
+	t.TaxPercent,
+	ISNULL(h.OrderType, 0)

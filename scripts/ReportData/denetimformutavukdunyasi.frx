@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ReportInfo.Created="09/04/2019 18:43:47" ReportInfo.Modified="05/07/2024 13:04:42" ReportInfo.CreatorVersion="1.2.47.0">
+  <ScriptText>using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows.Forms;
+using System.Drawing;
+using System.Data;
+using FastReport;
+using FastReport.Data;
+using FastReport.Dialog;
+using FastReport.Barcode;
+using FastReport.Table;
+using FastReport.Utils;
+
+namespace FastReport
+{
+  public class ReportScript
+  {
+
+    private void Picture1_BeforePrint(object sender, EventArgs e)
+    {
+      string path=&quot;&quot;; //pathe buraya parametreden al;
+      string URL=((string)Report.GetColumnValue(&quot;Details.ImageUrl1&quot;));  //burası da tablodan ;
+      if (URL!=&quot;&quot; &amp;&amp; URL!=null)
+      {
+		    Picture1.ImageLocation=path+URL;  
+        Picture1.Height=150;
+      }
+      else
+      {   
+        Picture1.Visible=false; 
+      }        
+    }
+
+    private void Picture2_BeforePrint(object sender, EventArgs e)
+    {
+      string path=&quot;&quot;; //pathe buraya parametreden al;
+      string URL=((string)Report.GetColumnValue(&quot;Details.ImageUrl2&quot;));  //burası da tablodan ;
+      if (URL!=&quot;&quot; &amp;&amp; URL!=null)
+      {
+        Picture2.ImageLocation=path+URL; 
+        Picture2.Height=150;
+      }
+      else
+      {  
+        Picture2.Visible=false; 
+      }
+    }
+
+    private void Picture3_BeforePrint(object sender, EventArgs e)
+    {
+      string path=&quot;&quot;; //pathe buraya parametreden al;
+      string URL=((string)Report.GetColumnValue(&quot;Details.ImageUrl3&quot;));  //burası da tablodan ;
+      if (URL!=&quot;&quot; &amp;&amp; URL!=null)
+      {
+        Picture3.ImageLocation=path+URL; 
+        Picture3.Height=150;
+      }
+      else
+      {
+        Picture3.Visible=false; 
+      }
+    }
+
+    private void Picture4_BeforePrint(object sender, EventArgs e)
+    {
+      string path=&quot;&quot;; //pathe buraya parametreden al;
+      string URL=((string)Report.GetColumnValue(&quot;Details.ImageUrl4&quot;));  //burası da tablodan ;
+      if (URL!=&quot;&quot; &amp;&amp; URL!=null)
+      {
+        Picture4.ImageLocation=path+URL;  
+        Picture4.Height=150;
+      }
+      else
+      {  
+        Picture4.Visible=false; 
+      }
+    }
+
+    private void Picture5_BeforePrint(object sender, EventArgs e)
+    {   
+      string path=&quot;&quot;; //pathe buraya parametreden al;
+      string URL=((string)Report.GetColumnValue(&quot;Record.ImageUrl&quot;));  //burası da tablodan ;
+      if (URL!=&quot;&quot; &amp;&amp; URL!=null)
+      {
+        Picture5.ImageLocation=path+URL;  
+        Picture5.Height=150;
+      }
+      else
+      {  
+        Picture5.Visible=false; 
+      }
+      
+    }
+  }
+}
+</ScriptText>
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqgKMARQ04Wuc+/ebey3RTmoD3zdGX0FhnmHD+RFhq6+zE0x2zscgQ0RQLocn664EXLDmO7Vll1yj7qvVtGkDrPTP2dbmXXO/ZYo8o/TVEc3fk7cZCbnY25bWS104iq/WcFdJTXgYu/wL4louinflYXHzGBCZeb8ghkUUvaTLUSJhGnadB9nmLMW+sn++cyXxbVsZ1y2yoJuS5S3UsOuBeXz9dY5EB6JdDnuqpzZyY0AI=">
+      <TableDataSource Name="Table" Alias="Record" DataType="System.Int32" Enabled="true" SelectCommand="select [webBranchAuditRecords].[AuditID],&#13;&#10;       [webBranchAuditRecords].[FormID],&#13;&#10;       [webBranchAuditRecords].[FormName],&#13;&#10;       [webBranchAuditRecords].[AuditDate],&#13;&#10;       [webBranchAuditRecords].[BranchID],&#13;&#10;       [webBranchAuditRecords].[BranchName],&#13;&#10;       [webBranchAuditRecords].[CreatedUserID],&#13;&#10;       [webBranchAuditRecords].[CreatedUserName],&#13;&#10;       [webBranchAuditRecords].[Descriptions],&#13;&#10;       [webBranchAuditRecords].[Notes],&#13;&#10;       [webBranchAuditRecords].[BranchClass],&#13;&#10;       [webBranchAuditRecords].[BranchManagers],&#13;&#10;       [webBranchAuditRecords].[ImageUrl],&#13;&#10;       [webBranchAuditRecords].[ApproveStatus],&#13;&#10;       [webBranchAuditRecords].[CreationDate],&#13;&#10;       [webBranchAuditRecords].[VisitPeriod]&#13;&#10;  from [dbo].[webBranchAuditRecords]&#13;&#10;       [webBranchAuditRecords]&#13;&#10;       WHERE [webBranchAuditRecords].[AuditID]=@auditId">
+        <Column Name="BranchName" DataType="System.String"/>
+        <Column Name="AuditID" DataType="System.Int32"/>
+        <Column Name="FormID" DataType="System.Int32"/>
+        <Column Name="FormName" DataType="System.String"/>
+        <Column Name="AuditDate" DataType="System.DateTime"/>
+        <Column Name="BranchID" DataType="System.Int32"/>
+        <Column Name="CreatedUserID" DataType="System.Int32"/>
+        <Column Name="CreatedUserName" DataType="System.String"/>
+        <Column Name="Descriptions" DataType="System.String"/>
+        <Column Name="Notes" DataType="System.String"/>
+        <Column Name="BranchClass" DataType="System.String"/>
+        <Column Name="BranchManagers" DataType="System.String"/>
+        <Column Name="ImageUrl" DataType="System.String"/>
+        <Column Name="ApproveStatus" DataType="System.Boolean" BindableControl="CheckBox"/>
+        <Column Name="CreationDate" DataType="System.DateTime"/>
+        <Column Name="VisitPeriod" DataType="System.String"/>
+        <CommandParameter Name="auditId" DataType="8" Expression="[auditId]" DefaultValue="1"/>
+      </TableDataSource>
+      <TableDataSource Name="Table1" Alias="Details" DataType="System.Int32" Enabled="true" SelectCommand="select [webBranchAuditRecordDetails].[AuditDetailID],&#13;&#10;       [webBranchAuditRecordDetails].[AuditID],&#13;&#10;       [webBranchAuditRecordDetails].[GroupName],&#13;&#10;       [webBranchAuditRecordDetails].[GroupDisplayIndex],&#13;&#10;       [webBranchAuditRecordDetails].[Question],&#13;&#10;       [webBranchAuditRecordDetails].[QuestionDisplayIndex],&#13;&#10;       [webBranchAuditRecordDetails].[OptionName],&#13;&#10;       [webBranchAuditRecordDetails].[Score],&#13;&#10;       [webBranchAuditRecordDetails].[Comments],&#13;&#10;       REPLACE(ImageUrl1,'/Upload/Upload/','/Upload/') as ImageUrl1,&#13;&#10;       REPLACE(ImageUrl2,'/Upload/Upload/','/Upload/') as ImageUrl2,&#13;&#10;       REPLACE(ImageUrl3,'/Upload/Upload/','/Upload/') as ImageUrl3,&#13;&#10;       REPLACE(ImageUrl4,'/Upload/Upload/','/Upload/') as ImageUrl4&#13;&#10;  from [dbo].[webBranchAuditRecordDetails]&#13;&#10;       [webBranchAuditRecordDetails] where [webBranchAuditRecordDetails].[AuditID]=@auditId order by  [webBranchAuditRecordDetails].[GroupDisplayIndex], [webBranchAuditRecordDetails].[QuestionDisplayIndex]">
+        <Column Name="AuditDetailID" DataType="System.Int32"/>
+        <Column Name="AuditID" DataType="System.Int32"/>
+        <Column Name="GroupName" DataType="System.String"/>
+        <Column Name="GroupDisplayIndex" DataType="System.Int32"/>
+        <Column Name="Question" DataType="System.String"/>
+        <Column Name="QuestionDisplayIndex" DataType="System.Int32"/>
+        <Column Name="OptionName" DataType="System.String"/>
+        <Column Name="Score" DataType="System.Int32"/>
+        <Column Name="Comments" DataType="System.String"/>
+        <Column Name="ImageUrl1" DataType="System.String"/>
+        <Column Name="ImageUrl2" DataType="System.String"/>
+        <Column Name="ImageUrl3" DataType="System.String"/>
+        <Column Name="ImageUrl4" DataType="System.String"/>
+        <CommandParameter Name="auditId" DataType="8" Expression="[auditId]" DefaultValue="11491"/>
+      </TableDataSource>
+      <TableDataSource Name="Table2" Alias="Scores" DataType="System.Int32" Enabled="true" SelectCommand="select [webBranchAuditRecordScores].[AuditScoreID],&#13;&#10;       [webBranchAuditRecordScores].[AuditID],&#13;&#10;       [webBranchAuditRecordScores].[ScoreName1],&#13;&#10;       [webBranchAuditRecordScores].[ScoreValue1],&#13;&#10;       [webBranchAuditRecordScores].[ScoreName2],&#13;&#10;       [webBranchAuditRecordScores].[ScoreValue2]&#13;&#10;  from [dbo].[webBranchAuditRecordScores]&#13;&#10;       [webBranchAuditRecordScores] where [webBranchAuditRecordScores].[AuditID]=@auditId">
+        <Column Name="AuditScoreID" DataType="System.Int32"/>
+        <Column Name="AuditID" DataType="System.Int32"/>
+        <Column Name="ScoreName1" DataType="System.String"/>
+        <Column Name="ScoreValue1" DataType="System.String"/>
+        <Column Name="ScoreName2" DataType="System.String"/>
+        <Column Name="ScoreValue2" DataType="System.String"/>
+        <CommandParameter Name="auditId" DataType="8" Expression="[auditId]" DefaultValue="1"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+    <Parameter Name="auditId" DataType="System.Int32" Expression="27900"/>
+  </Dictionary>
+  <ReportPage Name="Page1">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2" Height="179.55" CanGrow="true">
+      <TextObject Name="Text1" Width="349.65" Height="37.8" Fill.Color="150, 0, 75" Text="[Record.BranchName]" HorzAlign="Right" VertAlign="Center" Font="Arial, 14pt, style=Bold" TextFill.Color="255, 200, 0"/>
+      <TextObject Name="Text2" Left="349.65" Width="368.55" Height="37.8" Fill.Color="150, 0, 75" Text="[Record.AuditDate]" Format="Date" Format.Format="d" VertAlign="Center" Font="Arial, 14pt, style=Bold" TextFill.Color="255, 200, 0"/>
+      <TextObject Name="Text3" Top="47.25" Width="141.75" Height="28.35" Border.Lines="All" Border.Color="LightGray" Fill.Color="LightGray" Text="Ziyaret Yapan" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text4" Left="141.75" Top="47.25" Width="9.45" Height="28.35" Border.Lines="All" Border.Color="LightGray" Fill.Color="LightGray" Text=":" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text5" Left="151.2" Top="47.25" Width="151.2" Height="28.35" Border.Lines="All" Border.Color="LightGray" Text="[Record.CreatedUserName]" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text9" Top="122.85" Width="141.75" Height="47.25" Border.Lines="All" Border.Color="LightGray" Fill.Color="LightGray" Text="Açıklama" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text10" Left="141.75" Top="122.85" Width="9.45" Height="47.25" Border.Lines="All" Border.Color="LightGray" Fill.Color="LightGray" Text=":" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text11" Left="151.2" Top="122.85" Width="567" Height="47.25" Border.Lines="All" Border.Color="LightGray" CanGrow="true" Text="[Record.Descriptions]" HorzAlign="Justify" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text15" Left="311.85" Top="47.25" Width="141.75" Height="28.35" Border.Lines="All" Border.Color="LightGray" Fill.Color="LightGray" Text="Kayıt Tarihi" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text16" Left="453.6" Top="47.25" Width="9.45" Height="28.35" Border.Lines="All" Border.Color="LightGray" Fill.Color="LightGray" Text=":" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text17" Left="463.05" Top="47.25" Width="255.15" Height="28.35" Border.Lines="All" Border.Color="LightGray" Text="[Record.CreationDate]" Format="Date" Format.Format="f" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text18" Top="85.05" Width="141.75" Height="28.35" Border.Lines="All" Border.Color="LightGray" Fill.Color="LightGray" Text="Yetkililer" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text19" Left="141.75" Top="85.05" Width="9.45" Height="28.35" Border.Lines="All" Border.Color="LightGray" Fill.Color="LightGray" Text=":" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text20" Left="151.2" Top="85.05" Width="567" Height="28.35" Border.Lines="All" Border.Color="LightGray" Text="[Record.BranchManagers]" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <ChildBand Name="Child1" Top="183.55" Width="718.2" Height="56.7" CanGrow="true">
+        <TextObject Name="Text14" Left="151.2" Width="567" Height="47.25" Border.Lines="All" Border.Color="LightGray" CanGrow="true" GrowToBottom="true" Text="[Record.Notes]" HorzAlign="Justify" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+        <TextObject Name="Text12" Width="141.75" Height="47.25" Border.Lines="All" Border.Color="LightGray" Fill.Color="LightGray" Text="Ziyaret Notu" HorzAlign="Right" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+        <TextObject Name="Text13" Left="141.75" Width="9.45" Height="47.25" Border.Lines="All" Border.Color="LightGray" Fill.Color="LightGray" Text=":" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      </ChildBand>
+    </ReportTitleBand>
+    <PageHeaderBand Name="PageHeader1" Top="244.25" Width="718.2"/>
+    <DataBand Name="Data1" Top="271.15" Width="718.2" Height="37.8" DataSource="Table2" KeepTogether="true" KeepDetail="true">
+      <TextObject Name="Text21" Width="359.1" Height="18.9" Border.Lines="Bottom" Border.Color="Gray" Border.Width="3" Fill.Color="LightGray" Text="[Scores.ScoreName1]" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text22" Left="359.1" Width="359.1" Height="18.9" Border.Lines="Bottom" Border.Color="Gray" Border.Width="3" Fill.Color="LightGray" Text="[Scores.ScoreName2]" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text23" Top="18.9" Width="359.1" Height="18.9" Border.Lines="Bottom" Border.Color="Gray" Border.Width="3" Text="[Scores.ScoreValue1]" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <TextObject Name="Text24" Left="359.1" Top="18.9" Width="359.1" Height="18.9" Border.Lines="Bottom" Border.Color="Gray" Border.Width="3" Text="[Scores.ScoreValue2]" HorzAlign="Center" VertAlign="Center" Font="Arial, 9pt, style=Bold"/>
+      <DataHeaderBand Name="DataHeader1" Top="248.25" Width="718.2" Height="18.9" StartNewPage="true" KeepWithData="true"/>
+    </DataBand>
+    <GroupHeaderBand Name="GroupHeader1" Top="312.95" Width="718.2" Height="47.25" KeepWithData="true" Condition="[Details.GroupName]" SortOrder="None" KeepTogether="true">
+      <TextObject Name="Text25" Width="595.35" Height="47.25" Fill.Color="255, 60, 0" Text="[Details.GroupName]" VertAlign="Center" Font="Arial, 14pt, style=Bold" TextFill.Color="255, 200, 0"/>
+      <TextObject Name="Text26" Left="595.35" Width="122.85" Height="47.25" Fill.Color="255, 60, 0" Text="Seçim" HorzAlign="Center" VertAlign="Center" Font="Arial, 14pt, style=Bold" TextFill.Color="255, 200, 0"/>
+      <DataBand Name="Data2" Top="364.2" Width="718.2" Height="85.05" CanGrow="true" DataSource="Table1">
+        <TextObject Name="Text27" Left="614.25" Top="9.45" Width="103.95" Height="37.8" Border.Lines="All" Border.Width="2" Text="[Details.OptionName]" HorzAlign="Center" VertAlign="Center" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text28" Top="9.45" Width="614.25" Height="37.8" Border.Lines="Top" Border.Width="2" CanGrow="true" Text="[Details.Question]" VertAlign="Center" Font="Arial, 10pt, style=Bold"/>
+        <TextObject Name="Text30" Top="47.25" Width="718.2" Height="18.9" CanGrow="true" Text="[Details.Comments]" VertAlign="Center"/>
+        <PictureObject Name="Picture1" Top="75.6" Width="160.65" Height="9.45" CanGrow="true" GrowToBottom="true" BeforePrintEvent="Picture1_BeforePrint" SizeMode="StretchImage"/>
+        <PictureObject Name="Picture2" Left="179.55" Top="75.6" Width="160.65" Height="9.45" CanGrow="true" GrowToBottom="true" BeforePrintEvent="Picture2_BeforePrint" SizeMode="StretchImage"/>
+        <PictureObject Name="Picture3" Left="349.65" Top="75.6" Width="179.55" Height="9.45" CanGrow="true" GrowToBottom="true" BeforePrintEvent="Picture3_BeforePrint" SizeMode="StretchImage"/>
+        <PictureObject Name="Picture4" Left="538.65" Top="75.6" Width="179.55" Height="9.45" CanGrow="true" GrowToBottom="true" BeforePrintEvent="Picture4_BeforePrint" SizeMode="StretchImage"/>
+      </DataBand>
+      <GroupFooterBand Name="GroupFooter1" Top="453.25" Width="718.2" Height="9.45"/>
+    </GroupHeaderBand>
+    <ReportSummaryBand Name="ReportSummary1" Top="466.7" Width="718.2" Height="311.85">
+      <PictureObject Name="Picture5" Width="718.2" Height="311.85" Dock="Fill" CanGrow="true" GrowToBottom="true" BeforePrintEvent="Picture5_BeforePrint" SizeMode="StretchImage"/>
+    </ReportSummaryBand>
+    <PageFooterBand Name="PageFooter1" Top="782.55" Width="718.2"/>
+  </ReportPage>
+</Report>

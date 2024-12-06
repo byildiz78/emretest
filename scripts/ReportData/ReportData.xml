@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WebRaporlari>
+	
+<RaporGrup Text="SATIŞ RAPORLARI" HeaderImageUrl="~/img/satis.png">
+	<Rapor NavigateUrl="ShowDesign.aspx?id=24146" Text="SATIŞ DAĞILIMI" />
+	<Rapor NavigateUrl="ShowReportDateFilter.aspx?id=24001" Text="Ürün Bazlı Satış"/>
+ 	<Rapor NavigateUrl="ShowDesign.aspx?id=24002" Text="Saatlik Satış" />
+ 	<Rapor NavigateUrl="ShowChartReportDateFilter.aspx?id=24037" Text="Kategori Satışları Grafik" />
+	<Rapor NavigateUrl="ShowReportDateFilter.aspx?id=24003" Text="Kategori Bazlı Satış" />
+	<Rapor NavigateUrl="ShowDesign.aspx?id=24004" Text="Paket-Masa-Kasa Satışları" />
+	<Rapor NavigateUrl="ShowReportDateFilter.aspx?id=24006" Text="Adisyon Listesi" />
+	<Rapor NavigateUrl="ShowReportDateFilter.aspx?id=24121" Text="Adisyon Kapanış Listesi" />
+ </RaporGrup>
+ <RaporGrup Text="ANALIZ RAPORLARI" HeaderImageUrl="~/img/Genel.png">
+ 	 	<Rapor NavigateUrl="ShowChartReportDateFilter.aspx?id=35" Text="Günlük Satış Karşılaştırması" />
+	<Rapor NavigateUrl="ShowChartReportDateFilter.aspx?id=34" Text="Aylık Satış Karşılaştırması" />
+	<Rapor NavigateUrl="ShowChartReport.aspx?id=36" Text="Yıllık Satış Karşılaştırması" />
+	<Rapor NavigateUrl="ShowDesign.aspx?id=223" Text="Saatlik Satış Karşılaştırması" />
+	<Rapor NavigateUrl="ShowChartReportDateFilter.aspx?id=39" Text="Top 10 Ürün -Tutar" />
+	<Rapor NavigateUrl="ShowChartReportDateFilter.aspx?id=40" Text="Top 10 Ürün -Adet" />
+	<Rapor NavigateUrl="ShowReportDateFilter.aspx?id=51" Text="Çok Satan 20 Ürün -Adet" />
+	<Rapor NavigateUrl="ShowReportDateFilter.aspx?id=52" Text="Satmayan 20 Ürün -Adet" />
+	<Rapor NavigateUrl="ShowPivotReportDateFilter.aspx?id=32" Text="SATIŞ ANALİZİ" />
+	
+ 	</RaporGrup>
+ <RaporGrup Text="PERSONEL RAPORLARI" HeaderImageUrl="~/img/Personel.png">
+ 	<Rapor NavigateUrl="ShowPivotReportDateFilter.aspx?id=12" Text="Personel Performans" />
+	<Rapor NavigateUrl="ShowChartReportDateFilter.aspx?id=38" Text="Personel Performans Grafik" />
+ 	<Rapor NavigateUrl="ShowReportDateFilter.aspx?id=13" Text="Personel İş Başı-İş Sonu" />
+	<Rapor NavigateUrl="ShowReportDateFilter.aspx?id=53" Text="Personel Ürün Satışları" />
+ </RaporGrup>
+ <RaporGrup Text="DENETİM RAPORLARI" HeaderImageUrl="~/img/denetim.png">
+ 	<Rapor NavigateUrl="ShowReportDateFilter.aspx?id=16" Text="Yetkisiz Kullanım Takip" />
+        <Rapor NavigateUrl="ShowReportDateFilter.aspx?id=15" Text="İptal İşlemleri" />
+        <Rapor NavigateUrl="ShowReportDateFilter.aspx?id=14" Text="İndirim Kullanımı" />
+     </RaporGrup>
+ <RaporGrup Text="KASA RAPORLARI" HeaderImageUrl="~/img/Kasa.png">
+ 	<Rapor NavigateUrl="ShowReportDateFilter.aspx?id=30" Text="Kasa Ödemeleri" />
+ 	<Rapor NavigateUrl="ShowDesign.aspx?id=17" Text="Kazanç Raporu" />
+ </RaporGrup>
+ <RaporGrup Text="MÜŞTERİ RAPORLARI" HeaderImageUrl="~/img/Musteri.png">
+ 	<Rapor NavigateUrl="ShowReport.aspx?id=18" Text="Müşteri Borç Listesi" />
+
+ </RaporGrup> 
+ <RaporGrup Text="GENEL RAPORLAR" HeaderImageUrl="~/img/Genel.png">
+ 	<Rapor NavigateUrl="ShowReport.aspx?id=31" Text="Personel Listesi" />
+ 	<Rapor NavigateUrl="Reportviewer.aspx?id=22" Text="Ürün Listesi" />
+
+ </RaporGrup>
+ </WebRaporlari>

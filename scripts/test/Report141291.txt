@@ -1,0 +1,25 @@
+SELECT   ISNULL(e.FirstName,'')+' '+ISNULL(e.LastName,'')  AS Adı,
+
+ISNULL(p.StartPaperNumber,'') as [İlk Barkod Başlangıç],
+ISNULL(p.EndPaperNumber,'') as  [İlk Barkod Bitiş],
+ISNULL(p.SecondStartPaperNumber,'') as  [İkinci Barkod Başlangıç],
+ISNULL(p.SecondEndPaperNumber,'') as [İkinci Barkod Bitiş],            
+
+(SELECT count(1) FROM dbo.OrderHeaders with (nolock)
+WHERE PaperNumber is not NULL 
+and PaperNumber <> '' 
+AND ((SUBSTRING(PaperNumber,3,10) > ISNULL(p.StartPaperNumber,0) and SUBSTRING(PaperNumber,3,10) < ISNULL(p.EndPaperNumber,0)) or (SUBSTRING(PaperNumber,3,10) > ISNULL(p.SecondStartPaperNumber,0) 
+and SUBSTRING(PaperNumber,3,10) < ISNULL(p.SecondEndPaperNumber,0))) 
+AND OrderDateTime BETWEEN @date1 AND @date2 
+AND OrderDateTime >'2019-12-12') AS [Sipariş Sayısı],
+(ISNULL(p.EndPaperNumber,0) - ISNULL(p.StartPaperNumber,0) + ISNULL(p.SecondEndPaperNumber,0) - ISNULL(p.SecondStartPaperNumber,0)) AS [Adisyon Sayısı],
+(SELECT CONVERT(VARCHAR(10),OrderID),',' FROM dbo.OrderHeaders with (nolock)
+WHERE PaperNumber is not NULL 
+and PaperNumber <> '' 
+AND ((SUBSTRING(PaperNumber,3,10) > ISNULL(p.StartPaperNumber,0) and SUBSTRING(PaperNumber,3,10) < ISNULL(p.EndPaperNumber,0)) or (SUBSTRING(PaperNumber,3,10) > ISNULL(p.SecondStartPaperNumber,0) 
+and SUBSTRING(PaperNumber,3,10) < ISNULL(p.SecondEndPaperNumber,0))) 
+AND OrderDateTime BETWEEN @date1 AND @date2 
+AND OrderDateTime >'2019-12-12' FOR XML PATH ('')) as Cekler				
+FROM dbo.EmployeeFiles e with (nolock)
+LEFT join  dbo.webPaperNumbers p ON p.EmployeeKey=e.EmployeeKey AND ISNULL(p.CurrentDate,@date1) = @date1
+WHERE e.@BranchID  AND e.EmployeeActive=1 AND ( (e.LastName is not null AND e.LastName!='') OR (e.FirstName is not null AND e.FirstName!='')) order by e.AutoID

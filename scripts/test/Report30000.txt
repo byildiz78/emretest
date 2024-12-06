@@ -1,0 +1,8 @@
+﻿
+SELECT     Expenses.ExpenseDatetime AS Tarih, Expenses.ExpenseAmount AS Tutar, Expenses.ExpenseDescription AS Açıklama, Expenses.ExpenseName AS [Kime Ödendi]
+                      
+FROM         Expenses 
+Where
+expenses.ExpenseDatetime <=@sonTarih And
+expenses.ExpenseDatetime >=@ilkTarih 
+and expenses.@BranchID and  expenses.linedeleted=1

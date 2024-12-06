@@ -1,0 +1,18 @@
+SELECT b.BranchName AS Şube,SUM(r.UrunSatis) AS [Ürün Satış],SUM(r.Kasa) AS [Kasa Toplam] FROM(
+SELECT h.BranchID,SUM(h.AmountPaid) AS Kasa,0.0 UrunSatis FROM OrderPayments AS h WITH(NOLOCK)
+WHERE h.@BranchID
+AND h.PaymentDateTime>=@date1
+AND h.PaymentDateTime<=@date2
+AND h.LineDeleted=0
+GROUP BY h.BranchID
+UNION ALL
+SELECT h.BranchID,0.0 AS Kasa,SUM(h.ExtendedPrice) UrunSatis FROM OrderTransactions AS h WITH(NOLOCK)
+WHERE h.@BranchID
+AND h.OrderDateTime>=@date1
+AND h.OrderDateTime<=@date2
+AND h.LineDeleted=0
+GROUP BY h.BranchID
+) AS r
+INNER JOIN efr_Branchs AS b ON r.BranchID=b.BranchID
+GROUP BY b.BranchName
+ORDER BY b.BranchName

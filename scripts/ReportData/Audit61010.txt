@@ -1,0 +1,16 @@
+DECLARE @ciro FLOAT;
+SET @ciro=(SELECT SUM(h.AmountDue+h.DiscountTotalAmount) AS reportValue
+FROM OrderHeaders AS h WITH(NOLOCK)
+WHERE h.OrderDateTime between @date1 and @date2
+AND h.@BranchID
+AND h.linedeleted=0
+);
+
+
+ SELECT 
+ ROUND((SUM(h.DiscountTotalAmount)/@ciro*100),2) AS [Toplam Indirimler]
+ FROM OrderHeaders h WITH (NOLOCK)
+ WHERE h.LineDeleted = 0 
+ AND h.OrderDateTime between @date1 and @date2
+ AND h.@BranchID
+

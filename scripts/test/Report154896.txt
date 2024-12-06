@@ -1,0 +1,21 @@
+select distinct
+pb.BranchName as [Şube Adı],
+item.MenuItemText as [Ürün Adı],
+item.Barcode2 as [Barkod],
+pp.ProductCode as [Stok Kodu],
+fiy.fiyat as [Varsayılan Fiyat],
+pp.ExternalCode as [SAP Kodu]
+from NewGlobalMenuItemLayout as lay
+INNER JOIN NewGlobalMenuItems as item on item.MenuItemKey=lay.MenuItemKey
+INNER JOIN posBranchs as pb on pb.MenuTemplateKey=lay.TemplateKey
+INNER JOIN posProducts as pp on pp.ProductKey=item.MenuItemKey
+LEFT JOIN (select
+pb.branchId as [Bid],
+item.MenuItemKey as [menuItemkey],
+pri.DefaultUnitPrice as [fiyat]
+from NewGlobalMenuItemPrices as pri
+INNER JOIN NewGlobalPriceTemplates as prit on prit.PriceTemplateKey=pri.PriceTemplateKey
+INNER JOIN NewGlobalMenuItems as item on item.MenuItemKey=pri.MenuItemKey
+INNER JOIN posbranchs as pb on pb.PriceTemplateKey=prit.PriceTemplateKey) as fiy on fiy.menuItemkey=item.MenuItemKey and fiy.Bid=pb.BranchID
+where pb.@BranchID
+order by item.MenuItemText asc

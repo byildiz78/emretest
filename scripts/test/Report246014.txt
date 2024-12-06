@@ -1,0 +1,16 @@
+﻿Detail|
+SELECT SUM(AmountPaid) AS GenelTOPLAM,PaymentMethodName
+FROM OrderPayments
+WHERE  orderpayments.PaymentDateTime >= DATEADD(hour,-6,@date1)
+  AND orderpayments.PaymentDateTime <= DATEADD(hour,-6,@date2)
+  AND OrderPayments.LineDeleted = 0
+  AND orderpayments.@BranchID
+GROUP BY PaymentMethodName
+$expenses|
+SELECT SUM(e.ExpenseAmount),e.ExpenseName
+FROM Expenses e
+WHERE  e.ExpenseDatetime >= DATEADD(hour,-6,@date1)
+  AND e.ExpenseDatetime <= DATEADD(hour,-6,@date2)
+  AND e.LineDeleted = 0
+  AND e.@BranchID
+GROUP BY e.ExpenseName

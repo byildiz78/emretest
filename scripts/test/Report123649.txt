@@ -1,0 +1,25 @@
+UPDATE NewGlobalMenuItems SET MenuItemCost =p.PurchasePrice5
+FROM NewGlobalMenuItems
+INNER JOIN posProducts AS p ON p.ProductKey=NewGlobalMenuItems.MenuItemGlobalKey
+WHERE p.PurchasePrice5>0;
+UPDATE OrderTransactions SET MenuItemCost = m.MenuItemCost
+FROM OrderTransactions
+INNER JOIN efr_Branchs AS b ON b.BranchID = OrderTransactions.BranchID
+INNER JOIN NewGlobalMenuItems AS m ON m.MenuItemKey = OrderTransactions.MenuItemKey
+WHERE OrderTransactions.OrderDateTime>DATEADD(DAY,-10,GETDATE())
+AND ISNULL(OrderTransactions.MenuItemCost,0)=0
+AND m.MenuItemCost>0;
+
+SELECT efr_Branchs.BranchName AS Şube,ROUND(SUM(OrderTransactions.ExtendedPrice * h.AmountDue / NULLIF(h.SubTotal, 0)), 2) AS Ciro,
+ROUND(SUM(OrderTransactions.ExtendedPrice *(100/(100+OrderTransactions.TaxPercent))* h.AmountDue / NULLIF(h.SubTotal, 0)), 2) AS [Ciro (KDV siz)],
+round((SUM(OrderTransactions.quantity * ISNULL(OrderTransactions.MenuItemCost, 0))),2) AS [Toplam Maliyet (KDV siz)],
+round(1.08*(SUM(OrderTransactions.quantity * ISNULL(OrderTransactions.MenuItemCost, 0))),2) AS [Toplam Maliyet (KDV li)],
+ROUND(((1 -(ROUND(SUM(OrderTransactions.ExtendedPrice*(100/(100+OrderTransactions.TaxPercent)) * h.AmountDue / NULLIF(h.SubTotal, 0)), 2) - SUM(OrderTransactions.quantity * ISNULL(OrderTransactions.MenuItemCost, 0))) /(ROUND(SUM(
+OrderTransactions.ExtendedPrice*(100/(100+OrderTransactions.TaxPercent)) * h.AmountDue / NULLIF(h.SubTotal, 0)), 2))) * 100),2) as [Maliyet Yüzdesi]
+FROM OrderTransactions WITH (NOLOCK)
+LEFT OUTER JOIN efr_Branchs ON OrderTransactions.BranchID = efr_Branchs.BranchID
+LEFT OUTER JOIN orderheaders AS h ON OrderTransactions.OrderKey = h.OrderKey
+WHERE OrderTransactions.OrderDateTime >= @date1 AND OrderTransactions.OrderDateTime <= @date2 AND OrderTransactions.LineDeleted = 0 
+AND OrderTransactions.@BranchID
+AND OrderTransactions.MenuItemtext <> '??'
+GROUP BY efr_Branchs.BranchName

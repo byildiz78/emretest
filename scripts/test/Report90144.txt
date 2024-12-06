@@ -1,0 +1,59 @@
+SELECT 
+	br.BranchName AS [Şube],
+	(
+	p.PaymentMethodName + ( CASE WHEN ISNULL( p.GlobalBankName, '' ) = '' THEN '' ELSE ( ' - ' + p.GlobalBankName ) END ) + ( CASE WHEN h.IsInvoice = 1 THEN ' (FATURA)' ELSE '' END ) 
+	) AS [Ödeme],
+	CASE 
+	WHEN 
+	p.GlobalBankName LIKE '%KET%' or 
+	p.PaymentMethodName LIKE '%KET%' or 
+	p.GlobalBankName LIKE '%SET%' or 
+	p.PaymentMethodName LIKE '%SET%' or 
+	p.GlobalBankName LIKE '%SOD%' or 
+	p.PaymentMethodName LIKE '%SOD%' or 
+	p.GlobalBankName LIKE '%METRO%' or 
+	p.PaymentMethodName LIKE '%METRO%' or 
+	p.GlobalBankName LIKE '%MULT%' or 
+	p.PaymentMethodName LIKE '%MULT%' or
+	p.GlobalBankName LIKE '%PAYE%' or 
+	p.PaymentMethodName LIKE '%PAYE%' or
+	p.GlobalBankName LIKE '%IKEA%' or 
+	p.PaymentMethodName LIKE '%IKEA%'
+	THEN CASE WHEN p.GlobalBankName IS NULL or p.GlobalBankName='' THEN REPLACE(REPLACE(REPLACE(REPLACE(p.PaymentMethodName,'METROPOL KART','METROPOL'),'METROPOLCARD','METROPOL'),'MULTINET','MULTİNET'),'MOBİL','') ELSE REPLACE(REPLACE(REPLACE(REPLACE(p.GlobalBankName,'METROPOL KART','METROPOL'),'MULTINET','MULTİNET'),'METROPOLCARD','METROPOL'),'MOBİL','') END
+	WHEN 
+	p.GlobalBankName LIKE '%GETİR%' or 
+	p.PaymentMethodName LIKE '%GETİR%' or 
+	p.GlobalBankName LIKE '%TREN%' or 
+	p.PaymentMethodName LIKE '%TREN%' or 
+	p.GlobalBankName LIKE '%ONLINE%' or 
+	p.PaymentMethodName LIKE '%ONLINE%' or 
+	p.GlobalBankName LIKE '%VALE%' or 
+	p.PaymentMethodName LIKE '%VALE%' or 
+	p.GlobalBankName LIKE '%EFTEN%' or 
+	p.PaymentMethodName LIKE '%EFTEN%' or
+	p.GlobalBankName LIKE '%MOBİLE%' or 
+	p.PaymentMethodName LIKE '%MOBİLE%' or
+	p.GlobalBankName LIKE '%NAK%' or 
+	p.PaymentMethodName LIKE '%NAK%'
+	THEN 'NAKİT'
+		WHEN 
+	p.GlobalBankName LIKE '%YS C%' or 
+	p.PaymentMethodName LIKE '%YS C%'
+	THEN 'YS CÜZDAN'
+	ELSE  ISNULL(p.GlobalBankName,p.PaymentMethodName) END BankName,
+	SUM( AmountPaid ) AS [Toplam]
+FROM
+	OrderPayments p WITH (NOLOCK)
+	INNER JOIN OrderHeaders h WITH (NOLOCK) ON h.OrderKey= p.OrderKey
+	INNER JOIN efr_Branchs br ON br.BranchID = p.BranchID
+WHERE
+	p.PaymentDateTime BETWEEN @date1 and @date2	
+	AND p.LineDeleted = 0 
+	AND p.@BranchID
+GROUP BY
+	(
+	p.PaymentMethodName + ( CASE WHEN ISNULL( p.GlobalBankName, '' ) = '' THEN '' ELSE ( ' - ' + p.GlobalBankName ) END ) + ( CASE WHEN h.IsInvoice = 1 THEN ' (FATURA)' ELSE '' END ) 
+	),
+	br.BranchName,
+	p.GlobalBankName,
+	p.PaymentMethodName

@@ -1,0 +1,54 @@
+select 
+r.bid as ŞubeNo,
+r.tarih as Tarih,
+b.BranchName as Şube,
+sum(r.brüt) as Brüt,
+sum(r.ind1) as [Toplam Ürün İndirimi],
+ sum(r.ind2) as [Toplam Nakit İndirimi],
+ sum(r.ind3) as [Toplam Çek İndirimi],
+ sum(r.ind4) as [Toplam İndirim],
+ sum(r.nets) as [Net Satış],
+ sum(r.KDV) as KDV,
+ sum(r.nets)-sum(r.KDV) as [KDV Hariç Net Satış],
+sum(r.ceks) as [Çek Sayısı],
+sum(r.konuk) as [Konuk Sayısı]
+from(
+select 
+h.BranchID as bid,
+Convert(Varchar,DATEADD(HOUR,-6,h.OrderDatetime),103) as tarih,
+0.00 as brüt,
+sum(isnull(h.DiscountLineAmount,0)) as ind1,
+sum(isnull(h.DiscountCashAmount,0)) as ind2,
+sum(isnull(h.DiscountOrderAmount,0)) as ind3,
+sum(isnull(h.DiscountTotalAmount,0)) as ind4,
+sum(isnull(h.AmountDue,0)) as nets,
+0.00 as KDV,
+count(h.OrderID) as ceks,
+sum(h.GuestNumber) as konuk
+from OrderHeaders h with(nolock)
+where h.OrderDateTime between @date1 and @date2
+and h.LineDeleted=0
+and h.@BranchID
+group by h.BranchID,h.OrderDateTime
+union all
+select 
+t.BranchID as bid,
+Convert(Varchar,DATEADD(HOUR,-6,h.OrderDatetime),103) as tarih,
+sum(isnull(t.MenuItemUnitPrice,0) * isnull(Quantity,0)) as brüt,
+0.00 as ind1,
+0.00 as ind2,
+0.00 as ind3,
+0.00 as ind4,
+0.00 as nets,
+sum(isnull(t.SaleTaxAmount,0)) as KDV,
+0 as ceks,
+0 as konuk
+from OrderTransactions t with(nolock)
+inner join efr_Branchs b on t.BranchID=b.BranchID
+inner join OrderHeaders h with(nolock) on t.OrderKey=h.OrderKey
+where t.OrderDateTime between @date1 and @date2
+and t.LineDeleted=0
+and t.@BranchID
+group by t.BranchID,h.OrderDateTime) as r
+inner join efr_Branchs b on r.bid=b.BranchID
+group by r.bid,b.BranchName,r.tarih

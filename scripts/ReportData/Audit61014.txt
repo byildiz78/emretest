@@ -1,0 +1,12 @@
+DECLARE @datefirst DATETIME;
+set @datefirst=(SELECT DATEADD(m, DATEDIFF(m, 0, GETDATE()), 0));
+
+SELECT (sum(t.Quantity)/day(GETDATE()))*DAY(DATEADD(d, -DAY(DATEADD(m,1,GETDATE())),DATEADD(m,1,GETDATE()))) AS reportValue
+FROM OrderTransactions AS t WITH(NOLOCK)
+INNER JOIN OrderHeaders AS h ON h.OrderKey = t.OrderKey
+INNER JOIN posProducts as m on m.ProductKey=t.MenuItemKey 
+WHERE t.OrderDateTime between dateadd(HOUR,6,@datefirst) and GETDATE()
+AND t.@BranchID
+AND t.linedeleted=0
+AND h.linedeleted=0
+AND m.CustomField12='TABAKLAR'

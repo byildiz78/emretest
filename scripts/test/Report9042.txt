@@ -1,0 +1,16 @@
+SELECT t.MenuItemText AS [Ürün],SUM(t.Quantity) AS Adet,SUM(t.ExtendedPrice) AS Tutar,t.MenuItemGroupText AS Grup,t.MenumItemCategoryText AS Kategori,t.AddUserName AS Personel,
+CASE h.OrderType
+ WHEN '1' THEN 'MASA SERVIS'
+ WHEN '2' THEN 'İSME ÇEK'
+ WHEN '3' THEN 'AL GÖTÜR'
+ WHEN '4' THEN 'TEZGAH'
+ WHEN '5' THEN 'PAKET SERVIS' ELSE 'TANIMSIZ'
+ END AS 'Satış Türü'
+FROM OrderHeaders AS h WITH (NOLOCK)
+INNER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey AND h.BranchID=t.BranchID AND t.LineDeleted=0
+WHERE h.LineDeleted = 0 AND h.OrderDateTime >= @date1 
+AND h.OrderDateTime <= @date2
+AND h.LineDeleted=0
+AND h.@BranchID
+GROUP BY MenuItemText,h.OrderType,t.ExtendedPrice,t.Quantity,t.MenuItemGroupText,t.MenumItemCategoryText,t.AddUserName 
+ORDER BY t.MenuItemText ASC

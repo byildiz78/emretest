@@ -1,0 +1,24 @@
+DECLARE @ciro FLOAT;
+
+
+SET @ciro=(SELECT SUM(h.AmountDue) AS reportValue
+FROM OrderHeaders AS h WITH(NOLOCK)
+WHERE h.OrderDateTime between @date1 and @date2
+AND h.@BranchID
+AND h.linedeleted=0
+);
+
+SELECT *,ROUND(paketciro/@ciro*100,2) as reportValue FROM (
+	SELECT 		
+		round(SUM(h.AmountDue),2) as paketciro
+		
+	FROM 
+		OrderHeaders AS h WITH (NOLOCK)		
+	WHERE 
+		h.OrderDateTime between @date1 AND @date2
+		AND h.LineDeleted=0
+		AND h.OrderType=5
+		AND h.@BranchID) AS TABLO
+
+
+

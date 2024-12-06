@@ -1,0 +1,13 @@
+﻿SELECT r.MenuItemText as [ÜRÜN],r.Tutar, r.Miktar,
+CASE WHEN r.MenuItemText LIKE '%STANDART' THEN r.Miktar * 3
+ WHEN r.MenuItemText LIKE '%BÜYÜK' THEN r.Miktar  * 5
+ WHEN r.MenuItemText LIKE '%TORAMAN' THEN r.Miktar * 10
+ WHEN r.MenuItemText LIKE '%BATTAL' THEN r.Miktar  * 25 
+ ELSE 0 END AS  [TOPLAM CL]
+ FROM (
+SELECT t.MenuItemText, SUM(t.ExtendedPrice) AS Tutar, SUM(t.Quantity) AS Miktar
+FROM OrderTransactions AS t
+LEFT OUTER JOIN efr_Branchs ON t.BranchID = efr_Branchs.BranchID
+WHERE t.LineDeleted = 0 AND t.TransactionDateTime >= @date1 AND t.TransactionDateTime <= @date2 
+AND t.@BranchID
+GROUP BY t.MenuItemText) AS r order by r.MenuItemText

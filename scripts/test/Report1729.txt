@@ -1,0 +1,8 @@
+SELECT b.BranchName AS Şube, h.DocumentDateTime AS Tarih,h.OrderSerialNo AS [Belge No],h.Total AS [KDVsiz Tutar],h.TotalAmount AS [Tutar]
+FROM posOrderHeader AS h WITH(NOLOCK)
+INNER JOIN efr_Branchs AS b ON h.BranchID=b.BranchID
+WHERE h.OrderTypeID=42
+AND dateadd(hour,12,h.DocumentDateTime)>=@date1
+AND dateadd(hour,12,h.DocumentDateTime)<=@date2
+AND h.@BranchID
+ORDER BY h.OrderID DESC

@@ -1,0 +1,110 @@
+﻿/************************************************************
+ * Code formatted by SoftTree SQL Assistant © v6.3.153
+ * Time: 13.07.2016 09:39:55
+ ************************************************************/
+
+IF OBJECT_ID('tempdb..#logo') IS NOT NULL
+BEGIN
+    DROP TABLE #logo;
+END;
+CREATE TABLE #logo
+(
+	MenuItemKey     UNIQUEIDENTIFIER,
+	Kombo           NVARCHAR(50),
+	menuItemtext NVARCHAR(50),
+	BranchID        INT,
+	Tutar           FLOAT,
+	Quantity        FLOAT,
+	Tarih           DATETIME,
+	AutoID          INT
+);
+INSERT INTO #logo
+  (
+    MenuItemKey,
+    Kombo,
+menuItemtext ,
+    BranchID,
+    Tutar,
+    Quantity,
+    Tarih,
+    AutoID
+  )
+SELECT t.MenuItemKey,
+       ISNULL(t.CustomField1, '')  AS Kombo,
+       
+      t.MenuItemText AS Ürün,
+       t.BranchID,
+       SUM(t.ExtendedPrice)        AS Tutar,
+       SUM(t.Quantity)             AS Quantity,
+       DATEADD(DAY, DATEDIFF(dd, 0, DATEADD(hour, 0, @date2)), 0) AS Tarih,
+       (
+           CONVERT(
+               INT,
+               CONVERT(
+                   NVARCHAR(24),
+                   DATEADD(DAY, DATEDIFF(dd, 0, DATEADD(hour, 0, @date2)), 0),
+                   12
+               )
+           ) * 1000
+       ) + t.BranchID              AS AutoID
+FROM   OrderHeaders                AS h WITH (NOLOCK)
+       INNER
+JOIN OrderTransactions             AS t
+            ON  h.OrderKey = t.OrderKey
+            AND t.LineDeleted = 0
+WHERE  t.LineDeleted = 0
+       AND t.OrderDateTime >= DATEADD(
+               hour,
+               6,
+               DATEADD(DAY, DATEDIFF(dd, 0, DATEADD(hour, 0, @date1)), 0)
+           )
+       AND t.OrderDateTime <= DATEADD(
+               hour,
+               30,
+               DATEADD(DAY, DATEDIFF(dd, 0, DATEADD(hour, 0, @date2)), 0)
+           )
+       AND t.@BranchID
+GROUP BY
+       ISNULL(t.CustomField1, ''),
+       t.MenuItemKey,
+       t.BranchID,
+       t.MenuItemText
+
+SELECT CASE 
+            WHEN LEN(s.Kombo) > 0 AND s.Kombo LIKE '%-' AND ISNULL(p.ProductName, '') 
+                 LIKE '%tavuk%' AND s.BranchID IN (26, 28, 29, 37, 40, 47, 49) THEN 
+                 '9M99.998'
+            WHEN LEN(s.Kombo) > 0 AND s.Kombo LIKE '%-' AND ISNULL(p.ProductName, '') 
+                 LIKE '%tavuk%' AND s.BranchID NOT IN (26, 28, 29, 37, 40, 47, 49) THEN 
+                 '3M99.998'
+            WHEN LEN(s.Kombo) > 0 AND s.Kombo LIKE '%-' AND ISNULL(p.ProductName, '') 
+                 NOT LIKE '%tavuk%' AND s.BranchID NOT IN (26, 28, 29, 37, 40, 47, 49) THEN 
+                 '3M99.999'
+            WHEN LEN(s.Kombo) > 0 AND s.Kombo LIKE '%-' AND ISNULL(p.ProductName, '') 
+                 NOT LIKE '%tavuk%' AND s.BranchID IN (26, 28, 29, 37, 40, 47, 49) THEN 
+                 '9M99.999'
+            ELSE ISNULL(p.ExternalCode, '')
+       END                              AS [Stok Kodu],
+
+s.MenuItemtext as Ürün,
+       ISNULL(b.PortalAccountIntegrationCurrentCode, '') AS [Ent Kodu],
+       ISNULL(b.PortalAccountIntegrationCurrentCode, '') AS [Cari Kodu],
+       s.Quantity                       AS Miktar,
+       ROUND(
+           (
+               s.Tutar / s.Quantity / (100 + ISNULL(p.TaxPercent1, 0)) * 100
+           ),
+           3
+       )                                AS [Birim Fiyat],
+       ISNULL(p.TaxPercent1, 0)         AS [Kdv Yüzdesi],
+       ISNULL(NULLIF(p.CustomField1, ''), 'ADET') AS Birim,
+       s.Tutar
+FROM   #logo                            AS s
+       LEFT OUTER JOIN GlobalMenuItems  AS m
+            ON  m.MenuItemKey = s.MenuItemKey
+            AND m.BranchID = s.BranchID
+       LEFT OUTER JOIN posProducts      AS p
+            ON  p.ProductKey = m.MenuItemGlobalKey
+       INNER JOIN posBranchs            AS b
+            ON  b.BranchID = s.BranchID
+WHERE  s.Quantity > 0

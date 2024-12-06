@@ -1,0 +1,33 @@
+SELECT
+	br.Branchname AS [ŞUBE],
+	t.MenuItemText [ÜRÜN],
+        pp.ExternalCode  [HARİCİ KOD],
+	t.MenumItemCategoryText [KATEGORİ],
+	t.MenuItemGroupText [GRUP],
+	SUM ( t.Quantity ) [MİKTAR],
+	ISNULL( NULLIF ( t.MenuItemUnitPrice, 0 ), ( t.ExtendedPrice / t.Quantity ) ) AS [BİRİM FİYAT],
+	ROUND( SUM ( t.ExtendedPrice * (h.AmountDue / ISNULL(NULLIF(h.SubTotal,0),1) ) ) ,2) AS [TUTAR] 
+FROM
+	OrderTransactions AS t WITH (NOLOCK)
+	INNER JOIN OrderHeaders AS h WITH (NOLOCK) ON h.OrderKey = t.OrderKey 
+	LEFT JOIN efr_Branchs br WITH (NOLOCK) ON t.BranchID = br.BranchID 
+         LEFT JOIN posproducts pp ON pp.ProductKey=t.MenuItemKey
+WHERE
+	1=1 
+	AND t.LineDeleted = 0 
+	AND t.OrderDateTime BETWEEN @date1 AND @date2 
+	AND t.@BranchID 
+	AND t.Quantity > 0 
+	AND h.LineDeleted= 0
+GROUP BY
+	t.MenuItemText,
+	t.MenumItemCategoryText,
+	t.MenuItemGroupText,
+	t.MenuItemUnitPrice,
+	isnull( NULLIF ( t.MenuItemUnitPrice, 0 ), ( t.ExtendedPrice/ t.Quantity ) ),
+	br.Branchname,
+        pp.ExternalCode
+ORDER BY
+	t.MenumItemCategoryText,
+	t.MenuItemText,
+	t.MenuItemUnitPrice DESC

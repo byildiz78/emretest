@@ -1,0 +1,26 @@
+SELECT
+	BR.BranchName AS [Şube],
+	CONVERT(VARCHAR,H.InvoiceDate,104) + ' ' + CONVERT(VARCHAR,H.InvoiceDate,108) AS [Fatura Tarihi],
+	H.InvoiceTotal AS [Tutar],
+	H.CustomerName AS [Müşteri],
+	oh.Inv_Notes AS [Fatura Açıklaması],
+	H.CustomerTaxNo AS [Vergi No] ,
+	H.CustomerTaxOffice AS [Vergi Dairesi],
+	H.CustomerStreetName AS [Adres],
+        H.CustomerEMail AS [E-Mail],
+	H.OrderID [Çek No],
+	(CASE IsEInvoice WHEN 1 THEN 'E-FATURA' ELSE 'E-ARŞİV' END) AS [Tip],
+	HP.PaymentName AS [Ödeme Tipi],
+	HP.Amount AS [Ödeme Tutarı],
+	H.OrderKey
+FROM
+	EInvoiceHeader H 
+LEFT JOIN efr_Branchs BR ON BR.BranchID = H.Branch
+LEFT JOIN EInvoicePayment HP WITH (NOLOCK) ON HP.OrderKey = H.OrderKey
+LEFT JOIN OrderHeaders oh ON H.OrderKey=h.OrderKey and HP.OrderKey=oh.OrderKey
+WHERE
+	H.InvoiceDate BETWEEN @date1 AND @date2
+    AND BR.@BranchID
+	AND H.InvoiceTotal > 0
+ORDER BY 
+	H.InvoiceDate DESC

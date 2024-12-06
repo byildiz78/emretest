@@ -1,0 +1,22 @@
+SELECT
+	br.BranchName AS [Şube Adı],
+	h.OrderDateTime AS [Tarih],
+	h.TavukDunyasiPersDiscNameSurname AS [Personel Adı],
+	h.TavukDunyasiPersDiscPhoneNumber AS [Tel No],
+	e.IdentityNumber AS [Sicil],
+	e.DepartmentName AS [Bağlı Olduğu Birim],
+	e.CompanyName AS [Çalıştığı Yer],
+	h.OrderID AS [Çek No],
+	h.DiscountText AS [İndirim Adı],
+	h.DiscountOrderAmount AS [İndirim Tutarı],
+	h.AmountDue AS [Ödenen Tutar] 
+FROM
+	OrderHeaders h WITH (NOLOCK)
+	INNER JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = h.BranchID
+	LEFT JOIN TavukDunyasiEmployeeDiscount.dbo.Employees e WITH (NOLOCK) ON e.PhoneNumber = h.TavukDunyasiPersDiscPhoneNumber
+WHERE
+	1=1
+	AND h.LineDeleted = 0 
+	AND h.OrderDateTime BETWEEN @date1 AND @date2 
+	AND h.@BranchID 
+	AND h.TavukDunyasiPersDiscPhoneNumber IS NOT NULL

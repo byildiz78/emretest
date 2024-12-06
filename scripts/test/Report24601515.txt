@@ -1,0 +1,8 @@
+﻿SELECT isnull(CustomerFiles.CustomerName,'TANIMSIZ') AS [Müşteri Adı],
+ISNULL(CustomerPhones.PhoneNumber, '') AS Telefon , ISNULL(CustomerFiles.EmailAddress, '') AS Email
+FROM CustomerFiles
+LEFT OUTER JOIN CustomerPhones ON CustomerPhones.CustomerKey = CustomerFiles.CustomerKey AND CustomerPhones.BranchID=CustomerFiles.BranchID
+INNER JOIN efr_Branchs ON CustomerFiles.BranchID=efr_Branchs.BranchID 
+where CustomerFiles.@BranchID
+
+order by CustomerFiles.CustomerName asc

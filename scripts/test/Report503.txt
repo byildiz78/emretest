@@ -1,0 +1,6 @@
+﻿SELECT round(AVG(h.AmountDue),2) as reportValue FROM 
+OrderHeaders AS h WITH(NOLOCK) WHERE 
+h.OrderDateTime>@date1 
+and h.OrderDateTime<@date2 
+and h.@BranchID    
+AND h.linedeleted=0

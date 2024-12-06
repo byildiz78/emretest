@@ -1,0 +1,3 @@
+Detail|SELECT     CustomerName, TotalDebt, TotalPayment, TotalRemainig
+FROM         CustomerFiles WHERE AllowHouseAccount=1 AND TotalRemainig <>0
+ORDER BY TotalRemainig DESC

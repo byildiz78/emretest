@@ -1,0 +1,12 @@
+﻿SELECT * FROM (
+
+SELECT b.BranchName AS [Şube],mg.MenuCategoryText AS [Ürün Grubu], m.MenuItemText AS [Ürün],isnull(SUM(w.STOCK_IN),0) AS Giren,ISNULL(sum(t.Quantity),0) AS Satılan
+FROM
+GlobalMenuItems AS m 
+INNER JOIN efr_Branchs AS b ON b.BranchID = m.BranchID
+LEFT OUTER JOIN WorkCube AS w ON m.AccountingCode=w.STOCK_ID AND w.COMPANY_ID=b.ExternalCode AND w.RECORD_DATE>=@date1 AND w.RECORD_DATE<@date2 
+LEFT OUTER JOIN OrderTransactions AS t ON t.MenuItemKey=m.MenuItemKey AND t.BranchID=m.BranchID AND t.OrderDateTime>=@date1 AND t.OrderDateTime<@date2 AND t.LineDeleted=0
+LEFT OUTER JOIN GlobalMenuCategories AS mg ON m.MenuCategoryKey=mg.MenuCategoryKey
+WHERE m.@BranchID
+GROUP BY  b.BranchName,m.MenuItemText,mg.MenuCategoryText
+) AS r where r.Giren>0 or r.Satılan>0

@@ -1,0 +1,18 @@
+Detail|SELECT     MenuItemText, MenuItemGroupText, MenumItemCategoryText, MenuItemUnitPrice, Quantity, ExtendedPrice, DeleteReason
+FROM         OrderTransactions WHERE LineDeleted=0 AND TransactionDateTime>=@ilkTarih AND TransactionDateTime<=@SonTarih
+
+
+$INDIRIMLER| SELECT (SUM(h.amountdue) + SUM(h.discountTotalAmount)) AS [Brüt Satışlar],
+       SUM(h.DiscountLineAmount) AS [Ürün İndirimleri],
+       SUM(h.DiscountCashAmount) AS [NAKIT INDIRIMLER],
+       SUM(h.DiscountOrderAmount) AS [ÇEK INDIRIMLERI],
+       SUM(h.DiscountTotalAmount) AS [Toplam Indirimler],
+       SUM(h.amountdue) AS  [Toplam Satış],
+       COUNT(h.OrderKey) AS [Toplam Çek Sayısı],
+       SUM(h.GuestNumber) AS [Toplam Konuk],
+       SUM(h.amountdue) / ISNULL(SUM(h.GuestNumber), 1) AS [Kişi Başı Ortalama],
+       SUM(h.amountdue) / ISNULL(COUNT(h.orderkey), 1) AS [Çek Ortalama]
+FROM   viewListOrderHeaders h
+WHERE  h.LineDeleted = 0
+       AND h.OrderDateTime >= @ilkTarih
+       AND h.OrderDateTime <= @SonTarih

@@ -1,0 +1,173 @@
+/// <XRTypeInfo>
+///   <AssemblyFullName>DevExpress.XtraReports.v9.2, Version=9.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a</AssemblyFullName>
+///   <AssemblyLocation>C:\Windows\assembly\GAC_MSIL\DevExpress.XtraReports.v9.2\9.2.4.0__b88d1754d700e49a\DevExpress.XtraReports.v9.2.dll</AssemblyLocation>
+///   <TypeName>DevExpress.XtraReports.UI.XtraReport</TypeName>
+///   <Localization>tr-TR</Localization>
+/// </XRTypeInfo>
+namespace XtraReportSerialization {
+    
+    public class xtraReport1 : DevExpress.XtraReports.UI.XtraReport {
+        private DevExpress.XtraReports.UI.DetailBand Detail;
+        private DevExpress.XtraReports.UI.ReportHeaderBand ReportHeader;
+        private DevExpress.XtraReports.UI.XRChart chart1;
+        private DevExpress.XtraReports.UI.PageHeaderBand PageHeader;
+        private DevExpress.XtraReports.UI.XRLabel label1;
+        private DevExpress.XtraReports.UI.ReportFooterBand ReportFooter;
+        private System.Resources.ResourceManager _resources;
+        public xtraReport1() {
+            this.InitializeComponent();
+        }
+        private System.Resources.ResourceManager resources {
+            get {
+                if (_resources == null) {
+                    string resourceString = @"zsrvvgEAAACRAAAAbFN5c3RlbS5SZXNvdXJjZXMuUmVzb3VyY2VSZWFkZXIsIG1zY29ybGliLCBWZXJzaW9uPTIuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OSNTeXN0ZW0uUmVzb3VyY2VzLlJ1bnRpbWVSZXNvdXJjZVNldAIAAAAAAAAAAAAAAFBBRFBBRFC0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
+                    this._resources = new DevExpress.XtraReports.Serialization.XRResourceManager(resourceString);
+                }
+                return this._resources;
+            }
+        }
+        private void InitializeComponent() {
+            DevExpress.XtraCharts.XYDiagram xYDiagram1 = new DevExpress.XtraCharts.XYDiagram();
+            DevExpress.XtraCharts.Series series1 = new DevExpress.XtraCharts.Series();
+            DevExpress.XtraCharts.SideBySideBarSeriesLabel sideBySideBarSeriesLabel1 = new DevExpress.XtraCharts.SideBySideBarSeriesLabel();
+            DevExpress.XtraCharts.PointOptions pointOptions1 = new DevExpress.XtraCharts.PointOptions();
+            DevExpress.XtraCharts.SideBySideBarSeriesView sideBySideBarSeriesView1 = new DevExpress.XtraCharts.SideBySideBarSeriesView();
+            DevExpress.XtraCharts.SideBySideBarSeriesLabel sideBySideBarSeriesLabel2 = new DevExpress.XtraCharts.SideBySideBarSeriesLabel();
+            this.Detail = new DevExpress.XtraReports.UI.DetailBand();
+            this.ReportHeader = new DevExpress.XtraReports.UI.ReportHeaderBand();
+            this.PageHeader = new DevExpress.XtraReports.UI.PageHeaderBand();
+            this.ReportFooter = new DevExpress.XtraReports.UI.ReportFooterBand();
+            this.chart1 = new DevExpress.XtraReports.UI.XRChart();
+            this.label1 = new DevExpress.XtraReports.UI.XRLabel();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(xYDiagram1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(series1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
+            // 
+            // Detail
+            // 
+            this.Detail.Height = 0;
+            this.Detail.KeepTogether = true;
+            this.Detail.MultiColumn.ColumnCount = 2;
+            this.Detail.MultiColumn.Mode = DevExpress.XtraReports.UI.MultiColumnMode.UseColumnCount;
+            this.Detail.Name = "Detail";
+            this.Detail.SortFields.AddRange(new DevExpress.XtraReports.UI.GroupField[] {
+                        new DevExpress.XtraReports.UI.GroupField("Tutar", DevExpress.XtraReports.UI.XRColumnSortOrder.Descending)});
+            // 
+            // ReportHeader
+            // 
+            this.ReportHeader.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.chart1});
+            this.ReportHeader.Height = 986;
+            this.ReportHeader.Name = "ReportHeader";
+            // 
+            // PageHeader
+            // 
+            this.PageHeader.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.label1});
+            this.PageHeader.Height = 25;
+            this.PageHeader.Name = "PageHeader";
+            // 
+            // ReportFooter
+            // 
+            this.ReportFooter.Height = 25;
+            this.ReportFooter.Name = "ReportFooter";
+            // 
+            // chart1
+            // 
+            this.chart1.AppearanceName = "Pastel Kit";
+            this.chart1.BorderColor = System.Drawing.SystemColors.ControlText;
+            this.chart1.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            xYDiagram1.AxisX.Interlaced = true;
+            xYDiagram1.AxisX.InterlacedFillStyle.FillMode = DevExpress.XtraCharts.FillMode.Gradient;
+            xYDiagram1.AxisX.Label.Angle = 310;
+            xYDiagram1.AxisX.Label.Antialiasing = true;
+            xYDiagram1.AxisX.Label.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            xYDiagram1.AxisX.Range.SideMarginsEnabled = true;
+            xYDiagram1.AxisX.Title.Alignment = System.Drawing.StringAlignment.Far;
+            xYDiagram1.AxisX.VisibleInPanesSerializable = "-1";
+            xYDiagram1.AxisY.Range.SideMarginsEnabled = true;
+            xYDiagram1.AxisY.VisibleInPanesSerializable = "-1";
+            xYDiagram1.DefaultPane.FillStyle.FillMode = DevExpress.XtraCharts.FillMode.Gradient;
+            xYDiagram1.DefaultPane.ScrollBarOptions.XAxisScrollBarAlignment = DevExpress.XtraCharts.ScrollBarAlignment.Far;
+            xYDiagram1.DefaultPane.Shadow.Visible = true;
+            xYDiagram1.EnableScrolling = true;
+            xYDiagram1.EnableZooming = true;
+            xYDiagram1.LabelsResolveOverlappingMinIndent = 5;
+            xYDiagram1.PaneDistance = 3;
+            xYDiagram1.Rotated = true;
+            this.chart1.Diagram = xYDiagram1;
+            this.chart1.FillStyle.FillMode = DevExpress.XtraCharts.FillMode.Gradient;
+            this.chart1.Legend.Visible = false;
+            this.chart1.Location = new System.Drawing.Point(8, 0);
+            this.chart1.Name = "chart1";
+            series1.ArgumentDataMember = "Şube Adı";
+            sideBySideBarSeriesLabel1.Antialiasing = true;
+            sideBySideBarSeriesLabel1.FillStyle.FillMode = DevExpress.XtraCharts.FillMode.Gradient;
+            sideBySideBarSeriesLabel1.LineLength = 50;
+            sideBySideBarSeriesLabel1.LineVisible = true;
+            sideBySideBarSeriesLabel1.ResolveOverlappingMode = DevExpress.XtraCharts.ResolveOverlappingMode.Default;
+            sideBySideBarSeriesLabel1.Shadow.Visible = true;
+            sideBySideBarSeriesLabel1.ShowForZeroValues = true;
+            series1.Label = sideBySideBarSeriesLabel1;
+            series1.Name = "Series 1";
+            pointOptions1.PointView = DevExpress.XtraCharts.PointView.ArgumentAndValues;
+            pointOptions1.ValueNumericOptions.Format = DevExpress.XtraCharts.NumericFormat.Currency;
+            series1.PointOptions = pointOptions1;
+            series1.SeriesPointsSorting = DevExpress.XtraCharts.SortingMode.Ascending;
+            series1.SeriesPointsSortingKey = DevExpress.XtraCharts.SeriesPointKey.Value_1;
+            series1.ShowInLegend = false;
+            series1.ValueDataMembersSerializable = "Tutar";
+            sideBySideBarSeriesView1.ColorEach = true;
+            sideBySideBarSeriesView1.FillStyle.FillMode = DevExpress.XtraCharts.FillMode.Gradient;
+            sideBySideBarSeriesView1.Shadow.Visible = true;
+            series1.View = sideBySideBarSeriesView1;
+            this.chart1.SeriesSerializable = new DevExpress.XtraCharts.Series[] {
+                    series1};
+            sideBySideBarSeriesLabel2.LineVisible = true;
+            this.chart1.SeriesTemplate.Label = sideBySideBarSeriesLabel2;
+            this.chart1.SideBySideEqualBarWidth = true;
+            this.chart1.Size = new System.Drawing.Size(817, 983);
+            // 
+            // label1
+            // 
+            this.label1.BackColor = System.Drawing.Color.Transparent;
+            this.label1.Font = new System.Drawing.Font("Arial", 11F, System.Drawing.FontStyle.Bold);
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.label1.Location = new System.Drawing.Point(8, 0);
+            this.label1.Name = "label1";
+            this.label1.Padding = new DevExpress.XtraPrinting.PaddingInfo(2, 2, 0, 0, 100F);
+            this.label1.Size = new System.Drawing.Size(800, 25);
+            this.label1.StylePriority.UseBackColor = false;
+            this.label1.StylePriority.UseFont = false;
+            this.label1.StylePriority.UseForeColor = false;
+            this.label1.StylePriority.UseTextAlignment = false;
+            this.label1.Text = "ŞUBE CİRO DAĞILIMLARI (AÇIK VE KAPALI ÇEK TUTARLARI DAHILDIR)";
+            this.label1.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopLeft;
+            // 
+            // xtraReport1
+            // 
+            this.Bands.AddRange(new DevExpress.XtraReports.UI.Band[] {
+                        this.Detail,
+                        this.ReportHeader,
+                        this.PageHeader,
+                        this.ReportFooter});
+            this.Margins = new System.Drawing.Printing.Margins(0, 0, 20, 20);
+            this.Name = "xtraReport1";
+            this.PageHeight = 1169;
+            this.PageWidth = 827;
+            this.PaperKind = System.Drawing.Printing.PaperKind.A4;
+            this.Version = "9.2";
+            ((System.ComponentModel.ISupportInitialize)(xYDiagram1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(series1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this)).EndInit();
+        }
+    }
+}

@@ -1,0 +1,46 @@
+SELECT
+
+	                        W.WarehouseName AS [Depo],
+	                        P.ProductCode AS [Stok Kodu],
+	                        P.ProductName AS [Stok Adı],
+	                        PU.UnitName AS [Birim],
+	                        PU2.UnitName AS [Satın Alma Birimi],
+	                        PL1.PickValue AS [Kategori],
+	                        PL2.PickValue AS [Grubu],
+	                        ISNULL(WCD.AveragePrice,0) AS [Ortalama Alış Fiyatı],
+							round((WCD.AveragePrice * (WCD.Giren+WCD.Devir)) / NULLIF(( WCD.Giren + WCD.Fark + WCD.Devir),0),2) as [Gerçekleşen Birim Fiyat],
+	                        WCH.OpeningDate AS [Açılış Tarihi],
+	                        WCH.ClosingDate AS [Kapanış Tarihi],
+	                        ISNULL(WCD.Devir,0) AS [Devir],
+	                        ISNULL(WCD.Giren,0) AS [Giren],
+	                        ISNULL(WCD.FaturaGiren,0) AS [Fatura Giren],
+	                        ISNULL(WCD.TranferGiren,0) AS [Tranfer Giren],
+	                        ISNULL(WCD.Cikan,0) AS [Fatura Çıkan],
+	                        ISNULL(WCD.TranferCikan,0) AS [Transfer Çıkan],
+	                        ISNULL(WCD.ReceteTuketim,0) AS [Reçete Tüketim],
+	                        ISNULL(WCD.OlmasiGereken,0) AS [Olması Gereken],
+	                        ISNULL(WCD.CountAmount,0) AS [Sayım Miktarı],
+	                        ISNULL(WCD.Fark,0) AS [Fark],
+	                        ( ISNULL(WCD.Fark,0) * ISNULL(WCD.AveragePrice,0) ) AS [Fark Tutar],
+	                        ( ISNULL(WCD.Fark,0) * ISNULL(WCD.AveragePrice,0) ) * ( 1 + ISNULL(P.TaxPercent1,0) / 100 ) AS [Fark Tutar Kdv Dahil],
+	                        ( ISNULL(WCD.CountAmount,0) * ISNULL(WCD.AveragePrice,0) ) AS [Sayım Tutarı],
+	                        ( ISNULL(WCD.CountAmount,0) * ISNULL(WCD.AveragePrice,0) ) * ( 1 + ISNULL(P.TaxPercent1,0) / 100 ) AS [Sayım Tutarı Kdv Dahil],
+
+							ROUND(ISNULL(WCD.Fark,0) * round((WCD.AveragePrice * (WCD.Giren+WCD.Devir)) / NULLIF(( WCD.Giren + WCD.Fark + WCD.Devir),0),2),2) AS [Gerçekleşen Fark Değeri],
+							ROUND(ISNULL(WCD.Fark,0) * round((WCD.AveragePrice * (WCD.Giren+WCD.Devir)) / NULLIF(( WCD.Giren + WCD.Fark + WCD.Devir),0),2),2) * ( 1 + ISNULL(P.TaxPercent1,0) / 100 ) AS [Gerçekleşen Fark Değeri Kdv Dahil],
+
+						ROUND(ISNULL(WCD.CountAmount,0) * round((WCD.AveragePrice * (WCD.Giren+WCD.Devir)) / NULLIF(( WCD.Giren + WCD.Fark + WCD.Devir),0),2),2) AS [Gerçekleşen Sayım Değeri],
+
+						ROUND(ISNULL(WCD.CountAmount,0) * round((WCD.AveragePrice * (WCD.Giren+WCD.Devir)) / NULLIF(( WCD.Giren + WCD.Fark + WCD.Devir),0),2),2) * ( 1 + ISNULL(P.TaxPercent1,0) / 100 ) AS [Gerçekleşen Sayım Değeri Kdv Dahil]
+
+                        FROM
+	                        posWarehouseClosingHeader WCH
+	                        RIGHT JOIN posWarehouse W ON WCH.WarehouseID = W.WarehouseID
+	                        RIGHT JOIN posWarehouseClosingDetail WCD ON WCH.ClosingID = WCD.ClosingID
+	                        RIGHT JOIN posProducts P ON WCD.ProductID = P.ProductID
+	                        LEFT JOIN posProductUnits PU ON PU.UnitID = P.UnitID
+	                        LEFT JOIN posProductUnits PU2 ON PU2.UnitID = P.UnitID2
+	                        LEFT JOIN posPicklist PL1 ON PL1.ListID = P.CategoryID
+	                        LEFT JOIN posPickList PL2 ON P.GroupID = PL2.ListID 
+                        WHERE WCH.ClosingDate>=@date1 and WCH.ClosingDate<=@date2 AND WCH.WarehouseID=@WarehouseID
+                        ORDER BY P.ProductName

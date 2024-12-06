@@ -1,0 +1,12 @@
+select 
+b.BranchName as Şube,
+cm.ComboName as Menü,
+m.MenuItemText as Ürün,
+case when cmd.IsForcedGroup=1 then 'Zorunlu' else 'Zorunlu Değil' end as Zorunluluk,
+cmd.ExtraPrice as [Ekstar Ücret]
+from NewGlobalComboMenus cm
+inner join NewGlobalComboMenuDetails cmd on cmd.ComboKey=cm.ComboKey
+inner join NewGlobalMenuItems m on m.MenuItemKey=cmd.MenuItemKey
+inner join efr_Branchs b on cmd.BranchID=b.BranchID
+where cmd.@BranchID
+order by b.BranchName

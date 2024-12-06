@@ -1,0 +1,13 @@
+select eb.BranchName as [ŞubeAdı],
+ot.OrderDateTime as [Sipariş Tarihi],
+ot.MenuItemText as [Ürün Adı],
+ot.OrderID as [Çek No],
+ot.Quantity as [Miktarı],
+ot.Notes as [Sipariş Notu]
+ from OrderTransactions as ot  with(nolock)
+INNER JOIN efr_Branchs as eb on eb.BranchID=ot.BranchID
+WHERE ot.OrderDateTime>=@date1
+AND ot.OrderDateTime<=@date2
+AND ot.LineDeleted=0
+AND ot.@BranchID
+order by ot.MenuItemKey,ot.OrderID

@@ -1,0 +1,24 @@
+select 
+r.şube as Şube,
+round((100*(r.tabakciro +  r.icecekciro))/r.ciro,4) as [Tabak + İçecek Yüzdesi],
+r.tabakciro +  r.icecekciro as [Tabak + İçecek Tutar],
+round((100*(r.tabakciro + r.corbaciro))/r.ciro,4) as [Tabak + Çorba Yüzdesi],
+r.tabakciro + r.corbaciro as [Tabak + Çorba Tutar],
+round((100*(r.tabakciro + r.corbaciro + r.icecekciro))/r.ciro,4) as [Tabak + Çorba + İçecek Yüzdesi],
+r.tabakciro + r.corbaciro + r.icecekciro as [Tabak + Çorba + İçecek Tutar]
+from
+(
+select 
+br.BranchName as şube,
+sum(ot.ExtendedPrice) as ciro,
+sum(case when m.CustomField12='TABAKLAR' and ot.MainMenuItemText like '%personel%'  then ot.ExtendedPrice else 0 end) as tabakciro,
+sum(case when ot.MenumItemCategoryText LIKE '%İÇECEKLER%' and ot.MainMenuItemText like '%personel%' then ot.ExtendedPrice else 0 end) as icecekciro,
+sum(case when ot.MenuItemGroupText = 'ÇORBA' and ot.MainMenuItemText like '%personel%' then ot.ExtendedPrice else 0 end) as corbaciro
+from OrderTransactions ot
+INNER JOIN efr_Branchs br on ot.BranchID=br.BranchID
+INNER JOIN posProducts as m on m.ProductKey=ot.MenuItemKey
+where ot.OrderDateTime between @date1 and @date2
+and ot.LineDeleted=0
+and ot.@BranchID
+group by br.BranchName
+) as r

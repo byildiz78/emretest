@@ -1,0 +1,17 @@
+DECLARE @ciro FLOAT;
+SET @ciro=(SELECT SUM(h.AmountDue) AS reportValue
+FROM OrderHeaders AS h WITH(NOLOCK)
+WHERE h.OrderDateTime between @date1 and @date2
+AND h.@BranchID
+AND h.linedeleted=0
+);
+
+SELECT ROUND(SUM(h.AmountDue),2) as getirciro,
+ROUND((SUM(h.AmountDue)/@ciro*100),2) getircirooran
+from OrderHeaders h
+where h.OrderDateTime between @date1 and @date2
+and h.LineDeleted=0
+and h.OrderType=5
+and h.OrderTypeSourceExternalNo LIKE 'getir%'
+and h.OrderTypeSourceID = 104
+AND h.@BranchID

@@ -1,0 +1,14 @@
+
+SELECT e.BranchID AS [Şube Kodu],
+e.BranchName AS [Şube Adı],
+
+
+e.lastdailycontroldatetime as [Son Gün Sonu Tarihi],isnull(LastDailyControl_Notes,'') as Açıklama
+
+
+FROM   efr_Branchs e
+
+
+WHERE  e.BranchID in (1,2,22,4,25,26,36,49,65,74,76,95,98,107,116)
+
+order by e.lastdailycontroldatetime asc

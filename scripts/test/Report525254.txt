@@ -1,0 +1,14 @@
+﻿SELECT TOP 150
+       OrderTransactions.MenuItemText   AS Ürün,
+       SUM(OrderTransactions.Quantity)  AS Miktar,
+       (SUM(OrderTransactions.ExtendedPrice)) AS Tutar
+FROM   OrderTransactions
+WHERE  OrderTransactions.LineDeleted = 0
+       AND OrderTransactions.OrderDateTime <= @sonTarih
+       AND OrderTransactions.OrderDateTime >= @ilkTarih
+       AND OrderTransactions.@BranchID
+       AND MenuItemText LIKE '%TORAMAN%'
+GROUP BY
+       OrderTransactions.MenuItemText
+ORDER BY
+       SUM(OrderTransactions.Quantity)  ASC

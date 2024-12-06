@@ -1,0 +1,17 @@
+﻿SELECT b.BranchName AS [Şube],r.Tarih AS [Tarih],r.TakilanKG AS [Takılan],r.IndirilenKG AS [Kalan],r.TakilanKG-r.IndirilenKG AS [Net]
+,r.Satilan AS [Satılan],(r.TakilanKG-r.IndirilenKG)- r.Satilan AS [Fire]
+,cast((round((ISNULL((((r.TakilanKG-r.IndirilenKG)- r.Satilan)/NULLIF((r.TakilanKG-r.IndirilenKG),0)),0)),3)) AS NVARCHAR(10)) AS [Fire Yüzdesi]
+  FROM (
+SELECT r.BranchID, r.Tarih, r.Satilan,isnull(td.TakilanKG,0.0) AS TakilanKG, isnull(td.IndirilenKG,0.0) as IndirilenKG  FROM (
+SELECT round((SUM(CAST(m.Barcode2 AS FLOAT)*t.Quantity)/1000),2) AS Satilan,t.BranchID,DATEADD(dd,0,DATEDIFF(dd, 0,DATEADD(hour,-6,t.OrderDateTime))) AS Tarih
+FROM OrderTransactions AS t WITH (NOLOCK) INNER JOIN GlobalMenuItems AS m ON m.BranchID = t.BranchID AND m.MenuItemKey = t.MenuItemKey AND m.Barcode2 IS NOT NULL
+INNER JOIN OrderHeaders AS h ON h.BranchID = t.BranchID AND h.OrderKey = t.OrderKey AND h.LineDeleted=0
+WHERE t.@BranchID
+AND t.OrderDateTime>=@date1
+AND t.OrderDateTime<=@date2
+AND t.LineDeleted=0
+GROUP BY t.BranchID,DATEADD(dd,0,DATEDIFF(dd, 0,DATEADD(hour,-6,t.OrderDateTime)))
+) AS r
+LEFT OUTER JOIN TakilanDoner AS td ON td.BranchID = r.BranchID AND td.Tarih = r.Tarih
+) AS r
+LEFT OUTER JOIN efr_Branchs AS b ON b.BranchID = r.BranchID

@@ -1,0 +1,29 @@
+Detail|
+SELECT SUM(h.GuestNumber) AS Konuk,
+       CONVERT(VARCHAR, h.OrderDateTime, 103) AS saat,SUM(h.amountdue) AS tutar,COUNT (h.OrderKey) AS Cek
+FROM   OrderHeaders h
+WHERE  H.OrderDateTime >= @ilkTarih
+      AND H.OrderDateTime <= @SonTarih
+     AND h.linedeleted = 0
+and h.@BranchID
+GROUP BY
+       CONVERT(VARCHAR, h.OrderDateTime, 103)
+
+
+
+$INDIRIMLER|
+SELECT (SUM(h.amountdue) + SUM(h.DiscountTotalAmount)) AS [Brüt Satışlar],
+       SUM(h.DiscountLineAmount) AS [Ürün İndirimleri],
+       SUM(h.DiscountCashAmount) AS [Nakit İndirimler],
+       SUM(h.DiscountOrderAmount) AS [Çek İndirimler],
+       SUM(h.DiscountTotalAmount) AS [Toplam Indirimler],
+       SUM(h.amountdue) AS [Net Satışlar],
+       COUNT(h.OrderKey) AS [Toplam Çek Sayısı],
+       SUM(h.GuestNumber) AS [Toplam Konuk],
+       SUM(h.amountdue) / ISNULL(SUM(h.GuestNumber), 1) AS [Kişi Başı Ortalama],
+       SUM(h.amountdue) / ISNULL(COUNT(h.orderkey), 1) AS [Çek Ortalama]
+FROM   OrderHeaders h
+WHERE  h.LineDeleted = 0
+       AND h.OrderDateTime >= @ilkTarih
+       AND h.OrderDateTime <= @SonTarih
+       and h.@BranchID

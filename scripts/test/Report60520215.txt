@@ -1,0 +1,129 @@
+SELECT ( ROW_NUMBER() OVER(ORDER BY ProductName ASC) ) AS AutoID, * FROM 
+(
+	SELECT 
+		pc.PickValue AS [Kategori],
+		pg.PickValue AS [Grubu],
+		p.ProductCode AS [Stok Kodu],
+		d.ProductName AS [Stok Adı],
+		dt.TypeName AS [Belge Tipi],
+		h.OrderSerialNo AS [Belge Seri Numarası],
+		d.Incoming AS [Giren Miktar],
+		d.Outgoing AS [Çıkan Miktar],
+		d.UnitPrice AS [Birmi Fiyat],
+		w.WarehouseName AS [Depo Adı],
+		pu.UnitName AS [Birim],
+		h.DocumentDateTime AS [Belge Tarih],
+		ISNULL(c.CurrentName, '') AS [Cari Adı],
+		w2.WarehouseName AS [Hedef Depo],
+		d.Incoming * UnitPrice * (1 -ISNULL(d.DiscountPercent, 0) / 100) AS [Giren Tutar İsk. Dahil],
+		d.Outgoing * UnitPrice * (1 -ISNULL(d.DiscountPercent, 0) / 100) AS [Çıkan Tutar İsk. Dahil],
+		d.Incoming * UnitPrice * (1 -ISNULL(d.DiscountPercent, 0) / 100) * (1 + (ISNULL(d.taxpercent1, 0) / 100)) AS [Giren Tutar İsk. Kdv Dahil],
+		d.Outgoing * UnitPrice * (1 -ISNULL(d.DiscountPercent, 0) / 100) * (1 + (ISNULL(d.taxpercent1, 0) / 100)) AS [Çıkan Tutar İsk. Kdv Dahil]
+	FROM posWarehouse w
+		RIGHT JOIN posOrderDetail d ON w.WarehouseID = d.WarehouseID
+		LEFT JOIN posProductUnits pu ON d.UnitID = pu.UnitID
+		LEFT JOIN posDocumentTypes dt ON d.DocumentTypeID = dt.DocumentTypeID
+		LEFT JOIN posWarehouse w2 ON d.TargetWarehouseID = w2.WarehouseID
+		LEFT JOIN posOrderHeader h ON d.OrderID = h.OrderID
+		LEFT JOIN posCurrents c ON h.CurrentID = c.CurrentID
+		INNER JOIN posProducts p ON p.ProductID = d.ProductID
+		INNER JOIN posPickList pg ON pg.ListID = p.GroupID
+		INNER JOIN posPickList pc ON pc.ListID = p.CategoryID
+	WHERE 
+		h.DocumentDateTime>=@date1 and h.DocumentDateTime<=@date2
+		AND ISNULL(h.IsConverted, 0) = 0 AND w.WarehouseID=@WarehouseID
+	UNION ALL 
+
+	SELECT 
+		pc.PickValue AS [CategoryName],
+		pg.PickValue AS [GroupName],
+		p.ProductCode AS [ProductCode],
+		p.ProductName AS [ProductName],
+		'Depo Transfer' AS [DocumentTypeName],
+		wt.DocumentSerialNo AS [SerialNo],
+		'' AS [Incoming],
+		wtd.Quantity AS [Outgoing],
+		(isnull(ISNULL((NULLIF(wtd.UnitPrice,0)),
+		p.AveragePurchasePrice),0)) AS [UnitPrice],
+		w.WarehouseName AS [WarehouseName],
+		pu.UnitName AS [UnitName],
+		wt.TransferDate AS [DocumentDateTime],
+		'' AS [CurrentName],
+		w2.WarehouseName AS [TargetWarehouseName],
+		0.0 AS [IncomingAmount],
+		wtd.Quantity * (isnull(ISNULL((NULLIF(wtd.UnitPrice,0)),p.AveragePurchasePrice),0)) AS [OutgoingAmount],
+		0.0 AS [IncomingAmountTaxIncluded],
+		wtd.Quantity * (isnull(ISNULL((NULLIF(wtd.UnitPrice,0)),p.AveragePurchasePrice),0))	* (1 + ISNULL(p.TaxPercent1, 0) / 100) AS [OutgoingAmountTaxIncluded]
+	FROM posWarehouse w
+		RIGHT JOIN posWarehouseTransferDetail wtd ON w.WarehouseID = wtd.WarehouseID
+		LEFT JOIN posProductUnits pu ON wtd.UnitID = pu.UnitID
+		LEFT JOIN posWarehouse w2 ON wtd.TargetWarehouseID = w2.WarehouseID
+		LEFT JOIN posWarehouseTransfer wt ON wtd.TransferID = wt.TransferID
+		INNER JOIN posProducts p ON p.ProductID = wtd.ProductID
+		INNER JOIN posPickList pg ON pg.ListID = p.GroupID
+		INNER JOIN posPickList pc ON pc.ListID = p.CategoryID
+	WHERE 
+		wt.TransferDate>=@date1 and wt.TransferDate<=@date2 AND w.WarehouseID=@WarehouseID
+	UNION ALL 
+
+	SELECT 
+		pc.PickValue AS [CategoryName],
+		pg.PickValue AS [GroupName],
+		p.ProductCode AS [ProductCode],
+		p.ProductName AS [ProductName],
+		'Depo Transfer' AS [DocumentTypeName],
+		wt.DocumentSerialNo AS [SerialNo],
+		wtd.Quantity AS [Incoming],
+		'' AS [Outgoing],
+		(isnull(ISNULL((NULLIF(wtd.UnitPrice,0)),p.AveragePurchasePrice),0)) AS [UnitPrice],
+		w.WarehouseName AS [WarehouseName],
+		pu.UnitName AS [UnitName],
+		wt.TransferDate AS [DocumentDateTime],
+		'' AS [CurrentName],
+		w2.WarehouseName AS [TargetWarehouseName],
+		wtd.Quantity * (isnull(ISNULL((NULLIF(wtd.UnitPrice,0)),p.AveragePurchasePrice),0)) AS [IncomingAmount],
+		0.0 AS [OutgoingAmount],
+		wtd.Quantity * (isnull(ISNULL((NULLIF(wtd.UnitPrice,0)),p.AveragePurchasePrice),0)) * (1 + ISNULL(p.TaxPercent1, 0) / 100) AS [IncomingAmountTaxIncluded],
+		0.0 AS [OutgoingAmountTaxIncluded]
+	FROM posWarehouse w
+		RIGHT JOIN posWarehouseTransferDetail wtd ON w.WarehouseID = wtd.TargetWarehouseID
+		LEFT JOIN posProductUnits pu ON wtd.UnitID = pu.UnitID
+		LEFT JOIN posWarehouse w2 ON wtd.WarehouseID = w2.WarehouseID
+		LEFT JOIN posWarehouseTransfer wt ON wtd.TransferID = wt.TransferID
+		INNER JOIN posProducts p ON p.ProductID = wtd.ProductID
+		INNER JOIN posPickList pg ON pg.ListID = p.GroupID
+		INNER JOIN posPickList pc ON pc.ListID = p.CategoryID
+	WHERE 
+		wt.TransferDate>=@date1 and wt.TransferDate<=@date2 AND w.WarehouseID=@WarehouseID
+    UNION ALL 
+
+	SELECT 
+		pc.PickValue AS [CategoryName],
+		pg.PickValue AS [GroupName],
+		p.ProductCode AS [ProductCode],
+		p.ProductName AS [ProductName],
+		'Depo Sayım Fişi' AS [DocumentTypeName],
+		(CONVERT(VARCHAR,wth.ClosingDate,112) + REPLACE(CONVERT(VARCHAR,wth.ClosingDate,114),':','')) AS [SerialNo],
+		wtd.CountAmount AS [Incoming],
+		'' AS [Outgoing],
+		(isnull(ISNULL((NULLIF(wtd.AverageSalePrice,0)),p.AveragePurchasePrice),0)) AS [UnitPrice],
+		w.WarehouseName AS [WarehouseName],
+		pu.UnitName AS [UnitName],
+		wth.ClosingDate AS [DocumentDateTime],
+		'' AS [CurrentName],
+		'' AS [TargetWarehouseName],
+		wtd.IncomingAmount AS [IncomingAmount],
+		0.0 AS [OutgoingAmount],
+		wtd.IncomingAmount * (1 + ISNULL(p.TaxPercent1, 0) / 100) AS [IncomingAmountTaxIncluded],
+		0.0 AS [OutgoingAmountTaxIncluded]
+	FROM posWarehouse w
+		INNER JOIN posWarehouseClosingHeader wth ON wth.WarehouseID = w.WarehouseID 
+		INNER JOIN posWarehouseClosingDetail wtd ON wtd.ClosingID=wth.ClosingID
+		LEFT JOIN posProductUnits pu ON wtd.UnitID = pu.UnitID
+		INNER JOIN posProducts p ON p.ProductID = wtd.ProductID
+		INNER JOIN posPickList pg ON pg.ListID = p.GroupID
+		INNER JOIN posPickList pc ON pc.ListID = p.CategoryID
+	WHERE 
+		wth.ClosingDate>=@date1 and wth.ClosingDate<=@date2 AND w.WarehouseID=@WarehouseID
+
+) AS t

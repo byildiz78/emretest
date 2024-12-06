@@ -1,0 +1,32 @@
+SELECT efr_branchs.BranchName AS Şube, Discounts.DiscountText AS [İndirim Adı], t.MenuItemText AS Ürün, t.Quantity AS Adet, 
+FORMAT(t.TransactionDateTime,'dd/MM/yyyy hh:mm:ss') as Tarih,
+ t.OrderID AS [Çek No], Discounts.DiscountAmount AS [İndirim Yüzdesi], t.MenuItemUnitPrice AS [Birim Fiyat], 
+ (t.Quantity * t.MenuItemUnitPrice) AS Tutar, 
+ round((ISNULL(((t.Quantity * t.MenuItemUnitPrice)*(h.AmountDue/NULLIF((h.AmountDue+h.DiscountTotalAmount),0))),(t.Quantity * t.MenuItemUnitPrice))),2) AS  [İndirimli Tutar], 
+ round((t.Quantity * t.MenuItemUnitPrice)-(ISNULL(((t.Quantity * t.MenuItemUnitPrice)*(h.AmountDue/NULLIF((h.AmountDue+h.DiscountTotalAmount),0))),(t.Quantity * t.MenuItemUnitPrice))),2) AS [İndirim Tutarı], 
+ 'Çek İndirimi' AS Tipi, h.SpecificCustomerName AS Müşteri
+FROM Discounts
+RIGHT OUTER JOIN OrderHeaders as h ON Discounts.DiscountKey = h.DiscountKey AND Discounts.BranchID = h.BranchID
+RIGHT OUTER JOIN OrderTransactions as t ON t.OrderKey = h.OrderKey
+RIGHT OUTER JOIN efr_branchs ON h.BranchID = efr_branchs.BranchID
+WHERE (h.DiscountOrderAmount > 0) AND h.OrderDateTime >= @date1 
+AND h.OrderDateTime <= @date2 AND h.LineDeleted = 0 
+AND t.LineDeleted = 0 
+AND h.@BranchID
+AND discounts.@BranchID
+
+UNION ALL
+
+SELECT efr_branchs.BranchName AS Şube, Discounts.DiscountText AS [İndirim Adı], OrderTransactions.MenuItemText AS Ürün, OrderTransactions.Quantity AS Adet, 
+FORMAT(OrderTransactions.TransactionDateTime,'dd/MM/yyyy hh:mm:ss') as Tarih,
+       OrderTransactions.OrderID AS [Çek No], Discounts.DiscountAmount AS [İndirim Yüzdesi], OrderTransactions.MenuItemUnitPrice AS [Birim Fiyat], 
+       OrderTransactions.Quantity * OrderTransactions.MenuItemUnitPrice AS Tutar, (OrderTransactions.Quantity * OrderTransactions.MenuItemUnitPrice) * (1 - Discounts.DiscountAmount / 100) AS 
+       [İndirimli Tutar], OrderTransactions.Quantity * OrderTransactions.MenuItemUnitPrice -(OrderTransactions.Quantity * OrderTransactions.MenuItemUnitPrice) * (1 - Discounts.DiscountAmount / 100) AS 
+       [İndirim Tutarı], 'Ürün İndirimi' AS Tipi, OrderHeaders.SpecificCustomerName AS Müşteri
+FROM Discounts
+RIGHT OUTER JOIN OrderTransactions  ON  Discounts.DiscountKey = OrderTransactions.DiscountKey AND Discounts.BranchID = OrderTransactions.BranchID
+RIGHT OUTER JOIN OrderHeaders  ON  OrderTransactions.OrderKey = OrderHeaders.OrderKey
+RIGHT OUTER JOIN efr_branchs  ON  OrderHeaders.BranchID = efr_branchs.BranchID
+WHERE (OrderTransactions.DiscountLineAmount > 0) AND OrderHeaders.OrderDateTime >= @date1 AND OrderHeaders.OrderDateTime <= @date2 AND OrderHeaders.LineDeleted = 
+      0 AND OrderTransactions.LineDeleted = 0 AND orderheaders.@BranchID AND discounts.@BranchID
+      --AND Discounts.DiscountText LIKE 'SICAK%'

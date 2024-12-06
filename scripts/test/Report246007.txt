@@ -1,0 +1,29 @@
+IF OBJECT_ID('tempdb..#temp1') IS NOT NULL
+BEGIN 
+ DROP TABLE dbo.#temp1;
+END;
+CREATE TABLE #temp1 (BranchID INT,Tutar FLOAT);
+insert into #temp1 SELECT r.BranchID, r.tutar FROM (
+ SELECT t.BranchID,SUM(t.ExtendedPrice) AS tutar FROM OrderTransactions AS t WITH(NOLOCK)
+ WHERE t.OrderDateTime >= @date1
+ AND t.OrderDateTime <= @date2
+ AND t.LineDeleted=0
+ AND t.@BranchID
+ GROUP BY t.BranchID	
+) AS r
+
+SELECT efr_Branchs.BranchName AS Şube,
+r.Tarih AS Tarih,
+r.[Ürün Kodu], r.[Ürün Adı], r.Grubu, r.Kategorisi, r.[Birim Fiyat],r.Adet,r.Tutar
+,round(isnull((r.Tutar * 100/NULLIF(s.tutar,0)),0),3) AS [Satış İçindeki Yüzde]
+FROM(
+SELECT t.BranchID, t.MenuItemID AS [Ürün Kodu], DATEADD(DAY, DATEDIFF(dd, 0,DATEADD(HOUR,-3,t.OrderDateTime)), 0) AS Tarih, t.MenuItemText AS [Ürün Adı], t.MenuItemGroupText AS Grubu, 
+t.MenumItemCategoryText AS Kategorisi, t.MenuItemUnitPrice AS [Birim Fiyat], SUM(t.Quantity) AS Adet,SUM(t.ExtendedPrice) AS Tutar
+FROM OrderTransactions AS t WITH (NOLOCK)
+WHERE t.OrderDateTime >= @date1 AND t.OrderDateTime <=@date2 AND t.LineDeleted = 0 
+ AND t.@BranchID
+GROUP BY t.BranchID,t.MenuItemID,DATEADD(DAY, DATEDIFF(dd, 0,DATEADD(HOUR,-3,t.OrderDateTime)), 0), t.MenuItemUnitPrice, t.MenuItemText, t.MenuItemGroupText, t.MenumItemCategoryText
+) AS r
+INNER JOIN efr_Branchs ON r.BranchID = efr_Branchs.BranchID
+LEFT OUTER JOIN #temp1 AS s ON s.BranchID = r.BranchID
+DROP TABLE #temp1;

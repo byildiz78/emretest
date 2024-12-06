@@ -1,0 +1,733 @@
+/// <XRTypeInfo>
+///   <AssemblyFullName>DevExpress.XtraReports.v11.1, Version=11.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a</AssemblyFullName>
+///   <AssemblyLocation>C:\WINDOWS\assembly\GAC_MSIL\DevExpress.XtraReports.v11.1\11.1.6.0__b88d1754d700e49a\DevExpress.XtraReports.v11.1.dll</AssemblyLocation>
+///   <TypeName>DevExpress.XtraReports.UI.XtraReport</TypeName>
+///   <Localization>tr-TR</Localization>
+/// </XRTypeInfo>
+namespace XtraReportSerialization {
+    
+    public class repCurrentList : DevExpress.XtraReports.UI.XtraReport {
+        private DevExpress.XtraReports.UI.GroupHeaderBand GroupHeader1;
+        private DevExpress.XtraReports.UI.DetailBand detailBand1;
+        private DevExpress.XtraReports.UI.ReportHeaderBand ReportHeader;
+        private DevExpress.XtraReports.UI.XRLabel label11;
+        private DevExpress.XtraReports.UI.XRLabel label10;
+        private DevExpress.XtraReports.UI.XRLabel label9;
+        private DevExpress.XtraReports.UI.XRLabel label8;
+        private DevExpress.XtraReports.UI.XRLabel label2;
+        private DevExpress.XtraReports.UI.XRLabel label1;
+        private DevExpress.XtraReports.UI.XRLabel label22;
+        private DevExpress.XtraReports.UI.XRLine line1;
+        private DevExpress.XtraReports.UI.XRLabel label4;
+        private DevExpress.XtraReports.UI.XRLabel label3;
+        private DevExpress.XtraReports.UI.XRLabel label6;
+        private DevExpress.XtraReports.UI.XRLabel label7;
+        private DevExpress.XtraReports.UI.XRLabel label5;
+        private DevExpress.XtraReports.UI.ReportFooterBand ReportFooter;
+        private DevExpress.XtraReports.UI.PageHeaderBand PageHeader;
+        private DevExpress.XtraReports.UI.GroupHeaderBand GroupHeader2;
+        private DevExpress.XtraReports.UI.XRLine line2;
+        private DevExpress.XtraReports.UI.XRChart chart3;
+        private DevExpress.XtraReports.UI.XRChart chart2;
+        private DevExpress.XtraReports.UI.XRChart chart1;
+        private DevExpress.XtraReports.UI.TopMarginBand topMarginBand1;
+        private DevExpress.XtraReports.UI.BottomMarginBand bottomMarginBand1;
+        private DevExpress.XtraReports.UI.XRControlStyle ProductData;
+        private DevExpress.XtraReports.UI.XRControlStyle OddStyle;
+        private DevExpress.XtraReports.UI.XRControlStyle GroupHeader;
+        private DevExpress.XtraReports.UI.XRControlStyle ProductHeader;
+        private DevExpress.XtraReports.UI.XRControlStyle SupplierTitle;
+        private DevExpress.XtraReports.UI.XRControlStyle EvenStyle;
+        private DevExpress.XtraReports.UI.XRControlStyle SupplierInfo;
+        private System.Resources.ResourceManager _resources;
+        public repCurrentList() {
+            this.InitializeComponent();
+        }
+        private System.Resources.ResourceManager resources {
+            get {
+                if (_resources == null) {
+                    string resourceString = "zsrvvgEAAACRAAAAbFN5c3RlbS5SZXNvdXJjZXMuUmVzb3VyY2VSZWFkZXIsIG1zY29ybGliLCBWZXJza" +
+                        "W9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4O" +
+                        "SNTeXN0ZW0uUmVzb3VyY2VzLlJ1bnRpbWVSZXNvdXJjZVNldAIAAAAAAAAAAAAAAFBBRFBBRFC0AAAA";
+                    this._resources = new DevExpress.XtraReports.Serialization.XRResourceManager(resourceString);
+                }
+                return this._resources;
+            }
+        }
+        private void InitializeComponent() {
+            DevExpress.XtraCharts.Series series1 = new DevExpress.XtraCharts.Series();
+            DevExpress.XtraCharts.PieSeriesLabel pieSeriesLabel1 = new DevExpress.XtraCharts.PieSeriesLabel();
+            DevExpress.XtraCharts.PiePointOptions piePointOptions1 = new DevExpress.XtraCharts.PiePointOptions();
+            DevExpress.XtraCharts.PieSeriesView pieSeriesView1 = new DevExpress.XtraCharts.PieSeriesView();
+            DevExpress.XtraCharts.Series series2 = new DevExpress.XtraCharts.Series();
+            DevExpress.XtraCharts.DoughnutSeriesLabel doughnutSeriesLabel1 = new DevExpress.XtraCharts.DoughnutSeriesLabel();
+            DevExpress.XtraCharts.PiePointOptions piePointOptions2 = new DevExpress.XtraCharts.PiePointOptions();
+            DevExpress.XtraCharts.DoughnutSeriesView doughnutSeriesView1 = new DevExpress.XtraCharts.DoughnutSeriesView();
+            DevExpress.XtraCharts.PieSeriesLabel pieSeriesLabel2 = new DevExpress.XtraCharts.PieSeriesLabel();
+            DevExpress.XtraCharts.PieSeriesView pieSeriesView2 = new DevExpress.XtraCharts.PieSeriesView();
+            DevExpress.XtraCharts.ChartTitle chartTitle1 = new DevExpress.XtraCharts.ChartTitle();
+            DevExpress.XtraCharts.XYDiagram xYDiagram1 = new DevExpress.XtraCharts.XYDiagram();
+            DevExpress.XtraCharts.Series series3 = new DevExpress.XtraCharts.Series();
+            DevExpress.XtraCharts.SideBySideBarSeriesLabel sideBySideBarSeriesLabel1 = new DevExpress.XtraCharts.SideBySideBarSeriesLabel();
+            DevExpress.XtraCharts.PointOptions pointOptions1 = new DevExpress.XtraCharts.PointOptions();
+            DevExpress.XtraCharts.SideBySideBarSeriesView sideBySideBarSeriesView1 = new DevExpress.XtraCharts.SideBySideBarSeriesView();
+            DevExpress.XtraCharts.SideBySideBarSeriesLabel sideBySideBarSeriesLabel2 = new DevExpress.XtraCharts.SideBySideBarSeriesLabel();
+            DevExpress.XtraCharts.ChartTitle chartTitle2 = new DevExpress.XtraCharts.ChartTitle();
+            DevExpress.XtraCharts.XYDiagram xYDiagram2 = new DevExpress.XtraCharts.XYDiagram();
+            DevExpress.XtraCharts.Series series4 = new DevExpress.XtraCharts.Series();
+            DevExpress.XtraCharts.SideBySideBarSeriesLabel sideBySideBarSeriesLabel3 = new DevExpress.XtraCharts.SideBySideBarSeriesLabel();
+            DevExpress.XtraCharts.PointOptions pointOptions2 = new DevExpress.XtraCharts.PointOptions();
+            DevExpress.XtraCharts.SideBySideBarSeriesView sideBySideBarSeriesView2 = new DevExpress.XtraCharts.SideBySideBarSeriesView();
+            DevExpress.XtraCharts.SideBySideBarSeriesLabel sideBySideBarSeriesLabel4 = new DevExpress.XtraCharts.SideBySideBarSeriesLabel();
+            DevExpress.XtraCharts.ChartTitle chartTitle3 = new DevExpress.XtraCharts.ChartTitle();
+            this.GroupHeader1 = new DevExpress.XtraReports.UI.GroupHeaderBand();
+            this.detailBand1 = new DevExpress.XtraReports.UI.DetailBand();
+            this.ReportHeader = new DevExpress.XtraReports.UI.ReportHeaderBand();
+            this.ReportFooter = new DevExpress.XtraReports.UI.ReportFooterBand();
+            this.PageHeader = new DevExpress.XtraReports.UI.PageHeaderBand();
+            this.GroupHeader2 = new DevExpress.XtraReports.UI.GroupHeaderBand();
+            this.topMarginBand1 = new DevExpress.XtraReports.UI.TopMarginBand();
+            this.bottomMarginBand1 = new DevExpress.XtraReports.UI.BottomMarginBand();
+            this.label11 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label10 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label9 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label8 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label2 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label1 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label22 = new DevExpress.XtraReports.UI.XRLabel();
+            this.line1 = new DevExpress.XtraReports.UI.XRLine();
+            this.label4 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label3 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label6 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label7 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label5 = new DevExpress.XtraReports.UI.XRLabel();
+            this.line2 = new DevExpress.XtraReports.UI.XRLine();
+            this.chart3 = new DevExpress.XtraReports.UI.XRChart();
+            this.chart2 = new DevExpress.XtraReports.UI.XRChart();
+            this.chart1 = new DevExpress.XtraReports.UI.XRChart();
+            this.ProductData = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.OddStyle = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.GroupHeader = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.ProductHeader = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.SupplierTitle = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.EvenStyle = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.SupplierInfo = new DevExpress.XtraReports.UI.XRControlStyle();
+            ((System.ComponentModel.ISupportInitialize)(this.chart3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(series1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(pieSeriesLabel1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(pieSeriesView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(series2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(doughnutSeriesLabel1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(doughnutSeriesView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(pieSeriesLabel2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(pieSeriesView2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(xYDiagram1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(series3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesView1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(xYDiagram2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(series4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesView2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel4)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
+            // 
+            // GroupHeader1
+            // 
+            this.GroupHeader1.Dpi = 254F;
+            this.GroupHeader1.HeightF = 10.91665F;
+            this.GroupHeader1.Name = "GroupHeader1";
+            // 
+            // detailBand1
+            // 
+            this.detailBand1.Dpi = 254F;
+            this.detailBand1.HeightF = 0F;
+            this.detailBand1.Name = "detailBand1";
+            this.detailBand1.SortFields.AddRange(new DevExpress.XtraReports.UI.GroupField[] {
+                        new DevExpress.XtraReports.UI.GroupField("GUN", DevExpress.XtraReports.UI.XRColumnSortOrder.Ascending)});
+            // 
+            // ReportHeader
+            // 
+            this.ReportHeader.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.label11,
+                        this.label10,
+                        this.label9,
+                        this.label8,
+                        this.label2,
+                        this.label1,
+                        this.label22,
+                        this.line1,
+                        this.label4,
+                        this.label3,
+                        this.label6,
+                        this.label7,
+                        this.label5});
+            this.ReportHeader.Dpi = 254F;
+            this.ReportHeader.HeightF = 456.8361F;
+            this.ReportHeader.Name = "ReportHeader";
+            this.ReportHeader.StylePriority.UseBackColor = false;
+            this.ReportHeader.StylePriority.UseBorders = false;
+            // 
+            // ReportFooter
+            // 
+            this.ReportFooter.Dpi = 254F;
+            this.ReportFooter.HeightF = 0F;
+            this.ReportFooter.Name = "ReportFooter";
+            // 
+            // PageHeader
+            // 
+            this.PageHeader.Dpi = 254F;
+            this.PageHeader.HeightF = 0F;
+            this.PageHeader.Name = "PageHeader";
+            // 
+            // GroupHeader2
+            // 
+            this.GroupHeader2.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.line2,
+                        this.chart3,
+                        this.chart2,
+                        this.chart1});
+            this.GroupHeader2.Dpi = 254F;
+            this.GroupHeader2.HeightF = 2242.813F;
+            this.GroupHeader2.Level = 1;
+            this.GroupHeader2.Name = "GroupHeader2";
+            // 
+            // topMarginBand1
+            // 
+            this.topMarginBand1.Dpi = 254F;
+            this.topMarginBand1.HeightF = 41F;
+            this.topMarginBand1.Name = "topMarginBand1";
+            // 
+            // bottomMarginBand1
+            // 
+            this.bottomMarginBand1.Dpi = 254F;
+            this.bottomMarginBand1.HeightF = 64F;
+            this.bottomMarginBand1.Name = "bottomMarginBand1";
+            // 
+            // label11
+            // 
+            this.label11.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))));
+            this.label11.Dpi = 254F;
+            this.label11.Font = new System.Drawing.Font("Tahoma", 14F);
+            this.label11.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label11.LocationFloat = new DevExpress.Utils.PointFloat(1284.417F, 229.3542F);
+            this.label11.Name = "label11";
+            this.label11.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label11.SizeF = new System.Drawing.SizeF(243.4166F, 99.29483F);
+            this.label11.StylePriority.UseBackColor = false;
+            this.label11.StylePriority.UseFont = false;
+            this.label11.StylePriority.UseForeColor = false;
+            this.label11.StylePriority.UseTextAlignment = false;
+            this.label11.Text = "İPTAL";
+            this.label11.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            // 
+            // label10
+            // 
+            this.label10.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(0)))));
+            this.label10.Dpi = 254F;
+            this.label10.Font = new System.Drawing.Font("Tahoma", 14F);
+            this.label10.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label10.LocationFloat = new DevExpress.Utils.PointFloat(1284.417F, 75.62491F);
+            this.label10.Name = "label10";
+            this.label10.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label10.SizeF = new System.Drawing.SizeF(243.4166F, 99.29482F);
+            this.label10.StylePriority.UseBackColor = false;
+            this.label10.StylePriority.UseFont = false;
+            this.label10.StylePriority.UseForeColor = false;
+            this.label10.StylePriority.UseTextAlignment = false;
+            this.label10.Text = "İNDİRİM";
+            this.label10.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            // 
+            // label9
+            // 
+            this.label9.BackColor = System.Drawing.Color.DeepSkyBlue;
+            this.label9.Dpi = 254F;
+            this.label9.Font = new System.Drawing.Font("Tahoma", 14F);
+            this.label9.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label9.LocationFloat = new DevExpress.Utils.PointFloat(552.8122F, 230.0833F);
+            this.label9.Name = "label9";
+            this.label9.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label9.SizeF = new System.Drawing.SizeF(410.1041F, 99.29482F);
+            this.label9.StylePriority.UseBackColor = false;
+            this.label9.StylePriority.UseFont = false;
+            this.label9.StylePriority.UseForeColor = false;
+            this.label9.StylePriority.UseTextAlignment = false;
+            this.label9.Text = "KİŞİ ORTALAMA";
+            this.label9.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            // 
+            // label8
+            // 
+            this.label8.BackColor = System.Drawing.Color.DeepSkyBlue;
+            this.label8.Dpi = 254F;
+            this.label8.Font = new System.Drawing.Font("Tahoma", 14F);
+            this.label8.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label8.LocationFloat = new DevExpress.Utils.PointFloat(552.8122F, 76.35403F);
+            this.label8.Name = "label8";
+            this.label8.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label8.SizeF = new System.Drawing.SizeF(410.1041F, 99.29482F);
+            this.label8.StylePriority.UseBackColor = false;
+            this.label8.StylePriority.UseFont = false;
+            this.label8.StylePriority.UseForeColor = false;
+            this.label8.StylePriority.UseTextAlignment = false;
+            this.label8.Text = "ÇEK ORTALAMA";
+            this.label8.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            // 
+            // label2
+            // 
+            this.label2.BackColor = System.Drawing.Color.DeepSkyBlue;
+            this.label2.Dpi = 254F;
+            this.label2.Font = new System.Drawing.Font("Tahoma", 14F);
+            this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label2.LocationFloat = new DevExpress.Utils.PointFloat(25.00001F, 229.3542F);
+            this.label2.Name = "label2";
+            this.label2.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label2.SizeF = new System.Drawing.SizeF(328.0833F, 99.29482F);
+            this.label2.StylePriority.UseBackColor = false;
+            this.label2.StylePriority.UseFont = false;
+            this.label2.StylePriority.UseForeColor = false;
+            this.label2.StylePriority.UseTextAlignment = false;
+            this.label2.Text = "KİŞİ SAYISI";
+            this.label2.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            // 
+            // label1
+            // 
+            this.label1.BackColor = System.Drawing.Color.DeepSkyBlue;
+            this.label1.Dpi = 254F;
+            this.label1.Font = new System.Drawing.Font("Tahoma", 14F);
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label1.LocationFloat = new DevExpress.Utils.PointFloat(25.00001F, 75.62491F);
+            this.label1.Name = "label1";
+            this.label1.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label1.SizeF = new System.Drawing.SizeF(328.0833F, 99.29482F);
+            this.label1.StylePriority.UseBackColor = false;
+            this.label1.StylePriority.UseFont = false;
+            this.label1.StylePriority.UseForeColor = false;
+            this.label1.StylePriority.UseTextAlignment = false;
+            this.label1.Text = "ÇEK SAYISI";
+            this.label1.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            // 
+            // label22
+            // 
+            this.label22.BackColor = System.Drawing.Color.Transparent;
+            this.label22.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.label22.CanGrow = false;
+            this.label22.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "INDIRIMLER.Toplam Çek Sayısı", "{0:0.}")});
+            this.label22.Dpi = 254F;
+            this.label22.Font = new System.Drawing.Font("Lucida Bright", 16F, System.Drawing.FontStyle.Bold);
+            this.label22.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.label22.LocationFloat = new DevExpress.Utils.PointFloat(358.3331F, 75.62491F);
+            this.label22.Name = "label22";
+            this.label22.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label22.SizeF = new System.Drawing.SizeF(194.4791F, 99.29482F);
+            this.label22.StylePriority.UseBackColor = false;
+            this.label22.StylePriority.UseBorderColor = false;
+            this.label22.StylePriority.UseFont = false;
+            this.label22.StylePriority.UseForeColor = false;
+            this.label22.StylePriority.UseTextAlignment = false;
+            this.label22.Text = "label1";
+            this.label22.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            this.label22.WordWrap = false;
+            // 
+            // line1
+            // 
+            this.line1.BorderColor = System.Drawing.Color.LightGray;
+            this.line1.Dpi = 254F;
+            this.line1.LineWidth = 3;
+            this.line1.LocationFloat = new DevExpress.Utils.PointFloat(25.00001F, 395.7707F);
+            this.line1.Name = "line1";
+            this.line1.SizeF = new System.Drawing.SizeF(1853F, 29.31583F);
+            this.line1.StylePriority.UseBorderColor = false;
+            // 
+            // label4
+            // 
+            this.label4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label4.CanGrow = false;
+            this.label4.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "IPTALTOPLAMLARI.Column1", "{0:n2} TL")});
+            this.label4.Dpi = 254F;
+            this.label4.Font = new System.Drawing.Font("Lucida Bright", 16F, System.Drawing.FontStyle.Bold);
+            this.label4.ForeColor = System.Drawing.Color.Red;
+            this.label4.LocationFloat = new DevExpress.Utils.PointFloat(1551.937F, 229.3542F);
+            this.label4.Name = "label4";
+            this.label4.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label4.SizeF = new System.Drawing.SizeF(326.0626F, 99.2948F);
+            this.label4.StylePriority.UseBackColor = false;
+            this.label4.StylePriority.UseFont = false;
+            this.label4.StylePriority.UseForeColor = false;
+            this.label4.StylePriority.UseTextAlignment = false;
+            this.label4.Text = "label1";
+            this.label4.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            this.label4.WordWrap = false;
+            // 
+            // label3
+            // 
+            this.label3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label3.CanGrow = false;
+            this.label3.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "INDIRIMLER.Toplam Konuk", "{0:0.}")});
+            this.label3.Dpi = 254F;
+            this.label3.Font = new System.Drawing.Font("Lucida Bright", 16F, System.Drawing.FontStyle.Bold);
+            this.label3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.label3.LocationFloat = new DevExpress.Utils.PointFloat(358.3331F, 229.3542F);
+            this.label3.Name = "label3";
+            this.label3.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label3.SizeF = new System.Drawing.SizeF(194.4791F, 100.0239F);
+            this.label3.StylePriority.UseBackColor = false;
+            this.label3.StylePriority.UseFont = false;
+            this.label3.StylePriority.UseForeColor = false;
+            this.label3.StylePriority.UseTextAlignment = false;
+            this.label3.Text = "label1";
+            this.label3.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            this.label3.WordWrap = false;
+            // 
+            // label6
+            // 
+            this.label6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label6.CanGrow = false;
+            this.label6.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "INDIRIMLER.Çek Ortalama", "{0:n2} TL")});
+            this.label6.Dpi = 254F;
+            this.label6.Font = new System.Drawing.Font("Lucida Bright", 16F, System.Drawing.FontStyle.Bold);
+            this.label6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.label6.LocationFloat = new DevExpress.Utils.PointFloat(975.3123F, 76.35403F);
+            this.label6.Name = "label6";
+            this.label6.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label6.SizeF = new System.Drawing.SizeF(298.188F, 99.29481F);
+            this.label6.StylePriority.UseBackColor = false;
+            this.label6.StylePriority.UseFont = false;
+            this.label6.StylePriority.UseForeColor = false;
+            this.label6.StylePriority.UseTextAlignment = false;
+            this.label6.Text = "label1";
+            this.label6.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            // 
+            // label7
+            // 
+            this.label7.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label7.CanGrow = false;
+            this.label7.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "INDIRIMLER.Kişi Başı Ortalama", "{0:n2} TL")});
+            this.label7.Dpi = 254F;
+            this.label7.Font = new System.Drawing.Font("Lucida Bright", 16F, System.Drawing.FontStyle.Bold);
+            this.label7.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.label7.LocationFloat = new DevExpress.Utils.PointFloat(975.3124F, 230.0833F);
+            this.label7.Name = "label7";
+            this.label7.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label7.SizeF = new System.Drawing.SizeF(298.1879F, 99.2948F);
+            this.label7.StylePriority.UseBackColor = false;
+            this.label7.StylePriority.UseFont = false;
+            this.label7.StylePriority.UseForeColor = false;
+            this.label7.StylePriority.UseTextAlignment = false;
+            this.label7.Text = "label1";
+            this.label7.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            this.label7.WordWrap = false;
+            // 
+            // label5
+            // 
+            this.label5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label5.CanGrow = false;
+            this.label5.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "INDIRIMLER.Toplam Indirimler", "{0:n2} TL")});
+            this.label5.Dpi = 254F;
+            this.label5.Font = new System.Drawing.Font("Lucida Bright", 16F, System.Drawing.FontStyle.Bold);
+            this.label5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(128)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.label5.LocationFloat = new DevExpress.Utils.PointFloat(1551.937F, 75.1075F);
+            this.label5.Name = "label5";
+            this.label5.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label5.SizeF = new System.Drawing.SizeF(326.0626F, 99.81223F);
+            this.label5.StylePriority.UseBackColor = false;
+            this.label5.StylePriority.UseFont = false;
+            this.label5.StylePriority.UseForeColor = false;
+            this.label5.StylePriority.UseTextAlignment = false;
+            this.label5.Text = "label1";
+            this.label5.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleCenter;
+            this.label5.WordWrap = false;
+            // 
+            // line2
+            // 
+            this.line2.BorderColor = System.Drawing.Color.LightGray;
+            this.line2.Dpi = 254F;
+            this.line2.LineWidth = 3;
+            this.line2.LocationFloat = new DevExpress.Utils.PointFloat(14.41667F, 1164.167F);
+            this.line2.Name = "line2";
+            this.line2.SizeF = new System.Drawing.SizeF(1853F, 29.31583F);
+            this.line2.StylePriority.UseBorderColor = false;
+            // 
+            // chart3
+            // 
+            this.chart3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.chart3.BorderColor = System.Drawing.Color.Black;
+            this.chart3.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.chart3.Dpi = 254F;
+            this.chart3.Legend.Visible = false;
+            this.chart3.LocationFloat = new DevExpress.Utils.PointFloat(42.00002F, 1237.837F);
+            this.chart3.Name = "chart3";
+            this.chart3.PaletteName = "Office";
+            series1.ArgumentDataMember = "ODEMEDAGILIMI.PaymentMethodName";
+            pieSeriesLabel1.Antialiasing = true;
+            pieSeriesLabel1.FillStyle.FillMode = DevExpress.XtraCharts.FillMode.Gradient;
+            pieSeriesLabel1.Font = new System.Drawing.Font("Tahoma", 9F);
+            pieSeriesLabel1.LineVisible = true;
+            pieSeriesLabel1.Position = DevExpress.XtraCharts.PieSeriesLabelPosition.Inside;
+            pieSeriesLabel1.ResolveOverlappingMode = DevExpress.XtraCharts.ResolveOverlappingMode.Default;
+            pieSeriesLabel1.Shadow.Visible = true;
+            pieSeriesLabel1.TextAlignment = System.Drawing.StringAlignment.Near;
+            series1.Label = pieSeriesLabel1;
+            series1.Name = "Series 1";
+            piePointOptions1.PercentOptions.ValueAsPercent = false;
+            piePointOptions1.PointView = DevExpress.XtraCharts.PointView.ArgumentAndValues;
+            piePointOptions1.ValueNumericOptions.Format = DevExpress.XtraCharts.NumericFormat.Currency;
+            series1.PointOptions = piePointOptions1;
+            series1.ValueDataMembersSerializable = "ODEMEDAGILIMI.GenelTOPLAM";
+            pieSeriesView1.FillStyle.FillMode = DevExpress.XtraCharts.FillMode.Gradient;
+            pieSeriesView1.RuntimeExploding = false;
+            series1.View = pieSeriesView1;
+            series2.ArgumentDataMember = "ODEMEDAGILIMI.PaymentMethodName";
+            doughnutSeriesLabel1.Antialiasing = true;
+            doughnutSeriesLabel1.LineVisible = true;
+            doughnutSeriesLabel1.Position = DevExpress.XtraCharts.PieSeriesLabelPosition.Inside;
+            series2.Label = doughnutSeriesLabel1;
+            series2.Name = "Series 2";
+            piePointOptions2.PointView = DevExpress.XtraCharts.PointView.ArgumentAndValues;
+            piePointOptions2.ValueNumericOptions.Format = DevExpress.XtraCharts.NumericFormat.Percent;
+            piePointOptions2.ValueNumericOptions.Precision = 0;
+            series2.PointOptions = piePointOptions2;
+            series2.ValueDataMembersSerializable = "ODEMEDAGILIMI.GenelTOPLAM";
+            doughnutSeriesView1.RuntimeExploding = false;
+            series2.View = doughnutSeriesView1;
+            this.chart3.SeriesSerializable = new DevExpress.XtraCharts.Series[] {
+                    series1,
+                    series2};
+            pieSeriesLabel2.LineVisible = true;
+            this.chart3.SeriesTemplate.Label = pieSeriesLabel2;
+            pieSeriesView2.RuntimeExploding = false;
+            this.chart3.SeriesTemplate.View = pieSeriesView2;
+            this.chart3.SizeF = new System.Drawing.SizeF(1805.021F, 1004.976F);
+            chartTitle1.Text = "ÖDEME TİPİ DAĞILIMI";
+            this.chart3.Titles.AddRange(new DevExpress.XtraCharts.ChartTitle[] {
+                        chartTitle1});
+            // 
+            // chart2
+            // 
+            this.chart2.BorderColor = System.Drawing.Color.Black;
+            this.chart2.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            xYDiagram1.AxisX.Interlaced = true;
+            xYDiagram1.AxisX.Range.SideMarginsEnabled = true;
+            xYDiagram1.AxisX.Visible = false;
+            xYDiagram1.AxisX.VisibleInPanesSerializable = "-1";
+            xYDiagram1.AxisY.Range.SideMarginsEnabled = true;
+            xYDiagram1.AxisY.Visible = false;
+            xYDiagram1.AxisY.VisibleInPanesSerializable = "-1";
+            xYDiagram1.Rotated = true;
+            this.chart2.Diagram = xYDiagram1;
+            this.chart2.Dpi = 254F;
+            this.chart2.Legend.Visible = false;
+            this.chart2.LocationFloat = new DevExpress.Utils.PointFloat(958.1253F, 25.00009F);
+            this.chart2.Name = "chart2";
+            series3.ArgumentDataMember = "GRUPSATISDAGILIMI.Grup";
+            sideBySideBarSeriesLabel1.Antialiasing = true;
+            sideBySideBarSeriesLabel1.Font = new System.Drawing.Font("Tahoma", 9F);
+            sideBySideBarSeriesLabel1.LineVisible = true;
+            sideBySideBarSeriesLabel1.ShowForZeroValues = true;
+            sideBySideBarSeriesLabel1.TextAlignment = System.Drawing.StringAlignment.Near;
+            series3.Label = sideBySideBarSeriesLabel1;
+            series3.Name = "Series 1";
+            pointOptions1.PointView = DevExpress.XtraCharts.PointView.ArgumentAndValues;
+            pointOptions1.ValueNumericOptions.Format = DevExpress.XtraCharts.NumericFormat.Number;
+            series3.PointOptions = pointOptions1;
+            series3.SeriesPointsSorting = DevExpress.XtraCharts.SortingMode.Ascending;
+            series3.SeriesPointsSortingKey = DevExpress.XtraCharts.SeriesPointKey.Value_1;
+            series3.SummaryFunction = "SUM([GRUPSATISDAGILIMI.Tutar])";
+            sideBySideBarSeriesView1.ColorEach = true;
+            series3.View = sideBySideBarSeriesView1;
+            this.chart2.SeriesSerializable = new DevExpress.XtraCharts.Series[] {
+                    series3};
+            sideBySideBarSeriesLabel2.LineVisible = true;
+            this.chart2.SeriesTemplate.Label = sideBySideBarSeriesLabel2;
+            this.chart2.SizeF = new System.Drawing.SizeF(898.4145F, 1086.25F);
+            chartTitle2.Text = "GRUP SATIŞ DAĞILIMI";
+            this.chart2.Titles.AddRange(new DevExpress.XtraCharts.ChartTitle[] {
+                        chartTitle2});
+            // 
+            // chart1
+            // 
+            this.chart1.BorderColor = System.Drawing.Color.Black;
+            this.chart1.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            xYDiagram2.AxisX.Interlaced = true;
+            xYDiagram2.AxisX.Range.SideMarginsEnabled = true;
+            xYDiagram2.AxisX.Visible = false;
+            xYDiagram2.AxisX.VisibleInPanesSerializable = "-1";
+            xYDiagram2.AxisY.Range.SideMarginsEnabled = true;
+            xYDiagram2.AxisY.VisibleInPanesSerializable = "-1";
+            this.chart1.Diagram = xYDiagram2;
+            this.chart1.Dpi = 254F;
+            this.chart1.Legend.Visible = false;
+            this.chart1.LocationFloat = new DevExpress.Utils.PointFloat(0F, 25.00009F);
+            this.chart1.Name = "chart1";
+            series4.ArgumentDataMember = "Detail.Tipi";
+            sideBySideBarSeriesLabel3.Antialiasing = true;
+            sideBySideBarSeriesLabel3.LineVisible = true;
+            sideBySideBarSeriesLabel3.ShowForZeroValues = true;
+            sideBySideBarSeriesLabel3.TextAlignment = System.Drawing.StringAlignment.Near;
+            series4.Label = sideBySideBarSeriesLabel3;
+            series4.Name = "Series 1";
+            pointOptions2.PointView = DevExpress.XtraCharts.PointView.ArgumentAndValues;
+            pointOptions2.ValueNumericOptions.Format = DevExpress.XtraCharts.NumericFormat.Currency;
+            series4.PointOptions = pointOptions2;
+            series4.ValueDataMembersSerializable = "Detail.Tutar";
+            sideBySideBarSeriesView2.ColorEach = true;
+            series4.View = sideBySideBarSeriesView2;
+            this.chart1.SeriesSerializable = new DevExpress.XtraCharts.Series[] {
+                    series4};
+            sideBySideBarSeriesLabel4.LineVisible = true;
+            this.chart1.SeriesTemplate.Label = sideBySideBarSeriesLabel4;
+            this.chart1.SizeF = new System.Drawing.SizeF(958.1253F, 1086.25F);
+            chartTitle3.Text = "TOPLAM CİRO ANALİZİ";
+            this.chart1.Titles.AddRange(new DevExpress.XtraCharts.ChartTitle[] {
+                        chartTitle3});
+            // 
+            // ProductData
+            // 
+            this.ProductData.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(196)))), ((int)(((byte)(220)))), ((int)(((byte)(255)))));
+            this.ProductData.BorderColor = System.Drawing.Color.White;
+            this.ProductData.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
+                        | DevExpress.XtraPrinting.BorderSide.Right) 
+                        | DevExpress.XtraPrinting.BorderSide.Bottom)));
+            this.ProductData.BorderWidth = 1;
+            this.ProductData.Font = new System.Drawing.Font("Tahoma", 8.25F);
+            this.ProductData.ForeColor = System.Drawing.Color.Black;
+            this.ProductData.Name = "ProductData";
+            // 
+            // OddStyle
+            // 
+            this.OddStyle.BackColor = System.Drawing.Color.Transparent;
+            this.OddStyle.BorderColor = System.Drawing.Color.Transparent;
+            this.OddStyle.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.OddStyle.BorderWidth = 1;
+            this.OddStyle.Font = new System.Drawing.Font("Tahoma", 8.25F);
+            this.OddStyle.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.OddStyle.Name = "OddStyle";
+            // 
+            // GroupHeader
+            // 
+            this.GroupHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(243)))), ((int)(((byte)(243)))));
+            this.GroupHeader.BorderColor = System.Drawing.Color.White;
+            this.GroupHeader.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
+                        | DevExpress.XtraPrinting.BorderSide.Right) 
+                        | DevExpress.XtraPrinting.BorderSide.Bottom)));
+            this.GroupHeader.BorderWidth = 1;
+            this.GroupHeader.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.GroupHeader.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(139)))), ((int)(((byte)(139)))));
+            this.GroupHeader.Name = "GroupHeader";
+            // 
+            // ProductHeader
+            // 
+            this.ProductHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(132)))), ((int)(((byte)(213)))));
+            this.ProductHeader.BorderColor = System.Drawing.Color.White;
+            this.ProductHeader.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
+                        | DevExpress.XtraPrinting.BorderSide.Right) 
+                        | DevExpress.XtraPrinting.BorderSide.Bottom)));
+            this.ProductHeader.BorderWidth = 1;
+            this.ProductHeader.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.ProductHeader.ForeColor = System.Drawing.Color.White;
+            this.ProductHeader.Name = "ProductHeader";
+            // 
+            // SupplierTitle
+            // 
+            this.SupplierTitle.BackColor = System.Drawing.Color.Transparent;
+            this.SupplierTitle.BorderColor = System.Drawing.Color.Empty;
+            this.SupplierTitle.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.SupplierTitle.BorderWidth = 1;
+            this.SupplierTitle.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
+            this.SupplierTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(120)))), ((int)(((byte)(0)))));
+            this.SupplierTitle.Name = "SupplierTitle";
+            // 
+            // EvenStyle
+            // 
+            this.EvenStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(237)))), ((int)(((byte)(196)))));
+            this.EvenStyle.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(205)))), ((int)(((byte)(162)))));
+            this.EvenStyle.Borders = ((DevExpress.XtraPrinting.BorderSide)((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top)));
+            this.EvenStyle.BorderWidth = 1;
+            this.EvenStyle.Font = new System.Drawing.Font("Tahoma", 8.25F);
+            this.EvenStyle.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.EvenStyle.Name = "EvenStyle";
+            // 
+            // SupplierInfo
+            // 
+            this.SupplierInfo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(132)))), ((int)(((byte)(213)))));
+            this.SupplierInfo.BorderColor = System.Drawing.Color.White;
+            this.SupplierInfo.BorderWidth = 1;
+            this.SupplierInfo.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.SupplierInfo.ForeColor = System.Drawing.Color.White;
+            this.SupplierInfo.Name = "SupplierInfo";
+            this.SupplierInfo.Padding = new DevExpress.XtraPrinting.PaddingInfo(7, 0, 0, 0, 100F);
+            // 
+            // repCurrentList
+            // 
+            this.Bands.AddRange(new DevExpress.XtraReports.UI.Band[] {
+                        this.GroupHeader1,
+                        this.detailBand1,
+                        this.ReportHeader,
+                        this.ReportFooter,
+                        this.PageHeader,
+                        this.GroupHeader2,
+                        this.topMarginBand1,
+                        this.bottomMarginBand1});
+            this.DesignerOptions.ShowExportWarnings = false;
+            this.Dpi = 254F;
+            this.ExportOptions.Html.CharacterSet = "UTF-8";
+            this.ExportOptions.Html.Title = "POS Finans";
+            this.ExportOptions.Pdf.DocumentOptions.Application = "POS Finans";
+            this.ExportOptions.Pdf.DocumentOptions.Author = "RobotPOS";
+            this.ExportOptions.Pdf.ImageQuality = DevExpress.XtraPrinting.PdfJpegImageQuality.High;
+            this.ExportOptions.Pdf.NeverEmbeddedFonts = "Verdana;Tahoma;Arial";
+            this.ExportOptions.PrintPreview.ShowOptionsBeforeExport = false;
+            this.ExportOptions.Rtf.ExportMode = DevExpress.XtraPrinting.RtfExportMode.SingleFile;
+            this.ExportOptions.Xls.SheetName = "Veriler";
+            this.ExportOptions.Xls.ShowGridLines = true;
+            this.ExportOptions.Xlsx.SheetName = "Veriler";
+            this.ExportOptions.Xlsx.ShowGridLines = true;
+            this.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(192)))), ((int)(((byte)(192)))), ((int)(((byte)(192)))));
+            this.Margins = new System.Drawing.Printing.Margins(99, 99, 41, 64);
+            this.Name = "repCurrentList";
+            this.PageHeight = 2969;
+            this.PageWidth = 2101;
+            this.PaperKind = System.Drawing.Printing.PaperKind.A4;
+            this.ReportUnit = DevExpress.XtraReports.UI.ReportUnit.TenthsOfAMillimeter;
+            this.StyleSheet.AddRange(new DevExpress.XtraReports.UI.XRControlStyle[] {
+                        this.ProductData,
+                        this.OddStyle,
+                        this.GroupHeader,
+                        this.ProductHeader,
+                        this.SupplierTitle,
+                        this.EvenStyle,
+                        this.SupplierInfo});
+            this.Version = "11.1";
+            ((System.ComponentModel.ISupportInitialize)(pieSeriesLabel1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(pieSeriesView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(series1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(doughnutSeriesLabel1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(doughnutSeriesView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(series2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(pieSeriesLabel2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(pieSeriesView2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(xYDiagram1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesView1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(series3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(xYDiagram2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesView2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(series4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(sideBySideBarSeriesLabel4)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chart1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this)).EndInit();
+        }
+    }
+}

@@ -1,0 +1,43 @@
+Detail|
+
+
+SELECT t.MenuItemText                AS [Ürün],
+    
+    SUM(t.ExtendedPrice) AS Tutar,
+   SUM(t.Quantity) AS Adet,
+  
+
+       t.MenuItemGroupText           AS Grup,
+t.MenumItemCategoryText       AS Kategori
+      
+
+      
+FROM   OrderTransactions             AS t
+       LEFT OUTER JOIN OrderHeaders  AS h
+            ON  t.OrderKey = h.OrderKey
+            
+            WHERE  t.LineDeleted = 0
+       AND h.LineDeleted = 0
+       AND t.OrderDateTime >= @ilkTarih
+       AND t.OrderDateTime <= @SonTarih
+       AND t.@BranchID
+
+GROUP BY
+       MenuItemText,
+        t.MenuItemGroupText  ,
+t.MenumItemCategoryText
+
+
+
+$INDIRIMLER|SELECT (SUM(h.amountdue) + SUM(h.DiscountTotalAmount)) AS [Brüt Satışlar],
+       SUM(h.DiscountLineAmount) AS [Ürün İndirimleri],
+       SUM(h.DiscountCashAmount) AS [Nakit İndirimler],
+       SUM(h.DiscountOrderAmount) AS [Çek İndirimler],
+       SUM(h.DiscountTotalAmount) AS [Toplam Indirimler],
+       SUM(h.amountdue) AS [Net Satışlar]
+
+FROM   OrderHeaders h
+WHERE  h.LineDeleted = 0
+       AND h.OrderDateTime >= @date1
+       AND h.OrderDateTime <= @date2
+       and h.@BranchID

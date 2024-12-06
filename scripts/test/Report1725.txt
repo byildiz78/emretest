@@ -1,0 +1,19 @@
+SET NOCOUNT ON;
+SET LANGUAGE english;
+DECLARE @s1 DATETIME;SET @s1=@date1;
+DECLARE @s2 DATETIME;SET @s2=@date2;
+SET LANGUAGE turkish;
+SELECT b.BranchName AS Şube, DATENAME(MONTH,h.OrderDateTime) AS Ay,
+DATEADD(D,0,DATEDIFF(dd, 0,h.OrderDateTime)) AS Gün,DATEPART(hour,h.OrderDateTime) AS Saat,
+t.MenumItemCategoryText AS Kategori,t.MenuItemGroupText AS [Grubu],t.MenuItemText AS Menü,t.MenuItemUnitPrice AS [Fiyat],SUM(t.Quantity) AS Miktar,SUM(t.Quantity)*t.MenuItemUnitPrice AS Tutar
+,isnull(nullif('%'+cast(isnull(h.DiscountAmountValue,0) AS NVARCHAR(10))+'','%0'),'') AS [Çek İndirimi]
+FROM OrderHeaders AS h WITH(NOLOCK)
+INNER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey AND t.LineDeleted=0
+INNER JOIN efr_Branchs AS b ON b.BranchID = h.BranchID
+WHERE h.OrderDateTime>@s1
+AND h.OrderDateTime<@s2
+AND h.LineDeleted=0
+AND h.@BranchID
+GROUP BY b.BranchName,t.MenuItemText,DATEADD(D,0,DATEDIFF(dd, 0,h.OrderDateTime)),DATEPART(hour,h.OrderDateTime),DATENAME(MONTH,h.OrderDateTime)
+,t.MenumItemCategoryText,t.MenuItemGroupText,t.MenuItemUnitPrice ,h.DiscountAmountValue
+ORDER BY b.BranchName,DATEADD(D,0,DATEDIFF(dd, 0,h.OrderDateTime)),t.MenuItemText,DATEPART(hour,h.OrderDateTime)

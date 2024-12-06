@@ -1,0 +1,29 @@
+SELECT
+	* 
+FROM
+	(
+	SELECT 
+	    b.BranchName as [Sube],
+		h.orderkey [Robotpos Key],
+		h.OrderNo as [PDS Numarası],
+		h.OrderTotal as [Çek Tutarı],
+		ROUND(sum(t.Quantity * t.UnitPrice),2) as [Ürün Toplamları],
+		ROUND(SUM ( t.Quantity * t.UnitPrice ) - (h.OrderTotal),2) AS Fark,
+		h.SourceDescription as [Pazar Yeri]
+	FROM
+		webIntegrationOrderHeaders AS h
+		INNER JOIN webIntegrationOrderTransactions AS t ON h.orderkey= t.OrderKey 
+		INNER JOIN efr_Branchs AS b ON h.BranchID=b.BranchID
+		LEFT JOIN OrderHeaders oh ON oh.OrderKey=h.orderKey
+	WHERE
+		h.OrderDateTime BETWEEN @date1
+		AND @date2
+		AND h.@BranchID
+		and oh.Linedeleted=0
+
+	GROUP BY
+	h.orderkey ,h.OrderNo,
+	h.OrderTotal,h.SourceDescription,b.BranchName
+	) as r
+	
+	where r.fark>0

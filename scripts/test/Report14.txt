@@ -1,0 +1,24 @@
+﻿
+SELECT h.OrderDateTime AS Tarih, t.OrderID AS [Çek No], d.DiscountText AS [İndirim Adı], isnull(h.SpecificCustomerName,'-') AS Açıklama, 
+ t.DiscountLineAmount AS [İndirim Tutarı]
+FROM OrderTransactions AS t INNER JOIN
+ Discounts AS d ON d.DiscountID = t.DiscountID AND t.BranchID = d.BranchID INNER JOIN
+ OrderHeaders AS h ON h.OrderID = t.OrderID AND h.BranchID = t.BranchID
+WHERE  (h.OrderDateTime >= @ilkTarih) AND (h.OrderDateTime <= @sonTarih) AND (t.DiscountID IS NOT NULL) and h.@BranchID and t.linedeleted=0
+
+Union ALL
+SELECT h.OrderDateTime AS Tarih, h.OrderID AS [Çek No], d.DiscountText AS [İndirim Adı],isnull(h.SpecificCustomerName,'-') AS Açıklama, 
+ h.DiscountOrderAmount AS [İndirim Tutarı]
+FROM OrderHeaders AS h INNER JOIN
+ Discounts AS d ON d.DiscountID = h.DiscountID AND d.BranchID = h.BranchID
+WHERE (h.OrderDateTime >= @ilkTarih) AND (h.OrderDateTime <= @sonTarih) and h.@BranchID and h.linedeleted=0
+
+
+
+Union All
+SELECT h.OrderDateTime, h.OrderID, ISNULL(h.SpecificCustomerName, 'Nakit Indirim') AS [İndirim Adı], isnull(h.SpecificCustomerName,'-') AS Açıklama, 
+ h.DiscountCashAmount
+FROM OrderHeaders AS h LEFT OUTER JOIN
+ Discounts AS d ON d.DiscountID = h.DiscountID AND d.BranchID = h.BranchID
+WHERE (h.DiscountCashAmount > 0) AND (h.OrderDateTime >= @ilkTarih) AND (h.OrderDateTime <= @sonTarih) and h.linedeleted=0 and h.@BranchID
+

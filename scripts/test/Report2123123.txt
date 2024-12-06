@@ -1,0 +1,23 @@
+select 
+CONVERT(VARCHAR , p.PaymentDateTime,3) as Tarih,
+b.BranchName as Sube,
+b.CustomField7 as [Şube Tipi],
+CONCAT (0,0,b.ExternalCode) as [Şube Kodu],
+p.PaymentMethodName as [Ödeme Tipi Adı],
+ISNULL(p.GlobalBankName,p.PaymentMethodName) as [Alt Ödeme Tipi Adı],
+sum(p.AmountPaid) as [Ödeme Tutarı]
+from OrderPayments p
+INNER JOIN efr_Branchs b ON p.BranchID=b.BranchID
+INNER JOIN OrderHeaders h on h.OrderKey=p.OrderKey
+WHERE 1=1 
+and p.PaymentDateTime between '2024-09-01 06:00:00' and '2024-09-25 06:00:00'
+and p.LineDeleted=0
+and h.OrderStatus=2
+and p.@BranchID
+GROUP BY 
+CONVERT(VARCHAR , p.PaymentDateTime,3),
+b.BranchName,
+b.CustomField7,
+b.ExternalCode,
+p.PaymentMethodName,
+p.GlobalBankName

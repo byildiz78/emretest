@@ -1,0 +1,19 @@
+SELECT b.BranchName,
+      t.MenumItemCategoryText         AS MenuSubCategoryText,
+       t.MenuItemText,
+       SUM(t.ExtendedPrice)        AS TotalAmount,
+       t.BranchID,
+       SUM(t.Quantity)             AS TotalQuantity
+FROM   OrderTransactions           AS t WITH (NOLOCK)
+      
+       INNER JOIN efr_Branchs      AS b
+            ON  b.BranchID = t.BranchID
+WHERE  t.OrderDateTime >= @date1
+       AND t.OrderDateTime <= @date2
+       AND t.linedeleted = 0
+       AND t.@BranchID
+GROUP BY
+           t.MenumItemCategoryText ,
+       t.MenuItemText,
+       t.BranchID,
+       b.BranchName

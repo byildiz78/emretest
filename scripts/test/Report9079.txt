@@ -1,0 +1,14 @@
+SELECT b.BranchName AS Şube, OrderHeaders.OrderID AS [ÇEK NO],
+ CONVERT(VARCHAR, OrderHeaders.OrderDateTime ,113) AS [AÇILIŞ TARIHI],
+ OrderHeaders.AmountDue AS [SATIŞ TUTARI],
+ OrderPayments.AmountPaid AS [ÖDEME TUTARI],
+ OrderPayments.PaymentMethodName AS [ÖDEME ŞEKLİ],
+ CONVERT(VARCHAR, OrderPayments.PaymentDateTime, 113) AS [ÖDEME TARİHİ]
+FROM OrderHeaders
+ LEFT OUTER JOIN OrderPayments  ON OrderHeaders.OrderKey = OrderPayments.OrderKey
+ INNER JOIN efr_Branchs AS b ON b.BranchID = OrderHeaders.BranchID
+WHERE OrderPayments.LineDeleted = 0 AND OrderHeaders.LineDeleted = 0 AND
+OrderPayments.PaymentDateTime>= @date1
+ AND OrderPayments.PaymentDateTime <= @date2
+ AND OrderHeaders.OrderStatus = 2
+ AND OrderHeaders.@BranchID

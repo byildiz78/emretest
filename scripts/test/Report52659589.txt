@@ -1,0 +1,18 @@
+SELECT
+	OrderPayments.OrderID AS [ÇEK NO],
+	CONVERT ( CHAR ( 24 ), OrderPayments.PaymentDateTime, 120 ) AS [Ödeme Tarihi],
+	CONVERT ( CHAR ( 24 ), OrderHeaders.AddDateTime, 120 ) AS [Açılış Tarihi],
+         CONVERT ( CHAR ( 24 ), OrderHeaders.EditDateTime, 120 ) AS [Kapanış Tarihi],
+	OrderHeaders.AmountDue AS [Sipariş Tutar],
+        OrderHeaders.OrderNotes AS [Sipariş Not Alanı],
+	OrderPayments.AmountPaid AS [Ödenen TUTAR],
+	ISNULL( OrderPayments.PaymentMethodName, 'TANIMSIZ' ) AS [ÖDEME TİPİ]
+FROM
+	OrderPayments
+	INNER JOIN OrderHeaders ON OrderHeaders.OrderKey = OrderPayments.OrderKey 
+WHERE
+	OrderPayments.LineDeleted = 0 
+	AND OrderHeaders.LineDeleted= 0 
+	AND PaymentDateTime >= @date1 
+	AND PaymentDateTime <= @date2 
+	AND orderpayments.@BranchID

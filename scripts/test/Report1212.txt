@@ -1,0 +1,22 @@
+﻿SELECT r.OrderID AS [Çek ID], r.OrderDateTime AS [Tarihi], isnull(r.DiscountText,'') AS [İndirim Adı], r.MenuItemText AS [Menü], r.Quantity AS [Miktar], r.MenuItemUnitPrice AS 
+[Birim Fyatı], r.DiscountTotalAmount AS [İndirim Tutarı],r.DiscountCost AS [İndirim Maliyeti] , r.IsOrderDiscount AS [Çek İndirimidir]
+FROM (
+SELECT t.OrderID, t.OrderDateTime, d.DiscountText, t.MenuItemText, t.Quantity, t.MenuItemUnitPrice, t.DiscountTotalAmount, CAST(0 AS BIT) AS IsOrderDiscount
+,round((t.Quantity*ISNULL(m.MenuItemCost,0)),2) AS DiscountCost
+FROM OrderTransactions AS t
+LEFT OUTER JOIN Discounts AS d ON d.DiscountID = t.DiscountID AND d.BranchID = t.BranchID
+LEFT OUTER JOIN MenuItems AS m ON m.MenuItemKey = t.MenuItemKey AND m.BranchID = t.BranchID
+WHERE t.OrderDateTime >= @date1 AND t.OrderDateTime < @date2 
+AND t.@BranchID
+AND t.LineDeleted = 0 AND ISNULL(t.DiscountTotalAmount, 0) > 0 AND t.ExtendedPrice =0
+UNION ALL
+SELECT t.OrderID, t.OrderDateTime, isnull(d.DiscountText,'') AS DiscountText, t.MenuItemText, t.Quantity, t.MenuItemUnitPrice, t.ExtendedPrice, CAST(1 AS BIT) AS IsOrderDiscount
+,round((t.Quantity*ISNULL(m.MenuItemCost,0)),2) AS DiscountCost
+FROM OrderHeaders AS h
+LEFT OUTER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey
+LEFT OUTER JOIN Discounts AS d ON d.DiscountID = h.DiscountID AND d.BranchID = h.BranchID
+LEFT OUTER JOIN MenuItems AS m ON m.MenuItemKey = t.MenuItemKey AND m.BranchID = t.BranchID
+WHERE h.OrderDateTime >= @date1 AND h.OrderDateTime < @date2 
+AND h.@BranchID
+AND h.LineDeleted = 0 AND h.AmountDue = 0 AND h.DiscountOrderAmount > 0
+) AS r

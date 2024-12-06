@@ -1,0 +1,18 @@
+SELECT 
+b.BranchName AS [Şube],
+h.OrderID AS [Çek No],
+h.AmountDue AS [Tutar],h.AddUserName AS [Personel],t.MenuItemText AS [Ürün],t.ExtendedPrice AS [Ürün Tutar],
+t.Quantity AS Miktar
+,isnull(p.PaymentMethodName,'') AS OdemeTipi,isnull(p.AmountPaid,0) AS OdemeTutar
+,ISNULL(p.AddUserName,'') AS [Ödeme Personel]
+FROM OrderHeaders AS h
+INNER JOIN efr_Branchs AS b ON b.BranchID = h.BranchID
+INNER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey AND t.LineDeleted=0
+LEFT OUTER JOIN OrderPayments AS p ON p.OrderKey = h.OrderKey
+AND p.BranchID = h.BranchID AND p.LineDeleted=0
+WHERE
+h.OrderDateTime>=@date1
+AND h.OrderDateTime<=@date2
+AND h.LineDeleted=0
+AND h.@BranchID
+ORDER BY b.BranchName,h.OrderID,t.MenuItemText

@@ -1,0 +1,53 @@
+Detail|SELECT t.MenuItemText as [Ürün],
+       SUM(t.Quantity) AS Adet,
+   
+     CONVERT(dec(10,2),SUM(t.ExtendedPrice))AS Tutar,
+     SUM(h.AmountDue) AS [TOPLAM URUNSATIS TL],
+     sum(t.ExtendedPrice)/ SUM(NULLIF(h.AmountDue,0)) AS URUNYUZDE,
+     
+     
+       t.MenuItemGroupText as Grup,
+       t.MenumItemCategoryText as Kategori,
+       t.EmployeeName as Personel,
+       CASE h.OrderType
+            WHEN '1' THEN 'MASA SERVIS'
+            WHEN '2' THEN 'İSME ÇEK'
+            WHEN '3' THEN 'AL GÖTÜR'
+            WHEN '4' THEN 'TEZGAH'
+            WHEN '5' THEN 'PAKET SERVIS'
+            ELSE 'TANIMSIZ'
+       END AS 'Satış Türü'
+FROM   viewOrderTransactions AS t
+       LEFT OUTER JOIN viewListOrderHeaders AS h
+            ON  t.OrderKey = h.OrderKey
+WHERE  t.LineDeleted = 0 AND h.LineDeleted=0
+AND t.OrderDateTime >= @ilkTarih
+AND t.OrderDateTime <= @SonTarih
+     
+GROUP BY
+       MenuItemText,
+       h.OrderType,
+       t.ExtendedPrice,
+       t.Quantity,
+       t.MenuItemGroupText,
+       t.MenumItemCategoryText,
+       t.EmployeeName,h.AmountDue
+ORDER BY
+       t.MenuItemText ASC
+
+
+$INDIRIMLER|
+       SELECT (SUM(h.amountdue) + SUM(h.DiscountTotalAmount)) AS [Brüt Satışlar],
+       SUM(h.DiscountLineAmount) AS [Ürün İndirimleri],
+       SUM(h.DiscountCashAmount) AS [Nakit İndirimler],
+       SUM(h.DiscountOrderAmount) AS [Çek İndirimler],
+       SUM(h.DiscountTotalAmount) AS [Toplam Indirimler],
+       SUM(h.amountdue) AS [Net Satışlar],
+       COUNT(h.OrderKey) AS [Toplam Çek Sayısı],
+       SUM(h.GuestNumber) AS [Toplam Konuk],
+       SUM(h.amountdue) / ISNULL(SUM(h.GuestNumber), 1) AS [Kişi Başı Ortalama],
+       SUM(h.amountdue) / ISNULL(COUNT(h.orderkey), 1) AS [Çek Ortalama]
+FROM   viewListOrderHeaders h
+WHERE  h.LineDeleted = 0
+       AND h.OrderDateTime >= @ilkTarih
+       AND h.OrderDateTime <= @SonTarih

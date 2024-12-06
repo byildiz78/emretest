@@ -1,0 +1,9 @@
+SELECT round((isnull((nullif(SUM(t.Quantity),0)),0.0)),0) AS reportValue
+FROM OrderTransactions AS t WITH(NOLOCK)
+INNER JOIN OrderHeaders AS h ON t.OrderKey = h.OrderKey 
+INNER JOIN posProducts as m on m.ProductKey=t.MenuItemKey 
+WHERE t.OrderDateTime between DATEADD(YEAR,-1,@date1) and DATEADD(YEAR,-1,@date2)
+AND t.@BranchID
+AND h.linedeleted=0
+AND t.LineDeleted=0
+and m.CustomField12='TABAKLAR'

@@ -1,0 +1,15 @@
+
+Detail | 
+
+SELECT CustomerFiles.CustomerName,
+       OrderPayments.AmountPaid,
+       OrderPayments.PaymentDateTime,
+       OrderPayments.OrderID
+FROM   OrderPayments
+       LEFT OUTER JOIN CustomerFiles
+            ON  OrderPayments.CustomerKey = CustomerFiles.CustomerKey
+WHERE  (OrderPayments.IsAccountSale = 1)
+       AND (OrderPayments.PaymentDateTime >= @ilkTarih)
+       AND (OrderPayments.PaymentDateTime <= @SonTarih)
+       AND (OrderPayments.LineDeleted = 0)
+and OrderPayments.@BranchID AND CustomerFiles.@BranchID

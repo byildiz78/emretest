@@ -1,0 +1,22 @@
+
+SELECT SUM(OrderHeaders.AmountDue)  AS [Ciro KDV Dahil],
+SUM(OrderHeaders.AmountDue)/108*100 AS [Net Ciro],
+       efr_Branchs.BranchName       AS Sube,
+      
+       '' AS [Ciro Primi]
+FROM   OrderHeaders
+       INNER JOIN efr_Branchs
+            ON  OrderHeaders.BranchID = efr_Branchs.BranchID
+WHERE  OrderHeaders.LineDeleted = 0
+ AND OrderHeaders.OrderDateTime >= @date1
+   AND OrderHeaders.OrderDateTime <= @date2
+and  OrderHeaders.@BranchID
+       
+GROUP BY  efr_Branchs.BranchName  
+
+	   
+	   
+	   
+	   
+	   
+	

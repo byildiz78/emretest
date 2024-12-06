@@ -1,0 +1,25 @@
+SELECT 
+b.BranchName as Şube,
+CASE WHEN oh.OrderType=1 THEN 'Masa Satış'
+WHEN oh.OrderType=3 THEN 'Kasa Satış'
+WHEN oh.Ordertype=4 THEN 'Tezgah Satış'
+WHEN oh.Ordertype=5 and oh.OrderTypeSourceExternalNo LIKE '%YemekSepeti_%' THEN 'Yemek Sepeti'
+WHEN oh.Ordertype=5 and oh.OrderTypeSourceExternalNo LIKE '%WebOrder_%' THEN 'Web Sipariş'
+WHEN oh.Ordertype=5 THEN 'Paket Servis'
+ELSE 'İsme Çek' END 
+AS Tipi,
+DATEADD(D,0,DATEDIFF(dd, 0,ot.OrderDateTime)) AS Tarih,
+CONVERT(VARCHAR(10),DATEPART(hour,oh.OrderDateTime)) +' - '+CASE WHEN DATEPART(hour,oh.OrderDateTime) = 23 THEN '00' ELSE CONVERT(VARCHAR(10),DATEPART(hour,oh.OrderDateTime)+1) END  as Saat,
+ot.MenuItemText as [Ürün Adı],
+sum(ot.quantity) as [Satış miktarı],
+sum(ot.ExtendedPrice) as [Toplam satış tutarı]
+
+FROM OrderTransactions as ot
+LEFT JOIN OrderHeaders as oh on oh.OrderKey=ot.OrderKey
+LEFT JOIN efr_Branchs b on b.BranchID=ot.BranchID
+WHERE ot.OrderDateTime BETWEEN @date1 and @date2 
+and oh.@BranchID 
+AND ot.lineDeleted=0 
+AND oh.LineDeleted=0
+GROUP BY b.BranchName,ot.MenuItemText,oh.OrderType,oh.OrderTypeSourceExternalNo,oh.customername,DATEPART(hour,oh.OrderDateTime),DATEADD(D,0,DATEDIFF(dd, 0,ot.OrderDateTime))
+Order By oh.OrderType asc

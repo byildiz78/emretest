@@ -1,0 +1,48 @@
+SET NOCOUNT ON;
+IF OBJECT_ID('tempdb..#tempValid') IS NOT NULL DROP TABLE #tempValid;
+create table #tempValid (BranchID INT,OrderKey UNIQUEIDENTIFIER);
+INSERT INTO #tempValid(BranchID, OrderKey)
+SELECT DISTINCT h.BranchID,h.OrderKey
+ FROM OrderTransactions h WITH (NOLOCK)
+ WHERE h.LineDeleted = 0 
+ AND h.OrderDateTime >=@date1
+ AND h.OrderDateTime <=@date2
+ AND h.@BranchID;
+IF OBJECT_ID('tempdb..#tempPromo') IS NOT NULL DROP TABLE #tempPromo;
+create table #tempPromo (BranchID INT,promotion FLOAT);
+INSERT INTO #tempPromo (BranchID,promotion)
+SELECT h.BranchID,round(isnull(SUM(isnull((t.MenuItemUnitPrice*t.Quantity)-t.ExtendedPrice,0)),0),2) AS promotion
+ FROM OrderHeaders h WITH (NOLOCK)
+LEFT OUTER JOIN  OrderTransactions AS t ON t.OrderKey = h.OrderKey  AND t.LineDeleted=0
+AND t.PromotionName IS NOT NULL
+ WHERE h.LineDeleted = 0 
+ AND h.OrderDateTime >=@date1
+ AND h.OrderDateTime <=@date2
+ AND h.@BranchID
+ GROUP BY h.BranchID; 
+SELECT isnull(b.BranchName,'-') AS Şube,ROUND(SUM(r.[Brüt Satışlar]), 2) AS [Brüt Satışlar],
+ ROUND(SUM(r.[Ürün İndirimleri])-p.promotion, 2) AS [Ürün İndirimleri]
+ ,p.promotion AS [Promosyon İndirimleri]
+ , ROUND(SUM(r.NakitIndirim), 2) AS  [Nakit İndirimler]
+ --, ROUND(SUM(r.hopiIndirim), 2) AS  [Hopi İndirimler]
+ , ROUND(SUM(r.yemekIndirim), 2) AS  [Joker İndirimler(Bilgi Amaçlıdır)]
+ ,ROUND(SUM(r.[Çek İndirimler]), 2) AS [Çek İndirimler], SUM(r.[Toplam Indirimler]) AS [Toplam Indirimler], 
+ ROUND(SUM(r.[Net Satışlar]), 2) AS  [Net Satışlar]
+FROM (
+ SELECT h.amountdue + h.discountTotalAmount AS [Brüt Satışlar], h.DiscountLineAmount AS [Ürün İndirimleri],
+ CASE WHEN isnull(h.OrderNotes,'') not LIKE '%TransactionID%' AND isnull(h.OrderNotes,'') not LIKE '%PARACIK%' AND isnull(h.OrderNotes,'') not LIKE '%hop%' THEN h.DiscountCashAmount ELSE 0 END AS NakitIndirim,
+ CASE WHEN isnull(h.OrderNotes,'') LIKE '%TransactionID%' OR isnull(h.OrderNotes,'') LIKE '%PARACIK%' OR isnull(h.OrderNotes,'') LIKE '%hop%' THEN h.DiscountCashAmount ELSE 0 END AS hopiIndirim,
+ CASE WHEN isnull(h.OrderNotes,'') LIKE '%Joker%' THEN h.DiscountCashAmount ELSE 0 END AS yemekIndirim,
+  h.DiscountOrderAmount AS [Çek İndirimler], h.DiscountTotalAmount AS [Toplam Indirimler], h.amountdue AS 
+ [Net Satışlar], h.BranchID
+ FROM OrderHeaders h WITH (NOLOCK)
+ INNER JOIN #tempValid AS tv ON tv.OrderKey = h.OrderKey AND tv.BranchID = h.BranchID
+ WHERE h.LineDeleted = 0 AND h.OrderDateTime >=@date1
+ AND h.OrderDateTime <=@date2
+ AND h.@BranchID
+ ) AS r 
+LEFT OUTER JOIN efr_Branchs AS b ON b.BranchID = r.BranchID
+LEFT OUTER JOIN #tempPromo AS p ON p.BranchID = b.BranchID 
+GROUP BY r.BranchID,b.BranchName,b.ExternalCode,p.promotion
+IF OBJECT_ID('tempdb..#tempPromo') IS NOT NULL DROP TABLE #tempPromo;
+IF OBJECT_ID('tempdb..#tempValid') IS NOT NULL DROP TABLE #tempValid;

@@ -1,0 +1,108 @@
+Detail|SELECT
+      ISNULL(h.OrderID, 0)  AS OrderID,
+	  h.OrderDateTime,
+	  h.DineInTableName,
+	  h.EmployeeName,
+	  h.GuestNumber,
+	  h.AmountDue,
+	  CONVERT(VARCHAR, OrderTransactions.AddDateTime,8) as AddHour,
+	  h.DiscountTotalAmount,
+	  (SELECT ISNULL(SUM(AmountPaid),0) FROM OrderPayments p where p.OrderKey=OrderTransactions.OrderKey) AS Odenen,
+       OrderTransactions.MenuItemText,
+OrderTransactions.BranchID,
+       OrderTransactions.Quantity,
+       OrderTransactions.ExtendedPrice,
+       
+       OrderTransactions.AddDateTime,
+       
+       OrderTransactions.AddUserName   AS AddEmployeeName,
+
+OrderTransactions.OrderID,
+OrderTransactions.OrderKey,
+	          (
+           CASE h.OrderType
+                WHEN 1 THEN 'MASA'
+                WHEN 2 THEN 'BAR SATIŞI'
+                WHEN 3 THEN 'AL GÖTÜR'
+                WHEN 4 THEN 'TEZGAH SATIŞI'
+                WHEN 5 THEN 'PAKET SATIŞI'
+                ELSE '-'
+           END
+       ) AS OrderTypeName
+      
+FROM   OrderTransactions WITH (NOLOCK)
+       LEFT JOIN OrderHeaders h on h.OrderKey = OrderTransactions.OrderKey 
+WHERE  OrderTransactions.OrderDateTime >= @date1
+       AND OrderTransactions.OrderDateTime <= @date2
+       AND OrderTransactions.@BranchID
+       AND OrderTransactions.linedeleted = 0
+       AND OrderTransactions.MenuItemtext NOT LIKE 'T-%'
+and h.OrderStatus=1
+ORDER BY h.OrderDateTime
+$Header|SELECT OrderHeaders.AutoID,
+       ISNULL(OrderHeaders.OrderID, 0)  AS OrderID,
+     
+ 
+       OrderHeaders.OrderKey,
+       OrderHeaders.OrderDateTime,
+  
+       OrderHeaders.OrderType,
+
+       OrderHeaders.AmountDue,
+
+       OrderHeaders.SubTotal,
+       OrderHeaders.BranchID,
+       OrderHeaders.GuestNumber,
+       ISNULL(
+           OrderHeaders.SpecificCustomerName,
+           ISNULL(OrderHeaders.CustomerName, '')
+       )                                AS SpecificCustomerName,
+      
+       OrderHeaders.AddDateTime,
+      
+       OrderHeaders.EmployeeName,
+       orderheaders.DineInTableName,
+       ISNULL(OrderHeaders.CustomerName, '') AS CustomerName,
+      
+       '' AS                               OrderInfo,
+       (
+           CASE dbo.OrderHeaders.OrderType
+                WHEN 1 THEN 'MASA'
+                WHEN 2 THEN 'BAR SATIŞI'
+                WHEN 3 THEN 'AL GÖTÜR'
+                WHEN 4 THEN 'TEZGAH SATIŞI'
+                WHEN 5 THEN 'PAKET SATIŞI'
+                ELSE '-'
+           END
+       )                                AS OrderTypeName,
+       DiscountTotalAmount
+     
+FROM   OrderHeaders WITH (NOLOCK)
+      
+WHERE  OrderHeaders.OrderDateTime >= @date1
+       AND OrderHeaders.OrderDateTime <= @date2 
+       AND OrderHeaders.LineDeleted=0
+ AND OrderHeaders.@BranchID
+and OrderHeaders.OrderStatus=1
+ORDER BY OrderHeaders.OrderDateTime
+
+$Payment|
+SELECT 
+       OrderPayments.OrderKey,
+       
+       OrderPayments.PaymentDateTime,
+      
+
+       OrderPayments.AmountPaid,
+OrderPayments.BranchID,
+       OrderPayments.AddDateTime,
+       
+       OrderPayments.PaymentMethodName,
+       OrderPayments.EmployeeName     AS EmployeeName
+FROM   OrderPayments WITH (NOLOCK)
+       LEFT JOIN OrderHeaders h on h.OrderKey = OrderPayments.OrderKey 
+WHERE  OrderPayments.PaymentDateTime >= @date1
+       AND OrderPayments.PaymentDateTime <= @date2 
+       AND OrderPayments.LineDeleted=0
+   AND OrderPayments.@BranchID
+   and h.OrderStatus=1

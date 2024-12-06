@@ -1,0 +1,19 @@
+SELECT
+br.BranchID as [ ŞUBE ID ],
+br.BranchName AS ŞUBE,
+count(h.AutoID) AS [ÇEK SAYISI],
+sum(AmountDue) AS [NET SATIŞ],
+AVG(AmountDue) AS [ORTALAMA ÇEK TUTARI]
+from OrderHeaders h
+INNER JOIN efr_Branchs br ON h.BranchID = br.BranchID
+where
+h.OrderDateTime >= @date1
+AND h.OrderDateTime <= @date2
+AND h.LineDeleted = 0
+AND h.OrderStatus = 2
+AND h.@BranchID
+
+
+group by br.BranchID,br.BranchName,br.CustomField3
+
+Order by br.BranchName

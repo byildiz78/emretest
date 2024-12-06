@@ -1,0 +1,8 @@
+﻿ SELECT BranchName as [Şube Adı],convert(nvarchar(20),(SELECT MAX(OrderDateTime) FROM OrderHeaders WHERE OrderHeaders.BranchID=efr_Branchs.BranchID),20) as [Ston Satış Zamanı]
+   FROM efr_Branchs WHERE BranchID NOT IN 
+ (
+ 	SELECT BranchID FROM OrderHeaders
+ 	WHERE OrderHeaders.OrderDateTime>DATEADD(hour,-1,GETDATE())
+ GROUP BY OrderHeaders.BranchID
+ )
+and efr_Branchs.@BranchID

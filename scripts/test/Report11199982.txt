@@ -1,0 +1,17 @@
+select 
+b.BranchName,h.OrderID AS [ÇEK NO],
+ef.FirstName AS [KURYE ADI], ef.LastName AS SOYADI,
+--w.Orderdatetime as [Web Sipariş Alınma Tarihi],
+--h.OrderDateTime as [Sipariş Kabul Etme Tarihi],
+DATEDIFF(minute, convert(varchar,w.Orderdatetime , 120),convert(varchar, h.OrderDateTime, 120)) as [KABUL ETME SÜRESİ],
+DATEDIFF(minute, convert(varchar,h.CustomField5 , 120),convert(varchar, h.DriverDepartureTime, 120)) as [HAZIRLANMA SÜRESİ],
+DATEDIFF(minute, convert(varchar,h.DriverDepartureTime , 120),convert(varchar, h.DriverArrivalTime, 120)) as [ALIŞ VE TAMAMLAMA SÜRESİ],
+DATEDIFF(minute, convert(varchar,w.Orderdatetime , 120),convert(varchar, h.DriverArrivalTime, 120)) as [TOPLAM DENEYİM SÜRESİ]
+from 
+orderHeaders as h
+LEFT JOIN efr_Branchs b on b.BranchID=h.BranchID
+LEFT OUTER JOIN EmployeeFiles ef ON h.DriverEmployeeID = ef.EmployeeID AND ef.BranchID=h.BranchID
+INNER JOIN pfTavukDunyasiWebOrder.dbo.webOrderHeaders AS w ON REPLACE(ISNULL(h.OrderTypeSourceExternalNo,''),'Web Sipariş_','') = w.OrderNo OR = w.OrderNo OR REPLACE( ISNULL( h.OrderTypeSourceExternalNo, '' ), 'WebOrder_', '' ) = w.OrderNo 
+WHERE ISNULL(h.LineDeleted,0)=0 
+AND h.OrderDateTime>@date1 AND h.OrderDateTime<@date2 AND h.@BranchID AND  h.OrderTypeSourceExternalNo LIKE 'Web%' AND h.OrderType=5 and DriverEmployeeID<>0
+AND ISNULL(w.IsCallCenter,0)=1

@@ -1,0 +1,135 @@
+﻿Detail|SELECT h.BranchID,round(sum(h.AmountDue+h.DiscountTotalAmount),2) AS BrutSatis 
+,round(sum(h.DiscountLineAmount),2) AS UrunIndirim
+,round(sum(h.DiscountOrderAmount),2) AS CekIndirim
+,round(sum(h.DiscountCashAmount),2) AS NakitIndirim  
+,round(sum(h.AmountDue),2) AS NetSatis,b.BranchName
+FROM OrderHeaders AS h WITH (NOLOCK)
+LEFT OUTER JOIN efr_Branchs AS b ON b.BranchID = h.BranchID
+WHERE h.OrderDateTime>@date1
+AND h.OrderDateTime<@date2
+AND h.LineDeleted=0
+and h.@BranchID
+GROUP BY h.BranchID,b.BranchName
+
+$CariTahsilat|SELECT p.BranchID,'CARİ HESAPTAN TAHSİLAT - '+p.PaymentMethodName as Tipi, ROUND(sum(p.AmountPaid),2) AS AlinanOdemeler
+FROM OrderPayments AS p WITH (NOLOCK)
+WHERE p.PaymentDateTime>@date1
+AND p.PaymentDateTime<@date2
+AND p.LineDeleted=0 AND isnull(p.IsAccountSale,0)=0
+AND isnull(p.IsaccountPayment,0)=1
+and p.@BranchID
+GROUP BY p.BranchID,p.PaymentMethodName
+
+$KasaOdeme|SELECT p.BranchID,isnull(pm.PaymentName,'NAKİT') AS PaymentName, ROUND(sum(p.ExpenseAmount),2) AS KasaOdemeleri
+FROM Expenses AS p WITH (NOLOCK)
+LEFT OUTER JOIN PaymentMethods AS pm ON pm.PaymentMethodID = p.PaymentMethodID AND pm.BranchID = p.BranchID
+WHERE p.ExpenseDatetime>@date1
+AND p.ExpenseDatetime<@date2
+AND p.LineDeleted=0
+and p.@BranchID
+GROUP BY p.BranchID,pm.PaymentName
+
+$CariHesabaKapanis|SELECT p.BranchID,'CARİ HESABA SATIŞ - '+p.PaymentMethodName as Tipi,sum(p.AmountPaid) as Tutar
+FROM OrderPayments AS P WHERE 
+p.PaymentDateTime >=@date1 And 
+p.PaymentDateTime <=@date2 and 
+p.lineDeleted=0 AND isnull(p.IsAccountSale,0)=1
+and p.@BranchID
+GROUP BY p.BranchID,p.PaymentMethodName
+
+$NetKasa|SELECT r.BranchID, r.PaymentName, sum(r.KasaToplam) AS KasaToplam FROM (
+SELECT p.BranchID,isnull(pm.PaymentName,'NAKİT') AS PaymentName,-1* ROUND(sum(p.ExpenseAmount),2) AS KasaToplam
+FROM Expenses AS p WITH (NOLOCK)
+LEFT OUTER JOIN PaymentMethods AS pm ON pm.PaymentMethodID = p.PaymentMethodID AND pm.BranchID = p.BranchID
+WHERE p.ExpenseDatetime>@date1
+AND p.ExpenseDatetime<@date2
+and p.@BranchID
+AND p.LineDeleted=0
+GROUP BY p.BranchID,pm.PaymentName
+UNION ALL
+SELECT p.BranchID,p.PaymentMethodName as PaymentName, sum(p.AmountPaid) as KasaToplam
+FROM OrderPayments AS P WHERE 
+p.PaymentDateTime >=@date1 And 
+p.PaymentDateTime <=@date2 and 
+p.@BranchID and
+p.lineDeleted=0 AND isnull(p.IsAccountSale,0)=0
+GROUP BY p.BranchID,p.PaymentMethodName) AS r
+GROUP BY r.BranchID, r.PaymentName
+
+$AlinanOdemeler|SELECT p.BranchID,p.PaymentMethodName, ROUND(sum(p.AmountPaid),2) AS AlinanOdemeler
+FROM OrderPayments AS p WITH (NOLOCK)
+WHERE p.PaymentDateTime>@date1
+AND p.PaymentDateTime<@date2
+and p.@BranchID
+AND p.LineDeleted=0 AND isnull(p.IsAccountSale,0)=0
+AND isnull(p.IsaccountPayment,0)=0
+GROUP BY p.BranchID,p.PaymentMethodName
+UNION ALL
+SELECT p.BranchID,'CARİ HESAP SATIŞ - '+p.PaymentMethodName as Tipi, sum(p.AmountPaid) as AlinanOdemeler
+FROM OrderPayments AS P WHERE 
+p.PaymentDateTime >=@date1 And 
+p.PaymentDateTime <=@date2 and 
+p.@BranchID and
+p.lineDeleted=0 AND isnull(p.IsAccountSale,0)=1
+GROUP BY p.BranchID,p.PaymentMethodName
+
+
+$DigerBilgiler|SELECT p.BranchID,'CARİ HESAP SATIŞ ' as Tipi, sum(p.AmountPaid) as Tutar
+FROM OrderPayments AS P WHERE 
+p.PaymentDateTime >=@date1 And 
+p.PaymentDateTime <=@date2 and 
+p.@BranchID and
+p.lineDeleted=0 AND isnull(p.IsAccountSale,0)=1
+GROUP BY p.BranchID
+UNION ALL
+SELECT h.BranchID,'AÇIK ÇEK TOPLAMI ' as Tipi, sum(h.AmountDue) as Tutar
+FROM OrderHeaders AS h WHERE 
+h.OrderDateTime >=@date1 And 
+h.OrderDateTime <=@date2 and 
+h.@BranchID and
+h.LineDeleted=0 AND h.OrderStatus=1
+GROUP BY h.BranchID
+
+$RegisterSession|
+SELECT r.BranchID,r.SessionID, isnull(r.PaymentMethodName,'Cari Hesap Satış') AS PaymentMethodName, r.CloseAmount, r.TotalAmount
+FROM(
+SELECT r.RegisterSessionID AS SessionID,r.BranchID, r.PaymentMethodName1 AS PaymentMethodName, r.ClosePaymentMethod1 AS CloseAmount,r.TotalPaymentMethod1 AS TotalAmount FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName2, r.ClosePaymentMethod2,r.TotalPaymentMethod2 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName3, r.ClosePaymentMethod3,r.TotalPaymentMethod3 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName4, r.ClosePaymentMethod4,r.TotalPaymentMethod4 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName5, r.ClosePaymentMethod5,r.TotalPaymentMethod5 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName6, r.ClosePaymentMethod6,r.TotalPaymentMethod6 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName7, r.ClosePaymentMethod7,r.TotalPaymentMethod7 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName8, r.ClosePaymentMethod8,r.TotalPaymentMethod8 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName9, r.ClosePaymentMethod9,r.TotalPaymentMethod9 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName10, r.ClosePaymentMethod10,r.TotalPaymentMethod10 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName11, r.ClosePaymentMethod11,r.TotalPaymentMethod11 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName12, r.ClosePaymentMethod12,r.TotalPaymentMethod12 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName13, r.ClosePaymentMethod13,r.TotalPaymentMethod13 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName14, r.ClosePaymentMethod14,r.TotalPaymentMethod14 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName15, r.ClosePaymentMethod15,r.TotalPaymentMethod15 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName16, r.ClosePaymentMethod16,r.TotalPaymentMethod16 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName17, r.ClosePaymentMethod17,r.TotalPaymentMethod17 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName18, r.ClosePaymentMethod18,r.TotalPaymentMethod18 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName19, r.ClosePaymentMethod19,r.TotalPaymentMethod19 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+UNION ALL
+SELECT r.RegisterSessionID,r.BranchID, r.PaymentMethodName20, r.ClosePaymentMethod20,r.TotalPaymentMethod20 FROM dbo.RegisterSessions AS r WHERE r.SignOutDateTime>=@date1 AND r.SignOutDateTime<=@date2 AND r.@BranchID
+) AS r WHERE ISNULL(r.CloseAmount,0)>0 OR ISNULL(r.TotalAmount,0)>0 

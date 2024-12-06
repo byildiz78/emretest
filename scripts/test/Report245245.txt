@@ -1,0 +1,26 @@
+SELECT efr_Branchs.BranchName             AS [Şube Adı],
+       BonusCustomerFiles.CustomerName    AS [Müşteri Adı],
+       BonusCustomerFiles.CustomerFullName AS [Müşteri Tam adı],
+       BonusCustomerFiles.PhoneNumber     AS Telefon,
+ BonusCustomerFiles.CardNumber     AS [Kart No],
+       BonusCustomerFiles.CustomerNotes   AS [Müşteri Notu],
+       BonusCustomerFiles.CreditLimit     AS [Kredi Limiti],
+       BonusCustomerFiles.DiscountPercent AS [İndirim Oranı],
+       BonusCustomerFiles.SpecialBonusPercent AS [Para Puan Yüzdesi],
+       BonusCustomerFiles.TotalDebt       AS [Toplam Borç],
+       BonusCustomerFiles.TotalPayment    AS [Toplam Ödeme],
+       BonusCustomerFiles.TotalRemainig   AS Bakiye,
+       BonusCustomerFiles.BonusStartupValue AS [Başlangıç Para Puan],
+       BonusCustomerFiles.TotalBonusUsed  AS [Kullanılan Puan],
+       BonusCustomerFiles.TotalBonusEarned AS [Kazanılan Puan],
+       BonusCustomerFiles.TotalBonusRemaing AS [Kalan Puan],
+       BonusCustomerFiles.BirthDay        AS Doğumgünü,
+       BonusCustomerFiles.MaritialStatus  AS [Medeni Durumu],
+       BonusCustomerFiles.Age             AS Yaşı,
+       BonusCustomerFiles.AddDateTime AS [Kayıt Tarihi]
+      
+FROM   BonusCustomerFiles
+       INNER JOIN efr_Branchs
+            ON  BonusCustomerFiles.BranchID = efr_Branchs.BranchID
+
+where BonusCustomerFiles.@BranchID

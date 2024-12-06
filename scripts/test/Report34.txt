@@ -1,0 +1,60 @@
+
+SELECT '01-Ocak' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 1 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+UNION ALL
+SELECT '02-Şubat' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 2 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+ UNION ALL
+SELECT '03-Mart' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 3 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+ UNION ALL
+SELECT '04-Nisan' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 4 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+ UNION ALL
+SELECT '05-Mayıs' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 5 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+ UNION ALL
+SELECT '06-Haziran' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 6 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+ UNION ALL
+SELECT '07-Temmuz' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 7 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+ UNION ALL
+SELECT '08-Ağustos' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 8 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+ UNION ALL
+SELECT '09-Eylül' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 9 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+ UNION ALL
+SELECT '10-Ekim' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 10 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+ UNION ALL
+SELECT '11-Kasım' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 11 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 
+ UNION ALL
+SELECT '12-Aralık' AS Tipi, ISNULL(SUM(OrderPayments.AmountPaid), 0.0) AS Tutar
+FROM OrderPayments
+WHERE DATEPART(MONTH, OrderPayments.PaymentDateTime) = 12 AND OrderPayments.PaymentDateTime >= @ilkTarih AND OrderPayments.PaymentDateTime <= @sonTarih AND 
+ OrderPayments.@BranchID AND OrderPayments.LineDeleted = 0 

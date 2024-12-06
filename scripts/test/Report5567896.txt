@@ -1,0 +1,102 @@
+DECLARE @ciro DECIMAL ( 18, 2 ) SELECT
+@ciro = SUM ( AmountDue ) 
+FROM
+	OrderHeaders AS h WITH ( NOLOCK ) 
+WHERE
+	h.OrderDateTime>@date1 
+	AND h.OrderDateTime<@date2 
+	AND LineDeleted = 0 
+	AND h.@BranchID;
+;WITH tabakSayisiResult AS (
+	SELECT SUM
+		(
+		ISNULL( t.Quantity, 0 )) AS TabakSayisi,
+		b.BranchID 
+	FROM
+		OrderHeaders AS h WITH ( NOLOCK )
+		INNER JOIN efr_Branchs AS b ON h.BranchID = b.BranchID 
+		AND b.paket_tipi
+		IS NOT NULL INNER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey 
+		AND t.LineDeleted= 0
+		LEFT JOIN posProducts AS p ON p.ProductKey= t.MenuItemKey 
+	WHERE
+		ISNULL( h.OrderType, 0 ) = 5 
+		AND ( h.OrderDateTime>@date1 AND h.OrderDateTime<@date2 ) 
+		AND h.LineDeleted= 0 
+		AND h.@BranchID 
+		AND p.CustomField12= 'TABAKLAR' 
+	GROUP BY
+		b.BranchID 
+	) 
+	SELECT
+	b.BranchName AS [Şube],
+	b.Paket_Tipi AS [Paket Türü],
+	b.CustomField12 AS [Bölge],
+	SUM (isnull( h.AmountDue, 0 )) AS [Şeften İste Ciro],
+	ROUND(( SUM ( isnull( h.AmountDue, 0 )) * 100 ) /@ciro, 2 ) AS [Şeften İste Ciro %],
+	t.TabakSayisi AS [Şeften İste Tabak],
+	COUNT(isnull( h.OrderID, 0 )) AS [Şeften İste Adisyon Sayısı],
+	ROUND(SUM(isnull( h.AmountDue, 0 )) / COUNT ( isnull( h.OrderID, 0 )), 2 ) AS [Sepet Ortalama],
+	SUM (CASE WHEN OrderTypeSourceExternalNo LIKE '%sepet%' THEN 1 ELSE 0 END ) [YEMEK SEPETİ ADET],
+	ROUND(SUM( CASE WHEN OrderTypeSourceExternalNo LIKE '%sepet%' THEN h.AmountDue ELSE 0 END ), 2 ) [YEMEK SEPETİ CİRO],
+	SUM(CASE WHEN OrderTypeSourceExternalNo LIKE '%web%' THEN 1 ELSE 0 END ) [WEB SİPARİŞ ADET],
+	ROUND(SUM( CASE WHEN  OrderTypeSourceExternalNo LIKE '%web%' THEN h.AmountDue ELSE 0 END ),2 ) [WEB SİPARİŞ CİRO],
+	SUM(CASE WHEN OrderTypeSourceExternalNo LIKE '%getir%' THEN 1 ELSE 0 END ) [GETİR SİPARİŞ ADET],
+	ROUND(SUM(CASE WHEN OrderType = 5 AND OrderTypeSourceExternalNo LIKE '%getir%' THEN h.AmountDue ELSE 0 END ), 2 ) [GETİR SİPARİŞ CİRO],
+	SUM(CASE WHEN OrderTypeSourceExternalNo LIKE '%trendyol%' THEN 1 ELSE 0 END ) [TRENDYOL SİPARİŞ ADET],
+	ROUND(SUM(CASE WHEN OrderType = 5 AND OrderTypeSourceExternalNo LIKE '%trendyol%' THEN h.AmountDue ELSE 0 END ), 2 ) [TRENDYOL SİPARİŞ CİRO] ,
+	SUM(CASE WHEN OrderTypeSourceExternalNo LIKE '%qr%' THEN 1 ELSE 0 END ) [QR SİPARİŞ ADET],
+	ROUND(SUM(CASE WHEN OrderTypeSourceExternalNo LIKE '%qr%' THEN h.AmountDue ELSE 0 END ), 2 ) [QR SİPARİŞ CİRO] 
+FROM
+	OrderHeaders AS h WITH ( NOLOCK )
+	INNER JOIN efr_Branchs AS b ON h.BranchID = b.BranchID 
+	AND b.paket_tipi
+	IS NOT NULL LEFT JOIN tabakSayisiResult AS t ON b.BranchID= t.BranchID 
+WHERE
+	ISNULL( h.OrderType, 0 ) = 5 
+	AND ( h.OrderDateTime>@date1 AND h.OrderDateTime<@date2 ) 
+	AND h.LineDeleted= 0 
+	AND h.@BranchID 
+GROUP BY
+	b.BranchName,
+	b.paket_tipi,
+	b.CustomField12,
+	t.TabakSayisi 
+	
+	UNION ALL
+	
+SELECT
+	b.BranchName,
+	'',
+	'',
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0 ,
+	0,
+	0
+FROM
+	efr_Branchs AS b 
+WHERE
+	b.BranchID NOT IN (
+	SELECT DISTINCT
+		BranchID 
+	FROM
+		OrderHeaders h 
+	WHERE
+		h.OrderDateTime>@date1 
+		AND h.OrderDateTime<@date2 
+		AND h.LineDeleted= 0 
+		AND h.OrderType= 5 
+	) 
+	AND b.IsActive= 1 
+	AND b.paket_tipi IS NOT NULL

@@ -1,0 +1,44 @@
+IF OBJECT_ID('tempdb..#sube1') IS NOT NULL DROP TABLE #sube1;
+IF OBJECT_ID('tempdb..#sube2') IS NOT NULL DROP TABLE #sube2;
+IF OBJECT_ID('tempdb..#saatler') IS NOT NULL DROP TABLE #saatler;
+create table #saatler( Saat FLOAT);
+;WITH nums AS
+ (SELECT 0 AS value
+ UNION ALL
+ SELECT value + 1 AS value
+ FROM nums
+ WHERE nums.value <= 22)
+ INSERT INTO #saatler(Saat)
+SELECT nums.value FROM nums ;
+create table #sube1(Saat INT,Tutar FLOAT);
+create table #sube2(Saat INT,Tutar FLOAT);
+INSERT INTO #sube1 (Saat,Tutar)
+SELECT DATEPART(hour,h.OrderDateTime) AS Saat,SUM(h.AmountDue) AS Tutar FROM OrderHeaders AS h
+WHERE h.@BranchID
+AND h.LineDeleted=0
+AND h.OrderDateTime>DATEADD(D,0,DATEDIFF(dd, 0,@date1))
+AND h.OrderDateTime<dateadd(day,1,DATEADD(D,0,DATEDIFF(dd, 0,@date1)))
+GROUP BY  DATEPART(hour,h.OrderDateTime);
+INSERT INTO #sube2 (Saat,Tutar)
+SELECT DATEPART(hour,h.OrderDateTime) AS Saat,SUM(h.AmountDue) AS Tutar FROM OrderHeaders AS h
+WHERE h.@BranchID
+AND h.LineDeleted=0
+AND h.OrderDateTime>dateadd(day,-1,DATEADD(D,0,DATEDIFF(dd, 0,@date2)))
+AND h.OrderDateTime<dateadd(day,0,DATEADD(D,0,DATEDIFF(dd, 0,@date2)))
+GROUP BY DATEPART(hour,h.OrderDateTime);
+SELECT
+RIGHT('0'+cast(r.saat as varchar),2)+':00-'+RIGHT('0'+cast((r.saat+1) as varchar),2)+':00' as Saat,
+CONVERT(varchar,DATEADD(D,0,DATEDIFF(dd, 0,@date1)),104) AS [Ciro 1 Tarih],
+CONVERT(varchar,DATEADD(D,0,DATEDIFF(dd, 0,@date2)),104) AS [Ciro 2 Tarih],
+replace(replace(replace(CONVERT(varchar, CAST(round(r.[Şube1],2) AS money), 1),'.','_'),',','.'),'_',',') as Ciro1
+,replace(replace(replace(CONVERT(varchar, CAST(round(isnull(SUM(s2.Tutar),0),2) AS money), 1),'.','_'),',','.'),'_',',') AS Ciro2 
+FROM(
+SELECT h.Saat,isnull(SUM(s.Tutar),0) AS Şube1 FROM #saatler AS h
+LEFT OUTER JOIN #sube1 AS s ON s.Saat<=h.Saat
+GROUP BY h.Saat
+) AS r
+LEFT OUTER JOIN #sube2 AS s2 ON s2.Saat<=r.Saat
+GROUP BY r.Saat, r.[Şube1];
+IF OBJECT_ID('tempdb..#sube1') IS NOT NULL DROP TABLE #sube1;
+IF OBJECT_ID('tempdb..#sube2') IS NOT NULL DROP TABLE #sube2;
+IF OBJECT_ID('tempdb..#saatler') IS NOT NULL DROP TABLE #saatler;

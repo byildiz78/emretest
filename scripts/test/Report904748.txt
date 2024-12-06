@@ -1,0 +1,25 @@
+select  
+efr_branchs.BranchName as Şube, 
+h.orderID as [ÇekNo],
+h.OrderDateTime as Tarih,
+CASE 
+WHEN h.OrderType=1 THEN 'Masa Satış'
+WHEN h.OrderType=2 THEN 'İsme Çek'
+WHEN h.OrderType=3 THEN 'Kasa Satış'
+WHEN h.Ordertype=4 THEN 'Tezgah Satış'
+WHEN h.Ordertype=5 and h.OrderTypeSourceExternalNo LIKE '%sepet%' THEN 'Yemek Sepeti'
+WHEN h.Ordertype=5 and h.OrderTypeSourceExternalNo LIKE '%web%' THEN 'Web Sipariş'
+WHEN h.Ordertype=5 and h.OrderTypeSourceExternalNo LIKE '%Getir%' THEN 'Getir'
+WHEN h.Ordertype=5 and h.OrderTypeSourceExternalNo LIKE '%trendyol%' THEN 'Trendyol'
+WHEN (h.Ordertype=5 and h.OrderTypeSourceExternalNo NOT LIKE '%web%' and h.OrderTypeSourceExternalNo NOT LIKE '%sepet%' and h.OrderTypeSourceExternalNo NOT LIKE '%trendyol%'  and h.OrderTypeSourceExternalNo NOT LIKE '%Getir%') or h.OrderTypeSourceExternalNo IS NULL THEN 'Paket Servis'
+END Tipi,
+h.DineInTableName Masa,
+DATEDIFF(MINUTE, h.OrderDateTime, GETDATE()) as [Açık Masa Süresi(DK)],
+h.AddUserName as Kullanıcı  
+from orderheaders as h
+inner join efr_Branchs on efr_Branchs.BranchID=h.BranchID
+
+where h.OrderStatus=1 
+and h.LineDeleted=0 
+and h.OrderDateTime>=@date1 and h.OrderDateTime<@date2 
+and h.@BranchID

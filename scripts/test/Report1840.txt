@@ -1,0 +1,9 @@
+SELECT g.GroupName AS Grubu,r.ReportName AS Adı,
+CASE WHEN r.ReportType=1 THEN 'Tasarım'
+WHEN r.ReportType=2 THEN 'Liste'
+WHEN r.ReportType=4 THEN 'Pivot'
+WHEN r.ReportType=0 THEN 'Özel'
+END AS Tipi,ISNULL(r.ShowDesktop, 1) AS [Masaüstü Göster],ISNULL(r.ShowMobile, 1) AS [Mobil Göster],r.DisplayOrderID AS [Sıra No]
+FROM infiniaWebReports r
+INNER JOIN infiniaWebReportGroups g ON  g.AutoID = r.GroupID
+--@date1

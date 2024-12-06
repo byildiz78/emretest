@@ -1,0 +1,17 @@
+﻿SELECT b.BranchName, p.ProductCode, p.ProductName,c.PickValue AS Kategori,g.PickValue AS Grup,r.Miktar, r.Tutar,r.Gun
+FROM (
+SELECT t.BranchID,p.ProductID,SUM(t.Quantity) AS Miktar,SUM(t.ExtendedPrice) AS Tutar, DATEADD(dd, 0, DATEDIFF(dd, 0, t.OrderDateTime)) AS Gun
+FROM posProducts AS p WITH (NOLOCK) 
+INNER JOIN GlobalMenuItems AS m ON m.MenuItemGlobalKey=p.ProductKey
+INNER JOIN OrderTransactions AS t ON t.BranchID = m.BranchID AND t.MenuItemKey = m.MenuItemKey
+WHERE 
+m.@BranchID
+AND t.OrderDateTime>@date1
+AND t.OrderDateTime<@date2
+AND t.LineDeleted=0 
+GROUP BY t.BranchID,p.ProductID,DATEADD(dd, 0, DATEDIFF(dd, 0, t.OrderDateTime))
+) AS r
+INNER JOIN posProducts AS p ON p.ProductID = r.ProductID
+INNER JOIN posPickList AS c ON c.ListID=p.CategoryID
+INNER JOIN posPickList AS g ON g.ListID=p.GroupID
+INNER JOIN  efr_Branchs AS b ON b.BranchID = r.BranchID

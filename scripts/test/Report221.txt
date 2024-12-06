@@ -1,0 +1,24 @@
+SELECT distinct b.BranchName AS Şube, 
+m.MenuItemText AS Ürün,
+m.DefaultUnitPrice AS Fiyat,
+c.MenuCategoryText AS Kategori,
+g.MenuSubCategoryText AS Grubu,
+sg.MenuGroupText AS Ekran
+--l.DisplayIndex+1 AS Sıra,
+--ISNULL(SecLangMenuItemText,'') AS [Yemek Sepeti],
+--m.DeliveryPrice AS [Paket fiyatı]
+FROM GlobalMenuItems AS m
+INNER JOIN GlobalMenuItemLayout AS l ON l.BranchID = m.BranchID AND l.MenuItemKey = m.MenuItemKey
+INNER JOIN efr_Branchs AS b ON b.BranchID = l.BranchID
+INNER JOIN GlobalMenuCategories AS c ON c.BranchID = b.BranchID AND c.MenuCategoryKey=m.MenuCategoryKey
+INNER JOIN GlobalMenuSubCategories AS g ON g.BranchID = b.BranchID AND g.MenuSubCategoryKey=m.MenuGroupKey
+INNER JOIN GlobalMenuGroups AS sg ON sg.BranchID=b.BranchID and sg.MenuGroupKey=l.MenuGroupKey
+WHERE b.StartDateTime>'8/1/2017'
+and b.@BranchID
+AND b.CountryName='Türkiye'
+aND isnull(m.MenuItemActive,1)=1
+AND m.DefaultUnitPrice>0
+AND isnull(sg.MenuGroupActive,0)=1
+AND ( isnull(l.MainMenuItemKey,'00000000-0000-0000-0000-000000000000')<>'00000000-0000-0000-0000-000000000000'
+OR isnull(l.MenuGroupKey,'00000000-0000-0000-0000-000000000000')<>'00000000-0000-0000-0000-000000000000')
+ORDER BY b.BranchName, m.MenuItemText

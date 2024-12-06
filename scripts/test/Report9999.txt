@@ -1,0 +1,20 @@
+DECLARE @tabak int=0
+DECLARE @Sube Float=0
+-----------------------------------------------------------
+SET @Sube=(
+Select Count(DISTINCT oh.BranchID)
+from OrderHeaders as oh
+WHERE oh.OrderDateTime >= @date1
+AND oh.OrderDateTime <= @date2
+AND oh.@BranchID)
+-----------------------------------------------------------
+SET @tabak=(
+SELECT round((isnull((nullif(SUM(t.Quantity),0)),0.0)),0) AS reportValue
+FROM OrderTransactions AS t WITH(NOLOCK)
+INNER JOIN posProducts as m on m.ProductKey=t.MenuItemKey and m.CustomField12='TABAKLAR'
+WHERE t.OrderDateTime between @date1 and @date2
+AND t.@BranchID
+AND t.linedeleted=0
+)
+
+Select ISNULL(Round(( NULLIF(@tabak,0)/@Sube),2),0) as reportValue

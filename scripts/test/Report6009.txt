@@ -1,0 +1,5 @@
+﻿select BranchName as Sube, FormDateTime as [Form Tarihi],IdentityNumber as [Kimlik No]
+,FullName as [Adı],JobTitle as Gorevi, BirthDate as [Doğum Tatihi],StartDate as [İşe Başlama]
+
+,Enddate as [İşten Ayrılma], Salary as [Maaş],ManagerName as [Sorumlu Müdür],Notes as [Açıklama],IsStartForm as [İşe Giriş Formudur]
+ from webjobforms order by BranchName asc

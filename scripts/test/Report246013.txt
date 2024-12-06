@@ -1,0 +1,29 @@
+Detail|
+SELECT    SUM( AmountPaid) AS GenelTOPLAM, PaymentMethodName
+FROM         OrderPayments
+
+
+WHERE  orderpayments.PaymentDateTime >= @date1
+       AND orderpayments.PaymentDateTime <= @date2
+       AND OrderPayments.LineDeleted = 0 AND orderpayments.@BranchID
+    
+      
+GROUP BY PaymentMethodName
+
+
+$expenses|DECLARE @COUNT INT
+SELECT @COUNT=COUNT(1) FROM Expenses e
+where ExpenseDatetime>=@date1 AND e.ExpenseDatetime<=@date2 AND e.LineDeleted=0 AND e.@BranchID
+
+IF(@COUNT >0)
+BEGIN
+SELECT  SUM(e.ExpenseAmount),e.ExpenseName FROM Expenses e 
+
+WHERE e.ExpenseDatetime>=@date1 AND e.ExpenseDatetime<=@date2 AND e.LineDeleted=0 AND e.@BranchID
+
+GROUP BY e.ExpenseName
+END
+ELSE
+BEGIN
+SELECT 0,'Harcama Yok' as ExpenseName
+END

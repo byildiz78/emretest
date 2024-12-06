@@ -1,0 +1,20 @@
+SELECT 
+
+efr_Branchs.BranchName AS [ŞUBE ADI],
+EmployeeFiles.FirstName      AS Adı,
+       EmployeeFiles.LastName       AS Soyadı,
+       EmployeeFiles.DateHired      AS [İş Başlama Tarihi],
+       EmployeeFiles.DateReleased   AS [İşten Ayrılma],
+       EmployeeFiles.EmployeeNotes  AS Açıklama,
+       EmployeeFiles.PhoneNumber    AS Telefon,
+    EmployeeFiles.MailingAddress AS Görev,
+    EmployeeFiles.AccessCode AS [Sistem Kodu],
+
+ EmployeeFiles.SecurityLevel as [Yetki Seviyesi]
+FROM   EmployeeFiles
+       LEFT OUTER JOIN efr_Branchs
+            ON  EmployeeFiles.BranchID = efr_Branchs.BranchID
+WHERE  EmployeeFiles.@BranchID
+       AND EmployeeActive = 1
+       AND EmployeeFiles.SecurityLevel < 10
+      

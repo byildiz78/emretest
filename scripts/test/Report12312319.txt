@@ -1,0 +1,129 @@
+;WITH list AS (
+SELECT
+t.BranchID,
+CONVERT(VARCHAR, DATEADD( DAY, DATEDIFF( dd, 0, DATEADD( HOUR, -6, t.OrderDateTime )), 0 ), 23) AS [Date],
+SUM(t.Quantity) AS [Quantity]
+FROM
+OrderTransactions t WITH ( NOLOCK )
+INNER JOIN posProducts p WITH ( NOLOCK ) ON p.ProductKey = t.MenuItemKey AND p.CustomField12 = 'TABAKLAR'
+WHERE
+1=1
+AND t.LineDeleted = 0
+AND t.OrderDateTime BETWEEN @date1 AND @date2
+AND t.@BranchID
+GROUP BY
+t.BranchID,
+CONVERT(VARCHAR, DATEADD( DAY, DATEDIFF( dd, 0, DATEADD( HOUR, -6, t.OrderDateTime )), 0 ), 23)
+),
+kto AS (
+SELECT
+k.BranchID,
+k.[Date],
+k.Saat,
+SUM(k.[NormalQuantity]) AS [NormalQuantity],
+SUM(k.[PersonalQuantity]) AS [PersonalQuantity]
+FROM
+(
+SELECT
+t.BranchID,
+CONVERT(VARCHAR, DATEADD( DAY, DATEDIFF( dd, 0, DATEADD( HOUR, -6, t.OrderDateTime )), 0 ), 23) AS [Date],
+datepart(hour,t.OrderDateTime) as Saat,
+t.Quantity AS [NormalQuantity],
+0 AS [PersonalQuantity]
+FROM
+OrderTransactions t WITH ( NOLOCK )
+
+INNER JOIN posProducts p WITH ( NOLOCK ) ON p.ProductKey = t.MenuItemKey AND p.IsKto = 1
+LEFT JOIN OrderTransactions t2 WITH ( NOLOCK ) ON t2.OrderKey = t.OrderKey AND t2.MainMenuItemTransactionKey = t.TransactionKey AND t2.LineDeleted = 0
+
+WHERE
+1=1
+AND t.LineDeleted = 0
+AND t.OrderDateTime BETWEEN @date1 AND @date2
+AND t.@BranchID
+AND t.IsMainCombo = 1
+GROUP BY
+t.BranchID,
+CONVERT(VARCHAR, DATEADD( DAY, DATEDIFF( dd, 0, DATEADD( HOUR, -6, t.OrderDateTime )), 0 ), 23),
+datepart(hour,t.OrderDateTime),
+t.OrderKey,
+t.TransactionKey,
+t.Quantity
+
+HAVING
+( -- PESTOLU
+SUM(CASE WHEN t2.MenuItemKey IN ('905AEDA1-AA16-487C-8011-5C3B56703BE2', '7D0452D7-2485-479E-B41C-4201914AE2BD') THEN 1 ELSE 0 END)
++ -- SALATA
+SUM(CASE WHEN t2.MenuItemKey IN ('76C9851C-C1BA-4C86-A442-48784EC35029', 'A836E15C-1791-4075-A3D3-7FDB222E545F', '2F3ECBF4-EC71-44F8-90EA-064F71847411') THEN 1 ELSE 0 END)
+< 2
+)
+
+UNION ALL
+
+-- PERSONEL KTO içinde satılan KTO'lar
+SELECT
+t.BranchID,
+CONVERT(VARCHAR, DATEADD( DAY, DATEDIFF( dd, 0, DATEADD( HOUR, -6, t.OrderDateTime )), 0 ), 23) AS [Date],
+datepart(hour,t.OrderDateTime) as Saat,
+0 AS [NormalQuantity],
+t.Quantity AS [PersonalQuantity]
+FROM
+OrderTransactions t WITH ( NOLOCK )
+INNER JOIN posProducts p WITH ( NOLOCK ) ON p.ProductKey = t.MenuItemKey AND p.IsKto = 1 
+LEFT JOIN OrderTransactions t2 WITH ( NOLOCK ) ON t2.OrderKey = t.OrderKey AND t2.MainMenuItemTransactionKey = t.MainMenuItemTransactionKey AND t2.LineDeleted = 0
+
+WHERE
+
+1=1
+AND t.LineDeleted = 0
+AND t.OrderDateTime BETWEEN @date1 AND @date2
+AND t.@BranchID
+AND t.MainMenuItemText IN ('PERSONEL MENÜ (KTO)')
+
+GROUP BY
+
+t.BranchID,
+CONVERT(VARCHAR, DATEADD( DAY, DATEDIFF( dd, 0, DATEADD( HOUR, -6, t.OrderDateTime )), 0 ), 23),
+datepart(hour,t.OrderDateTime),
+t.OrderKey,
+t.MainMenuItemTransactionKey,
+t.Quantity
+
+HAVING
+( -- PESTOLU
+SUM(CASE WHEN t2.MenuItemKey IN ('905AEDA1-AA16-487C-8011-5C3B56703BE2', '7D0452D7-2485-479E-B41C-4201914AE2BD') THEN 1 ELSE 0 END)
++ -- SALATA
+SUM(CASE WHEN t2.MenuItemKey IN ('76C9851C-C1BA-4C86-A442-48784EC35029', 'A836E15C-1791-4075-A3D3-7FDB222E545F', '2F3ECBF4-EC71-44F8-90EA-064F71847411') THEN 1 ELSE 0 END)
+< 2
+)
+) as k
+
+GROUP BY
+
+k.BranchID,
+k.[Date],
+k.Saat
+),
+result AS (
+
+SELECT
+b.BranchName AS [Şube],
+l.[Date] AS [Tarih],
+k.Saat as Saat,
+l.[Quantity] AS [Toplam Tabak Sayısı],
+(k.[NormalQuantity] + k.[PersonalQuantity]) AS [Toplam Kto Sayısı],
+k.[NormalQuantity] AS [Normal Kto Sayısı],
+k.[PersonalQuantity] AS [Personel Kto Sayısı],
+ROUND( (( (k.[NormalQuantity] + k.[PersonalQuantity]) * 100) / l.[Quantity]) , 2) AS [Yüzde %]
+FROM
+list l
+
+LEFT JOIN kto k ON k.BranchID = l.BranchID AND k.[Date] = l.[Date]
+inner join efr_Branchs b on b.BranchID=l.BranchID
+)
+SELECT
+* 
+FROM
+result
+
+order by result.Tarih,result.Saat

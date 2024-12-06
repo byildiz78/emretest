@@ -1,0 +1,9 @@
+SELECT isnull(isnull(CustomerFiles.CustomerName,h.SpecificCustomerName),'') AS CustomerName,p.AmountPaid,p.PaymentDateTime,p.OrderID
+FROM OrderPayments as p WITH (NOLOCK)
+INNER JOIN OrderHeaders AS h ON h.OrderKey = p.OrderKey AND h.BranchID = p.BranchID AND h.LineDeleted=0
+LEFT OUTER JOIN CustomerFiles ON p.CustomerKey = CustomerFiles.CustomerKey AND CustomerFiles.BranchID=h.BranchID
+WHERE (p.IsAccountSale = 1) AND 
+(p.PaymentDateTime >= @date1) 
+AND (p.PaymentDateTime <= @date2) 
+AND (p.LineDeleted = 0) 
+AND p.@BranchID

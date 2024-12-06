@@ -1,0 +1,18 @@
+Select 
+
+eb.BranchID as [Şube Kodu],
+eb.BranchName as [Şube adı],
+eb.RevenueCenterCode as [Bölge Yöneticisi],
+eb.CustomField2 as [Operasyon Bölgesi],
+eb.CustomField3 as [Bölge],
+eb.CustomField4 as [Şehir],
+eb.CustomField5 as [Şube Mail],
+eb.customField6 as [Restaurant Türü],
+eb.CustomField7 as [Tür],
+eb.customField8 as [Telefon],
+eb.CustomField9 as [Mevki],
+eb.CustomField10 as [Yatırımcı Bilgisi]
+
+
+from efr_Branchs as eb
+Order by BranchID

@@ -1,0 +1,15 @@
+
+SELECT eb.BranchName       AS Şube,
+       oh.DineInTableName  AS [Masa Adı],
+       SUM(oh.AmountDue)   AS Tutar
+FROM   OrderHeaders oh
+       INNER JOIN efr_Branchs eb
+            ON  eb.BranchID = oh.BranchID
+WHERE  oh.LineDeleted = 0
+       AND oh.OrderDateTime >= @date1
+       AND oh.OrderDateTime <= @date2
+       AND oh.OrderType=1
+and oh.@BranchID
+GROUP BY
+       eb.BranchName,
+       oh.DineInTableName

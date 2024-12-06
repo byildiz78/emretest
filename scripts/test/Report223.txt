@@ -1,0 +1,23 @@
+Select 2 as gun,'Saat 0' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where DATEPART(HOUR, t.OrderDateTime) = 0 and t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 01-02' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where (DATEPART(HOUR, t.OrderDateTime) = 1 or DATEPART(HOUR, t.OrderDateTime) = 2) and t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 03-06' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where (DATEPART(HOUR, t.OrderDateTime) = 3 or DATEPART(HOUR, t.OrderDateTime) = 6) and t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 07-08' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where (DATEPART(HOUR, t.OrderDateTime) = 7 or DATEPART(HOUR, t.OrderDateTime) = 8) and t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 09-10' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where (DATEPART(HOUR, t.OrderDateTime) = 9 or DATEPART(HOUR, t.OrderDateTime) = 10) and t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 11-12' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where (DATEPART(HOUR, t.OrderDateTime) = 11 or DATEPART(HOUR, t.OrderDateTime) = 12) AND t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 13-14' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where (DATEPART(HOUR, t.OrderDateTime) = 13 or DATEPART(HOUR, t.OrderDateTime) = 14) AND t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 15-16' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where (DATEPART(HOUR, t.OrderDateTime) = 15 or DATEPART(HOUR, t.OrderDateTime) = 16)AND t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 17-18' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where (DATEPART(HOUR, t.OrderDateTime) = 17 or DATEPART(HOUR, t.OrderDateTime) = 18) AND t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 19-20' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where (DATEPART(HOUR, t.OrderDateTime) = 19 or DATEPART(HOUR, t.OrderDateTime) = 20) AND t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 21-22' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where (DATEPART(HOUR, t.OrderDateTime) = 21 or DATEPART(HOUR, t.OrderDateTime) = 22) AND t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0 
+UNION ALL
+Select 2 as gun,'Saat 23' As Saat, ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) As Tutar From OrderTransactions t INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey Where DATEPART(HOUR, t.OrderDateTime) = 23 AND t.OrderDateTime between @date1 and @date2 And t.@BranchID and t.LineDeleted=0

@@ -1,0 +1,7 @@
+﻿SELECT     CustomerCredits.CreditDateTime AS [Kazanım Tarihi], CustomerCredits.CreditReason AS Tipi, CustomerCredits.CreditAmount AS Tutar, 
+                      CustomerFiles.CustomerName AS [Müşteri Adı], CustomerFiles.PhoneNumber AS [Müşteri Telefonu]
+FROM         CustomerCredits LEFT OUTER JOIN
+                      CustomerFiles ON CustomerCredits.BranchID = CustomerFiles.BranchID AND CustomerCredits.CustomerID = CustomerFiles.CustomerID
+Where CustomerCredits.CreditDateTime <=@sonTarih  And  CustomerCredits.CreditDateTime >=@ilkTarih and  CustomerCredits.@BranchID
+
+ORDER BY CustomerCredits.CreditDateTime ASC

@@ -1,0 +1,18 @@
+﻿SELECT b.BranchName AS [Şube], h.ClosingDate AS [Tarih]
+,pc.PickValue AS [Kategori],pg.PickValue AS [Grubu],p.ProductCode AS [Stok Kodu],p.ProductName AS [Stok Adı]
+,u.UnitName AS [Birim],d.CountAmount AS [Sayım],isnull(pl.SalePrice,p.PurchasePrice1) AS [Birim Maliyet]
+,ROUND(d.CountAmount*isnull(pl.SalePrice,p.PurchasePrice1),2) AS [Toplam Maliyet]
+ FROM posDailyClosingHeader AS h
+INNER JOIN posDailyClosingDetail AS d ON d.ClosingID = h.ClosingID
+INNER JOIN posProducts AS p ON p.ProductID = d.ProductID
+INNER JOIN posPickList AS pc ON pc.ListID=p.CategoryID
+INNER JOIN posPickList AS pg ON pg.ListID=p.GroupID
+INNER JOIN posBranchs AS b ON b.BranchID = h.BranchID
+INNER JOIN posProductUnits AS u ON u.UnitID=d.UnitID
+INNER JOIN posCurrents AS c ON c.CurrentID=b.CurrentID
+LEFT OUTER JOIN posPriceList AS pl ON pl.ListName=c.SaleListName AND pl.ProductID=d.ProductID
+WHERE h.CountType='AYLIK SAYIM'
+AND h.ClosingDate>@date1
+AND h.ClosingDate<@date2
+AND h.@BranchID
+ORDER BY b.BranchName,pc.PickValue,pg.PickValue,p.ProductName

@@ -1,0 +1,116 @@
+select 
+k.Şube,
+k.ürün as Ürün,
+sum(k.SumAlt) as Adet,
+isnull(round((sum(k.SumAlt)/sum(nullif(k.GrandTotal,0)))*100,2),0) as Oran
+
+from(
+SELECT 
+r.BranchName as Şube,
+r.MenuItemText as ürün,
+SUM(r.alt) AS SumAlt,
+(select sum(y.ktot) from(
+SELECT SUM(r2.alt) as ktot FROM (
+    SELECT
+      br.BranchName,
+      CONVERT(VARCHAR, DATEADD(DAY, DATEDIFF(dd, 0, DATEADD(HOUR, -6, t.OrderDateTime)), 0), 23) AS [Date],
+      t2.MenuItemText,
+      SUM(t2.Quantity) AS alt
+
+    FROM
+
+      OrderTransactions t WITH (NOLOCK)
+	  INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey and h.LineDeleted=0
+      INNER JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = t.BranchID
+      INNER JOIN posProducts p WITH (NOLOCK) ON p.ProductKey = t.MenuItemKey AND p.IsKto = 1
+      LEFT JOIN OrderTransactions t2 WITH (NOLOCK) ON t2.OrderKey = t.OrderKey AND t2.MainMenuItemTransactionKey = t.TransactionKey AND t2.LineDeleted = 0
+    WHERE
+
+      1=1
+      AND t.LineDeleted = 0
+	  and h.OrderType=5
+      AND t.OrderDateTime BETWEEN @date1 AND @date2
+      AND t.@BranchID
+      AND t.IsMainCombo = 1
+    GROUP BY
+      br.BranchName,
+      CONVERT(VARCHAR, DATEADD(DAY, DATEDIFF(dd, 0, DATEADD(HOUR, -6, t.OrderDateTime)), 0), 23),
+      t2.MenuItemText,
+	  t2.MenuItemKey
+
+	  having
+	( t2.MenuItemKey='3bed3fb1-840e-4407-9090-d61ddb22a007'
+		or
+		t2.MenuItemKey='31ee4679-7ee3-40d9-a45b-2d9520011842'
+		or
+		t2.MenuItemKey='7cc39c99-1790-49f1-937a-d211e4a0daca'
+		or
+		t2.MenuItemKey='27b018f1-ecad-4583-9adc-33a4ce7c4bf6'
+		or
+		t2.MenuItemKey='80235FC8-7A79-44B4-9343-5938BC25B765'
+		or
+		t2.MenuItemKey='4E5FDB0A-2D40-49C1-930E-871025FB8932'
+		or
+		t2.MenuItemKey='ACF1AC84-909D-4371-97B4-BE8BE1FE2ABC'
+		or
+		t2.MenuItemKey='4414DDCC-9941-48EF-8E7B-3DDBCEB0B6DA'
+		)
+
+      ) AS r2
+
+) as y) AS GrandTotal
+
+FROM (
+  SELECT
+    br.BranchName,
+    CONVERT(VARCHAR, DATEADD(DAY, DATEDIFF(dd, 0, DATEADD(HOUR, -6, t.OrderDateTime)), 0), 23) AS [Date],
+    t2.MenuItemText,
+    SUM(t2.Quantity) AS alt
+
+  FROM
+
+    OrderTransactions t WITH (NOLOCK)
+	INNER JOIN OrderHeaders h on h.OrderKey=t.OrderKey and h.LineDeleted=0
+    INNER JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = t.BranchID
+    INNER JOIN posProducts p WITH (NOLOCK) ON p.ProductKey = t.MenuItemKey AND p.IsKto = 1
+    LEFT JOIN OrderTransactions t2 WITH (NOLOCK) ON t2.OrderKey = t.OrderKey AND t2.MainMenuItemTransactionKey = t.TransactionKey AND t2.LineDeleted = 0
+
+  WHERE
+
+    1=1
+    AND t.LineDeleted = 0
+	and h.OrderType=5
+    AND t.OrderDateTime BETWEEN @date1 AND @date2
+    AND t.@BranchID
+    AND t.IsMainCombo = 1
+
+  GROUP BY
+
+    br.BranchName,
+    CONVERT(VARCHAR, DATEADD(DAY, DATEDIFF(dd, 0, DATEADD(HOUR, -6, t.OrderDateTime)), 0), 23),
+    t2.MenuItemText,
+	t2.MenuItemKey
+	having
+	( t2.MenuItemKey='3bed3fb1-840e-4407-9090-d61ddb22a007'
+		or
+		t2.MenuItemKey='31ee4679-7ee3-40d9-a45b-2d9520011842'
+		or
+		t2.MenuItemKey='7cc39c99-1790-49f1-937a-d211e4a0daca'
+		or
+		t2.MenuItemKey='27b018f1-ecad-4583-9adc-33a4ce7c4bf6'
+		or
+		t2.MenuItemKey='80235FC8-7A79-44B4-9343-5938BC25B765'
+		or
+		t2.MenuItemKey='4E5FDB0A-2D40-49C1-930E-871025FB8932'
+		or
+		t2.MenuItemKey='ACF1AC84-909D-4371-97B4-BE8BE1FE2ABC'
+		or
+		t2.MenuItemKey='4414DDCC-9941-48EF-8E7B-3DDBCEB0B6DA'
+		)
+) AS r
+
+GROUP BY r.MenuItemText,r.BranchName
+
+) as k
+
+group by k.Şube,k.ürün

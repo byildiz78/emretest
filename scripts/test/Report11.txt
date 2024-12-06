@@ -1,0 +1,16 @@
+﻿Select
+  OrderHeaders.OrderDateTime As Tarih,
+  OrderHeaders.AmountDue As Tutar,
+  CustomerFiles.CustomerName As Müşteri,
+  CustomerFiles.DeliveryAddress As Adres,
+  CustomerFiles.DeliveryRemarks As Açıklama,
+  CustomerFiles.PhoneNumber As Telefon,
+  EmployeeFiles.FirstName As Personel
+From
+  (OrderHeaders Left Join
+    CustomerFiles On CustomerFiles.CustomerID = OrderHeaders.CustomerID and CustomerFiles.BranchID = OrderHeaders.BranchID) Left Join
+  EmployeeFiles On EmployeeFiles.EmployeeID = OrderHeaders.DriverEmployeeID And EmployeeFiles.BranchID = OrderHeaders.BranchID 
+Where
+  OrderHeaders.OrderType = '4'
+and  OrderHeaders.OrderDateTime <=@sonTarih And
+  OrderHeaders.OrderDateTime >=@ilkTarih And OrderHeaders.@BranchID

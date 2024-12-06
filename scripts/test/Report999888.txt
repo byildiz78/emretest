@@ -1,0 +1,15 @@
+Select
+CustomerID as [Müşteri ID],
+CustomerName as [Müşteri Adı],
+CardNumber as [Kart Numarası],
+Isnull(TaxofficeName,'') as [Vergi Dairesi],
+Isnull(TaxNumber,'') as [Vergi No],
+PhoneNumber as [Telefon Numarası],
+DiscountPercent as [İndirim Oranı],
+Convert(varchar,AddDateTime,103) as [Eklenme Tarihi],
+TotalBonusEarned as [Toplam Kazanım],
+TotalBonusUsed as [Toplam Kullanım],
+TotalBonusRemaing as [Bakiye],
+CardType as [Kart Tipi]
+from BonusCustomerFiles
+Order by CustomerID

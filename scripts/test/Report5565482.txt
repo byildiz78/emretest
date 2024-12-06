@@ -1,0 +1,38 @@
+IF OBJECT_ID('tempdb..#temp') IS NOT NULL DROP TABLE #temp; 
+CREATE TABLE #temp (Tarih Datetime, MenuItemText NVARCHAR(100),Quantity FLOAT,ExtendedPrice FLOAT,MenuItemKey UNIQUEIDENTIFIER,BranchID INT); 
+INSERT INTO #temp (Tarih,MenuItemText,Quantity,ExtendedPrice,MenuItemKey, BranchID)
+SELECT t.OrderDateTime,t.MenuItemText,sum(t.Quantity),sum(t.ExtendedPrice),t.MenuItemKey,t.BranchID
+FROM OrderTransactions AS t
+WHERE t.OrderDateTime>@date1
+AND t.OrderDateTime<@date2
+AND t.LineDeleted=0
+AND t.@BranchID
+AND t.CustomField1 LIKE '%-'
+GROUP BY t.OrderDateTime, t.MenuItemText,t.MenuItemKey,t.BranchID;
+
+IF OBJECT_ID('tempdb..#combo') IS NOT NULL DROP TABLE combo; 
+CREATE TABLE #combo (Tarih Datetime,MainMenuItemKey UNIQUEIDENTIFIER,MenuItemText NVARCHAR(100),Quantity FLOAT,ExtendedPrice FLOAT,BranchID INT,MainMenuItemText NVARCHAR(100)); 
+
+INSERT INTO #combo 
+(Tarih,MainMenuItemKey,MenuItemText,Quantity,ExtendedPrice,BranchID,MainMenuItemText)
+SELECT t.OrderDateTime, t.MenuItemKey,c.MenuItemText,sum(c.Quantity),sum(c.ExtendedPrice),t.BranchID,t.MenuItemText
+FROM OrderTransactions AS t
+INNER JOIN OrderTransactions AS c ON c.BranchID = t.BranchID AND c.OrderKey = t.OrderKey
+AND c.TransactionKey<>t.TransactionKey AND c.LineDeleted=0
+AND c.CustomField1 LIKE t.CustomField1+'%'
+WHERE t.OrderDateTime>@date1
+AND t.OrderDateTime<@date2
+AND t.LineDeleted=0
+AND t.@BranchID
+AND t.CustomField1 LIKE '%-'
+GROUP BY t.OrderDateTime,t.MenuItemKey,c.MenuItemText,t.BranchID,t.MenuItemText;
+SELECT r.Tarih,  b.BranchName AS [Şube], r.MenuItemText AS Menü,r.Ürün,r.Miktar, r.Quantity AS [Menü Adet], r.ExtendedPrice AS [Menü Tutar]
+FROM(
+SELECT t.Tarih,  t.MenuItemText, t.Quantity, t.ExtendedPrice,'' AS Ürün,0 AS Miktar,0 AS SiraNo,t.MenuItemKey,t.BranchID  FROM #temp AS t
+UNION ALL
+SELECT c.Tarih,  c.MainMenuItemText,0,0,c.MenuItemText,c.Quantity,1,c.MainMenuItemKey,c.BranchID FROM #combo AS c
+)AS r 
+INNER JOIN efr_Branchs AS b ON b.BranchID=r.BranchID
+ORDER BY  b.BranchName,r.MenuItemKey,r.SiraNo,r.MenuItemText,r.Ürün
+IF OBJECT_ID('tempdb..#temp') IS NOT NULL DROP TABLE #temp;
+IF OBJECT_ID('tempdb..#combo') IS NOT NULL DROP TABLE #combo;  

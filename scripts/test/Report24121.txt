@@ -1,0 +1,9 @@
+SELECT     OrderID AS [ÇEK NO], CONVERT(CHAR(24),OrderPayments.PaymentDateTime,120) AS TARIH, 
+customfield4 as EKU,customfield3 as [yazarkasa sicil no],
+AmountPaid AS TUTAR, ISNULL(PaymentMethodName,'TANIMSIZ') AS [ÖDEME TİPİ], globalbankname as [İçerik Bilgisi],
+                      IsAccountPayment AS [CARİ HESAP ÖDEMESİDİR]
+FROM         OrderPayments
+
+WHERE LineDeleted=0 
+AND PaymentDateTime between @date1 and @date2
+AND orderpayments.@BranchID

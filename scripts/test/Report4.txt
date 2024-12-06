@@ -1,0 +1,13 @@
+﻿DECLARE @startDate DATETIME;set @startDate=GETDATE();
+IF DATEPART(hour,@startDate)<6
+ set @startDate=DATEADD(dd, -1, DATEDIFF(dd, 0, @startDate))
+ELSE
+set @startDate=DATEADD(dd, 0, DATEDIFF(dd, 0, @startDate))
+SELECT 'Masa' AS Tipi,Round(SUM(OrderHeaders.AmountDue),2) AS Tutar,Count(OrderHeaders.OrderID) as ÇekSayısı FROM OrderHeaders WHERE OrderType = '1' and OrderHeaders.OrderDateTime>=@startDate and OrderHeaders.@BranchID AND OrderHeaders.orderstatus<>'3' 
+UNION ALL
+SELECT 'Kasa' AS Tipi,Round(SUM(OrderHeaders.AmountDue),2) AS Tutar, Count(OrderHeaders.OrderID) as ÇekSayısı FROM OrderHeaders WHERE OrderType = '2' and OrderHeaders.OrderDateTime>=@startDate and OrderHeaders.@BranchID AND OrderHeaders.orderstatus<>'3' 
+UNION ALL
+SELECT 'Kasa 2' AS Tipi,Round(SUM(OrderHeaders.AmountDue),2) AS Tutar, Count(OrderHeaders.OrderID) as ÇekSayısı FROM OrderHeaders WHERE OrderType = '3' and OrderHeaders.OrderDateTime>=@startDate and OrderHeaders.@BranchID AND OrderHeaders.orderstatus<>'3' 
+UNION ALL
+SELECT 'Paket' AS Tipi,Round(SUM(OrderHeaders.AmountDue),2) AS Tutar, Count(OrderHeaders.OrderID) as ÇekSayısı FROM OrderHeaders WHERE OrderType = '4' and OrderHeaders.OrderDateTime>=@startDate and OrderHeaders.@BranchID AND OrderHeaders.orderstatus<>'3' 
+

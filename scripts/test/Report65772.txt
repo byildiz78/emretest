@@ -1,0 +1,16 @@
+select
+convert(varchar,oh.OrderDateTime,110) as [Tarih],
+eb.BranchName as [Şube Adı],
+oh.OrderID as [Çek no],
+case when ISNULL(oh.OrderTypeSourceExternalNo,'') LIKE '%yemek%' then 'YEMEK SEPETİ' else 'PAKET SİPARİŞ' end as [Sipariş Tipi],
+op.AmountPaid as [Ödeme Tutarı],
+op.PaymentMethodName as [Ödeme Tipi]
+from OrderHeaders as oh WITH(NOLOCK)
+LEFT OUTER JOIN OrderPayments as op on op.OrderKey = oh.OrderKey AND op.LineDeleted=0
+LEFT OUTER JOIN efr_Branchs as eb on eb.BranchID = oh.BranchID
+where oh.OrderType=5 AND oh.LineDeleted = 0 
+AND (oh.OrderDateTime >= @date1)
+AND (oh.OrderDateTime <= @date2)
+AND oh.@BranchID
+Group by oh.OrderDateTime,oh.OrderID,oh.OrderTypeSourceExternalNo,eb.BranchName,oh.SpecificCustomerName,op.PaymentMethodName,op.Amountpaid
+Order by oh.OrderID

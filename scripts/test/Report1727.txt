@@ -1,0 +1,29 @@
+SELECT b.BranchName AS [Şube],'Başlık' AS Tipi,r.OrderDateTime AS Tarih, r.OrderKey AS OrderKey,r.OrderID, r.Tutar, r.Satir
+FROM (
+SELECT h.BranchID, h.OrderKey,h.OrderID, round((h.AmountDue),3) AS Tutar,SUM(isnull(t.ExtendedPrice,0)) AS Satir,COUNT(t.AutoID) AS Adet,h.DiscountTotalAmount,h.SubTotal,h.DiscountLineAmount,h.OrderDateTime
+FROM OrderHeaders AS h WITH (NOLOCK)
+LEFT OUTER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey AND t.LineDeleted=0
+WHERE h.@BranchID
+AND h.OrderDateTime>@date1
+AND h.OrderDateTime<@date2
+and h.LineDeleted=0
+AND h.AmountDue>0.0
+GROUP BY h.OrderKey,h.AmountDue,h.DiscountTotalAmount,h.SubTotal,h.BranchID,h.OrderID,h.DiscountLineAmount,h.OrderDateTime) AS r
+INNER JOIN efr_Branchs AS b ON r.BranchID=b.BranchID
+WHERE round(r.SubTotal,3)<>round(isnull(r.Satir,0),3)
+OR round(r.Tutar+r.DiscountTotalAmount-r.DiscountLineAmount,3)<>round(isnull(r.Satir,0),3)
+UNION ALL
+SELECT  b.BranchName AS [Şube],'Odeme' AS Tipi,r.OrderDateTime AS Tarih,r.OrderKey,r.OrderID,r.Tutar,r.Odeme
+  FROM(
+SELECT h.OrderKey, round((h.AmountDue),3) AS Tutar,SUM(isnull(t.AmountPaid,0)) AS Odeme,COUNT(t.AutoID) AS Adet,h.DiscountOrderAmount,h.SubTotal,h.OrderID,h.BranchID,h.OrderDateTime
+  FROM OrderHeaders AS h WITH (NOLOCK)
+LEFT OUTER JOIN OrderPayments AS t ON t.OrderKey = h.OrderKey AND t.LineDeleted=0
+WHERE h.@BranchID
+AND h.OrderDateTime>@date1
+AND h.OrderDateTime<@date2
+and h.OrderDateTime<DATEADD(DAY, DATEDIFF(dd, 0,GETDATE()),0)
+and h.LineDeleted=0
+--AND h.AmountDue>0
+GROUP BY h.OrderKey,h.AmountDue,h.DiscountOrderAmount,h.SubTotal,h.OrderID,h.BranchID,h.OrderDateTime) AS r
+INNER JOIN efr_Branchs AS b ON r.BranchID=b.BranchID
+WHERE abs(round(r.Tutar,3)-round(isnull(r.Odeme,0),3))>0.1;

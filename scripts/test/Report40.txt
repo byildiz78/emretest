@@ -1,0 +1,24 @@
+SELECT TOP 10
+       OrderTransactions.MenuItemText   AS Tipi,
+       SUM(OrderTransactions.Quantity)  AS Adet
+FROM   OrderTransactions
+WHERE  OrderTransactions.linedeleted = 0
+       AND TransactionDateTime >=@date1
+       AND TransactionDateTime <=@date2
+       AND ordertransactions.@BranchID
+       AND OrderTransactions.MenuItemUnitPrice <> 0
+GROUP BY
+
+
+       OrderTransactions.MenuItemText
+
+Order by Adet desc
+
+
+
+
+
+
+
+
+

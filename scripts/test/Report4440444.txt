@@ -1,0 +1,21 @@
+Detail|
+
+SELECT SUM(OrderPayments.AmountPaid)    AS Tutar,
+       OrderPayments.PaymentMethodName  AS Tip,
+       OrderPayments.RegisterSessionID  AS KasaNo,
+       efr_Branchs.BranchName           AS Sube
+FROM   efr_Branchs
+       RIGHT OUTER JOIN OrderPayments
+            ON  efr_Branchs.BranchID = OrderPayments.BranchID
+WHERE  ISNULL(OrderPayments.LineDeleted, 0) = 0
+       AND OrderPayments.PaymentDateTime >= @date1
+       AND OrderPayments.PaymentDateTime <= @date2
+       AND OrderPayments.@BranchID
+    
+GROUP BY
+       OrderPayments.PaymentMethodName,
+       OrderPayments.RegisterSessionID,
+       efr_Branchs.BranchName
+
+       
+ORDER BY tutar desc

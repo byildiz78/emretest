@@ -1,0 +1,57 @@
+﻿
+
+SELECT   b.BranchName                     AS Şube,
+   
+
+    
+
+
+
+       p.ProductCode                    AS [Ürün Kodu],
+       p.ProductName                    AS Ürün,
+       sum(d.Quantity)                     AS Miktar,
+       g.PickValue                      AS Grubu,
+    
+
+       posProductUnits.UnitName         AS Birim,
+       u2.UnitName                      AS [Sipariş Birimi],
+  
+           d.UnitPrice AS [Birim Fiyat],
+           SUM(d.TotalPrice) AS Tutar,
+ SUM(d.TotalAmount) AS [Tutar(KDV Dahil)]
+
+
+       
+       
+       
+FROM   posLogisticsHeader               AS h WITH(NOLOCK)
+       LEFT OUTER JOIN posBranchs       AS b
+            ON  b.BranchID = h.BranchID
+       INNER JOIN posLogisticsDetail    AS d
+            ON  h.OrderKey = d.OrderKey
+       INNER JOIN posWarehouse          AS wt
+            ON  wt.WarehouseID = d.OutgingWarehouseID
+       LEFT OUTER JOIN posProducts      AS p
+            ON  p.ProductID = d.ProductID
+       LEFT OUTER JOIN posPickList      AS g
+            ON  g.ListID = p.GroupID
+       LEFT OUTER JOIN posProductUnits
+            ON  d.UnitID = posProductUnits.UnitID
+     
+       LEFT OUTER JOIN posProductUnits  AS u2
+            ON  p.UnitID2 = u2.UnitID
+
+       WHERE  h.OrderDateTime >= @date1
+       AND h.OrderDateTime <= @date2
+       AND ISNULL(h.IsDeleted, 0) = 0
+       AND h.@BranchID
+GROUP BY 
+b.BranchName    ,
+ p.ProductCode,
+  p.ProductName ,
+       g.PickValue     ,
+            posProductUnits.UnitName,
+            
+    d.UnitPrice,
+       u2.UnitName 
+ 

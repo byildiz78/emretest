@@ -1,0 +1,16 @@
+﻿Select Top 1
+  (((Select
+    Count(OrderHeaders.OrderID) As Adet
+  From
+    OrderHeaders
+  Where
+    OrderHeaders.DineInTableID > 0 AND OrderHeaders.OrderDateTime>=@ilkTarih  AND OrderHeaders.OrderDateTime<=@sonTarih
+    AND OrderHeaders.OrderStatus = '1')) * 100 / ((Select
+    Count(DineInTables.DineInTableID) As Adet
+  From
+    DineInTables
+  Where
+    DineInTables.DineInTableInActive = 0))) As [Yuzde]
+From
+  MenuItems 
+WHERE   MenuItems.@BranchID 

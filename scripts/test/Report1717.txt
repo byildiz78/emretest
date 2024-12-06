@@ -1,0 +1,21 @@
+Detail|
+SELECT     SUM(OrderPayments.AmountPaid) AS GenelTOPLAM, OrderPayments.PaymentMethodName, efr_Branchs.BranchName
+FROM         OrderPayments LEFT OUTER JOIN
+                      efr_Branchs ON OrderPayments.BranchID = efr_Branchs.BranchID
+                      
+                      WHERE  orderpayments.PaymentDateTime >= @date1
+       AND orderpayments.PaymentDateTime <= @date2
+       AND OrderPayments.LineDeleted = 0
+AND orderpayments.@BranchID
+
+    
+
+
+GROUP BY OrderPayments.PaymentMethodName, OrderPayments.BranchID,efr_Branchs.BranchName
+
+
+$expenses|SELECT  SUM(e.ExpenseAmount),e.ExpenseName FROM Expenses e 
+
+WHERE e.ExpenseDatetime>=@date1 AND e.ExpenseDatetime<=@date2 AND e.LineDeleted=0 and e.@BranchID
+
+GROUP BY e.ExpenseName

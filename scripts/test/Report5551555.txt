@@ -1,0 +1,7 @@
+﻿SELECT e.BranchName AS Şube,op.PaymentDateTime AS [Tarih],op.OrderID AS ÇEKNO,op.AmountPaid AS Tutar,op.PaymentMethodName AS Ödeme_Tipi,ISNULL(op.CustomField3, 'FİŞSİZ İŞLEM') AS ÖKC_SeriNo,op.StationID AS TerminalNo
+FROM OrderPayments op
+INNER JOIN efr_branchs e ON  e.BranchID = op.BranchID
+WHERE  op.LineDeleted = 0 AND 
+op.PaymentDateTime >= @date1 
+AND op.PaymentDateTime <= @date2 
+AND op.@BranchID

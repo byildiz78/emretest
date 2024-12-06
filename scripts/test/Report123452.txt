@@ -1,0 +1,28 @@
+SELECT
+	b.BranchName as [Şube],
+	b.BranchID,
+	OH.OrderKey,
+	OH.OrderID as [Çek No],
+	OH.OrderDateTime as [Tarih],
+	OH.AmountDue as [Çek Tutarı], 
+	ISNULL(SUM(OP.AmountPaid),0) AS [Ödeme Tutarı],
+	(OH.AmountDue-ISNULL(SUM(OP.AmountPaid),0)) AS [Fark]
+FROM
+	OrderHeaders OH WITH (NOLOCK)
+LEFT JOIN OrderPayments OP ON OP.OrderKey = OH.OrderKey AND OP.BranchID = OH.BranchID AND OP.LineDeleted = 0
+inner join efr_Branchs b on oh.BranchID=b.branchID
+WHERE
+	OH.OrderDateTime >=@date1
+AND OH.OrderDateTime <=@date2
+AND OH.LineDeleted = 0
+AND OH.OrderStatus = 2
+AND b.@BranchID
+GROUP BY
+	b.BranchID,
+	b.BranchName,
+	OH.OrderKey,
+	OH.OrderDateTime,
+	OH.AmountDue,
+	OH.OrderID
+HAVING
+	CAST(OH.AmountDue AS DECIMAL(18,2)) <> CAST(ISNULL(SUM(OP.AmountPaid),0) AS DECIMAL(18,2))

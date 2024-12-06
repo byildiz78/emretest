@@ -1,0 +1,11 @@
+SELECT OrderTransactions.MenuItemText [ÜRÜN], OrderTransactions.MenuItemGroupText [GRUP], OrderTransactions.MenumItemCategoryText 
+ [KATEGORİ],SUM(OrderTransactions.Quantity) [MİKTAR]
+FROM OrderTransactions WITH(NOLOCK)
+INNER JOIN OrderHeaders AS h ON h.OrderKey = OrderTransactions.OrderKey AND h.BranchID = OrderTransactions.BranchID AND h.LineDeleted=0
+WHERE OrderTransactions.LineDeleted = 0 
+AND OrderTransactions.OrderDateTime >= @date1 
+AND OrderTransactions.OrderDateTime <= @date2 
+AND OrderTransactions.@BranchID
+and isnull(OrderTransactions.MenuItemText,'??')<>'??'
+GROUP BY OrderTransactions.MenuItemText, OrderTransactions.MenuItemGroupText, OrderTransactions.MenumItemCategoryText
+ORDER BY OrderTransactions.MenuItemText

@@ -1,0 +1,22 @@
+select
+b.BranchName as Şube,
+ h.OrderID as Çek,
+ t.MenuItemText AS Menü,
+ Case 
+ When  h.OrderNotes like '%salata istem%' then 'Makarna İstiyorum'
+ else 'Salatada Olsun' end as [Makarna & Salata Tercihi],
+ h.OrderTypeSourceExternalNo  as kanal,
+SUM(t.Quantity) AS Miktar,
+h.OrderNotes
+ 
+ 
+ from orderheaders  as h  WITH(NOLOCK)
+INNER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey AND t.LineDeleted=0
+INNER JOIN efr_Branchs AS b ON b.BranchID = h.BranchID
+INNER JOIN posProducts AS pos ON pos.Productname = t.MenuItemText
+where  h.OrderDateTime BETWEEN @date1 and @date2 
+and h.OrderType=5
+and h.OrderNotes like '%salata is%'
+and pos.Customfield12 = 'TABAKLAR'
+AND h.@BranchID
+GROUP BY b.BranchName,t.MenuItemText,h.OrderNotes,h.OrderID,h.OrderTypeSourceExternalNo

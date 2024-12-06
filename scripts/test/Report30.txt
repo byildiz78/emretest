@@ -1,0 +1,13 @@
+SELECT b.BranchName AS Şube, 
+Expenses.ExpenseDatetime AS Tarih, 
+Expenses.ExpenseAmount AS Tutar, 
+Expenses.ExpenseDescription AS Açıklama, 
+Expenses.ExpenseName AS [Kime Ödendi],
+CASE isnull(Expenses.IsEmplyeeAdvance,0) WHEN 0 THEN 'Genel Ödeme' ELSE 'Personel Avansı' END AS [Tipi]
+FROM Expenses 
+INNER JOIN efr_Branchs AS b ON b.BranchID = Expenses.BranchID
+Where
+expenses.ExpenseDatetime>=@date1 
+AND expenses.ExpenseDatetime<=@date2
+and linedeleted=0
+and expenses.@BranchID

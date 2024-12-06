@@ -1,0 +1,37 @@
+Detail|
+select getdate()
+
+$Genel|
+
+
+select 
+t.subeort as subetotal,
+t.bid as bid,
+t.sube as sube,
+t.MenuSubCategoryText as grup,
+t.gruport as gruptotal,
+t.ürün as ürün,
+t.TotalQuantity as adet,
+t.TotalAmount as toplamtutar
+from (
+SELECT 
+b.BranchName as sube,
+t.MenuItemGroupText AS MenuSubCategoryText,
+t.MenuItemText as ürün,
+SUM(t.ExtendedPrice) AS TotalAmount,
+(select sum(ot.ExtendedPrice) from OrderTransactions ot where ot.BranchID =t.BranchID and ot.OrderDateTime between @date1 and @date2 and ot.LineDeleted=0 and ot.MenuItemGroupText=t.MenuItemGroupText) as gruport,
+(select sum(ot.ExtendedPrice) from OrderTransactions ot where ot.BranchID =t.BranchID and ot.OrderDateTime between @date1 and @date2 and ot.LineDeleted=0) as subeort,
+t.BranchID as bid,
+SUM(t.Quantity) AS TotalQuantity
+FROM   OrderTransactions AS t WITH (NOLOCK)
+INNER JOIN efr_Branchs   AS b ON  b.BranchID = t.BranchID
+WHERE  t.OrderDateTime between @date1 and @date2
+AND t.linedeleted = 0
+AND t.@BranchID
+GROUP BY
+t.MenuItemGroupText,
+t.MenuItemText,
+t.BranchID,
+b.BranchName) as t
+
+Order By adet desc

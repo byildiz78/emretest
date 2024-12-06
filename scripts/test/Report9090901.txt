@@ -1,0 +1,8 @@
+﻿ SELECT b.BranchName AS Şube,s.AmountDue AS Ciro, s.SaleDate AS Tarih,
+ datepart(month,s.SaleDate) as Ay,
+ datepart(year,s.SaleDate) as Yıl
+  FROM OrderSaleSummary AS s
+ INNER JOIN efr_Branchs AS b ON b.BranchID = s.BranchID
+where
+s.saledate >=@date1 and
+ s.saledate <=@date2

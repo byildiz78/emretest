@@ -1,0 +1,8 @@
+Detail|SELECT     OrderHeaders.OrderDateTime,orderHeaders.OrderID, OrderHeaders.StationID, OrderHeaders.EditUserID, OrderHeaders.EditDateTime, OrderHeaders.DeleteReason, 
+                      DineInTables.DineInTableText, EmployeeFiles.FirstName
+FROM         OrderHeaders LEFT OUTER JOIN
+                      DineInTables ON OrderHeaders.DineInTableID = DineInTables.DineInTableID LEFT OUTER JOIN
+                      EmployeeFiles ON OrderHeaders.EditUserID = EmployeeFiles.EmployeeID
+WHERE OrderStatus=4 
+AND OrderHeaders.OrderDateTime>=@ilkTarih 
+AND OrderHeaders.OrderDateTime<=@SonTarih

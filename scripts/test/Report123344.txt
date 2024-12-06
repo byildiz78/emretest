@@ -1,0 +1,42 @@
+SELECT GenelTOPLAM,
+CASE 
+WHEN LOWER([ÖDEME TİPİ]) LIKE 'mul%' THEN 'MULTİNET' 
+WHEN LOWER([ÖDEME TİPİ]) LIKE 'met%' THEN 'METROPOL' 
+WHEN LOWER([ÖDEME TİPİ]) LIKE 'sod%' and LOWER([ÖDEME TİPİ]) NOT LIKE '%kupon%' THEN 'SODEXO' 
+WHEN (LOWER([ÖDEME TİPİ]) LIKE 'tıc%' or LOWER([ÖDEME TİPİ]) LIKE 'tic%') and LOWER([ÖDEME TİPİ]) NOT LIKE '%kupon%' THEN 'TICKET' 
+ELSE [ÖDEME TİPİ] END [ÖDEME TİPİ],SUBE,GUN FROM (
+SELECT 
+	SUM( p.AmountPaid ) AS [GenelTOPLAM],
+	(p.PaymentMethodName + (CASE WHEN ISNULL(p.GlobalBankName,'') = '' THEN '' ELSE (' - ' + p.GlobalBankName) END) + (CASE WHEN h.IsInvoice = 1 THEN ' (FATURA)' ELSE '' END)) AS [ÖDEME TİPİ],
+	br.BranchName AS [SUBE],
+	CONVERT (VARCHAR, p.PaymentDateTime,103) AS [GUN]
+FROM
+	OrderPayments p
+	INNER JOIN OrderHeaders h WITH (NOLOCK) ON h.OrderKey=p.OrderKey
+	INNER JOIN efr_Branchs br ON p.BranchID = br.BranchID 
+WHERE
+	p.PaymentDateTime BETWEEN @date1 AND @date2
+	AND p.LineDeleted = 0 
+	AND p.@BranchID
+GROUP BY
+	(p.PaymentMethodName + (CASE WHEN ISNULL(p.GlobalBankName,'') = '' THEN '' ELSE (' - ' + p.GlobalBankName) END) + (CASE WHEN h.IsInvoice = 1 THEN ' (FATURA)' ELSE '' END)),
+	br.BranchName,
+	CONVERT (VARCHAR,p.PaymentDateTime,103)) AS TABLO
+	
+UNION
+
+SELECT
+	ISNULL(SUM(h.AmountDue),0) AS [GenelTOPLAM],
+	'AÇIK ÇEK' AS [ÖDEME TİPİ],
+	br.BranchName AS [SUBE],
+	CONVERT(VARCHAR, ISNULL(h.OrderDateTime, @date1),103) AS [GUN]
+FROM
+	efr_Branchs br 
+	LEFT JOIN OrderHeaders h ON h.BranchID = br.BranchID AND h.OrderDateTime BETWEEN @date1 AND @date2 AND h.LineDeleted = 0 AND h.OrderStatus = 1
+WHERE
+	br.@BranchID
+GROUP BY 
+	br.BranchName,
+	CONVERT(VARCHAR, ISNULL(h.OrderDateTime, @date1),103)
+	
+	

@@ -1,0 +1,11 @@
+﻿SELECT t.MenuItemGroupText AS Grubu,
+ISNULL(SUM(t.Quantity * GlobalMenuItems.MenuItemCost),0) AS [Toplam Maliyet],SUM(t.ExtendedPrice) AS 
+       [Satis Tutar]
+FROM OrderTransactions AS t WITH(NOLOCK) 
+LEFT OUTER JOIN GlobalMenuItems ON t.MenuItemKey=GlobalMenuItems.MenuItemKey AND GlobalMenuItems.BranchID = t.BranchID
+WHERE  t.TransactionDateTime >= @date1
+  AND t.TransactionDateTime <= @date2
+  AND t.LineDeleted = 0
+  AND t.@BranchID
+GROUP BY t.MenuItemGroupText
+ORDER BY ISNULL(SUM(t.Quantity * GlobalMenuItems.MenuItemCost),0) DESC

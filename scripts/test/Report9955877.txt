@@ -1,0 +1,51 @@
+select *
+from (
+SELECT 
+b.BranchName AS [Şube],
+CASE WHEN t.MenuItemGroupText like '%KIRMIZI%' THEN '03-KIRMIZILAR'
+WHEN t.MenuItemGroupText like '%TAVUK%' THEN '02-TAVUKLAR'
+WHEN t.MenuItemGroupText like '%FTEL%' THEN '04-KÖFTELER'
+WHEN t.MenuItemGroupText like '%LANG%' THEN '01-BAŞLANGIÇLAR'
+WHEN t.MenuItemGroupText like '%ORBA%' THEN '01-BAŞLANGIÇLAR'
+WHEN t.MenuItemGroupText like '%TATL%' THEN '05-TATLI'
+WHEN t.MenuItemGroupText like '%CEKLER%' THEN '06-İÇECEKLER'
+WHEN t.MenuItemGroupText like '%menü%' THEN '02-TAVUKLAR'
+ELSE '02-TAVUKLAR' END AS [Ürün Grubu],
+t.MenuItemText AS [Ürün],(SELECT DISTINCT ExtendedMenuName from NewGlobalMenuComboItems combo where combo.ComboMenuItemKey=menu.MenuItemPopUpChoiceText) as Kombo,
+round(sum(t.ExtendedPrice)/SUM(t.Quantity),2) AS [Tezgah Satış Fiyatı KDVli],
+round(sum(t.ExtendedPrice)/SUM(t.Quantity)*100/(100+t.TaxPercent),2) AS [Tezgah Satış Fiyatı KDVsiz],
+SUM(t.Quantity) AS [Tezgah Satış Adedi],
+SUM(t.ExtendedPrice*(NULLIF(h.AmountDue,0)/NULLIF(h.SubTotal,0))) AS [Tezgah Satış Toplamı KDVli],
+round(SUM(t.ExtendedPrice*(NULLIF(h.AmountDue,0)/NULLIF(h.SubTotal,0)))*100/(100+t.TaxPercent),2) AS [Tezgah Satış Toplamı KDVsiz],
+
+ROUND((pp.PurchasePrice6 * (100 + t.TaxPercent) / 100),4) as [Tezgah Satış Birim Maliyeti KDVli],
+round(pp.PurchasePrice6,4) as [Tezgah Satış Birim Maliyeti KDVsiz],
+
+round(pp.PurchasePrice6,4) *sum(t.quantity) AS [Tezgah Satış Toplam Maliyeti KDVsiz],
+ROUND((pp.PurchasePrice6 * (100 + t.TaxPercent) / 100),4) * sum(t.quantity) AS [Tezgah Satış Toplam Maliyeti KDVli],
+
+((round(pp.PurchasePrice6,4) *sum(t.quantity)) / SUM(t.ExtendedPrice) ) * 100 AS [Tezgah Maliyet Yüzde KDVsiz]
+
+FROM OrderTransactions AS t WITH (nolock)
+LEFT JOIN OrderTransactions t1 on t1.TransactionKey=t.MainMenuItemTransactionKey
+LEFT JOIN NewGlobalMenuItems menu on menu.MenuItemKey=t1.MenuItemKey
+INNER JOIN efr_Branchs AS b ON b.BranchID = t.BranchID
+LEFT JOIN OrderHeaders h on h.OrderKey=t.OrderKey
+LEFT JOIN posProducts pp on pp.ProductKey=t.ProductKey
+WHERE t.@BranchID AND
+--WHERE t.@BranchID AND
+t.OrderDateTime BETWEEN @date1 and @date2
+--t.OrderDateTime BETWEEN '2020-06-01' and '2020-06-30'
+AND t.LineDeleted=0 AND h.OrderType=4
+GROUP BY t.BranchID,t.MenuItemText,t.TaxPercent,menu.MenuItemPopUpChoiceText,ROUND((pp.PurchasePrice6 * (100 + t.TaxPercent) / 100),4),round(pp.PurchasePrice6,4)
+,b.BranchName,
+CASE WHEN t.MenuItemGroupText like '%KIRMIZI%' THEN '03-KIRMIZILAR'
+WHEN t.MenuItemGroupText like '%TAVUK%' THEN '02-TAVUKLAR'
+WHEN t.MenuItemGroupText like '%FTEL%' THEN '04-KÖFTELER'
+WHEN t.MenuItemGroupText like '%LANG%' THEN '01-BAŞLANGIÇLAR'
+WHEN t.MenuItemGroupText like '%ORBA%' THEN '01-BAŞLANGIÇLAR'
+WHEN t.MenuItemGroupText like '%TATL%' THEN '05-TATLI'
+WHEN t.MenuItemGroupText like '%CEKLER%' THEN '06-İÇECEKLER'
+WHEN t.MenuItemGroupText like '%menü%' THEN '02-TAVUKLAR'
+ELSE '02-TAVUKLAR' END) AS TABLO
+ORDER BY Şube,[Ürün Grubu],[Ürün]

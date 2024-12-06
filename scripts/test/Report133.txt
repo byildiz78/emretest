@@ -1,0 +1,11 @@
+﻿
+
+SELECT     OrderTransactions.ExtendedPrice
+FROM         OrderTransactions INNER JOIN
+                      
+                      OrderHeaders ON OrderTransactions.OrderID = OrderHeaders.OrderID
+         WHERE  OrderTransactions.TransactionStatus = '1' AND 
+ OrderTransactions.OrderID IN (SELECT OrderID FROM OrderHeaders WHERE  OrderHeaders.OrderDateTime <= @sonTarih 
+       AND OrderHeaders.OrderDateTime >= @ilkTarih  
+       ) AND  
+      OrderTransactions.@BranchID             

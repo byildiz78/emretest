@@ -1,0 +1,18 @@
+﻿SELECT     h.OrderID AS lorderID, h.CurrentID, h.OrderSerialNo, h.OrderKey AS LOrderKEy, h.OrderTypeID, h.DocumentDateTime, h.AddresLine1, h.AddresLine2, h.StateID, 
+                      h.CityID, h.CountryID, h.IsConverted, h.TargetOrderID, h.IsTargetOrder, h.MainOrderID, h.Description, h.CreditDate, h.TotalAmount, h.DiscountTotal, h.TaxTotal, 
+                      h.TaxDiscountTotal, h.Total AS LTotal, h.CurrencyID, h.CurrencyRate, h.CustomField1 AS Lc1, h.CustomField2 AS lc2, h.CustomField3 AS lc3, h.CustomField4 AS lc4, 
+                      h.CustomField5 AS lc5, h.CustomField6 AS lc6, h.CustomField7 AS lc7, h.CustomField8 AS lc8, h.CustomField9 AS lc9, h.CustomField10 AS lc10, 
+                      h.AddUserID AS ladduser, h.AddDateTime AS ladddate, h.EditUserID AS ledituser, h.EditDateTime AS ledittime, h.RefDocumentNo, c.CurrentName, c.CurrentFullName, 
+                      c.CurrentCode, d.OrderDetailID, d.OrderID, d.OrderKey, d.ProductID, d.ProductCode, d.ProductName, d.DocumentTypeID, d.DocumentLineOrderID, d.DocumentLineID, 
+                      d.SourceDocumentTypeID, d.SourceDocumentID, d.SourceDocumentLineID, d.Incoming, d.Outgoing, d.Remaining, d.UnitPrice, d.TotalPrice, d.TaxPercent1, 
+                      d.TaxPercent2, d.TaxAmount1, d.TaxAmount2, d.DiscountAmount, d.DiscountPercent, d.Total, d.WarehouseID, d.TargetWarehouseID, d.SaveWarehouse, 
+                      d.SaveProductTotal, d.CustomField1, d.CustomField2, d.CustomField3, d.CustomField4, d.CustomField5, d.CustomField6, d.CustomField7, d.CustomField8, 
+                      d.CustomField9, d.CustomField10, d.AddUserID, d.AddDateTime, d.EditUserID, d.EditDateTime, d.UnitID, d.UnitID2, d.Unit2Quantity, d.Unit2UnitPrice, d.TaxDiscount, 
+                      d.TaxDiscountPercent, d.DiscountAmount2, d.DiscountPercent2, u.UnitName, isnull(posProducts.CustomField2,1) AS kutu,
+                      (d.Outgoing/REPLACE(isnull(posProducts.CustomField2,1),',','.')) as toplamkutu                      
+FROM         posOrderHeader AS h INNER JOIN
+                      posCurrents AS c ON h.CurrentID = c.CurrentID INNER JOIN
+                      posOrderDetail AS d ON h.OrderID = d.OrderID INNER JOIN
+                      posProductUnits AS u ON d.UnitID = u.UnitID INNER JOIN
+                      posProducts ON d.ProductID = posProducts.ProductID
+WHERE (h.OrderTypeID = 7) AND (h.DocumentDateTime >= @ilkTarih) AND (h.DocumentDateTime <= @SonTarih) AND isnull(h.OrderStatus,'ONAY BEKLİYOR')='ONAY BEKLİYOR'

@@ -1,0 +1,31 @@
+﻿SELECT * FROM (
+SELECT t.OrderKey,t.OrderDateTime, t.MenuItemText
+,t.MenuItemID, t.BranchID,p.ProductCode,isnull(f.NetCost,0)*t.Quantity AS Amount,t.Quantity,t.CustomField1,SUBSTRING(t.CustomField1,0,5) AS groupField,0 AS SortID,(t.ExtendedPrice) saleAmount
+ FROM OrderTransactions as t WITH(NOLOCK)
+ LEFT OUTER JOIN GlobalMenuItems ON GlobalMenuItems.MenuItemKey = t.MenuItemKey AND GlobalMenuItems.BranchID = t.BranchID
+ LEFT OUTER JOIN posProducts AS p ON p.ProductKey=GlobalMenuItems.MenuItemGlobalKey
+ LEFT OUTER JOIN posManafactureFormulaAssign AS a ON a.ProductID = p.ProductID AND a.BranchID = t.BranchID
+ LEFT OUTER JOIN posManafactureFormula AS f ON f.FormulaID = a.FormulaID
+ WHERE t.CustomField1 IS NOT NULL AND t.@BranchID
+ AND t.OrderDateTime>@date1 and t.OrderDateTime<@date2 AND t.CustomField1 LIKE '%-' AND t.LineDeleted=0 
+UNION ALL 
+ SELECT t.OrderKey,t.OrderDateTime, t.MenuItemText
+ ,t.MenuItemID, t.BranchID,p.ProductCode,isnull(f.NetCost,0)*t.Quantity AS Amount,t.Quantity,t.CustomField1,SUBSTRING(t.CustomField1,0,5) AS groupField,1 AS SortID,(t.ExtendedPrice) saleAmount
+ FROM OrderTransactions as t WITH(NOLOCK)
+  LEFT OUTER JOIN GlobalMenuItems ON GlobalMenuItems.MenuItemKey = t.MenuItemKey AND GlobalMenuItems.BranchID = t.BranchID
+ LEFT OUTER JOIN posProducts AS p ON p.ProductKey=GlobalMenuItems.MenuItemGlobalKey
+ LEFT OUTER JOIN posManafactureFormulaAssign AS a ON a.ProductID = p.ProductID AND a.BranchID = t.BranchID
+ LEFT OUTER JOIN posManafactureFormula AS f ON f.FormulaID = a.FormulaID
+ WHERE t.CustomField1 IS NOT NULL AND t.@BranchID
+ AND t.OrderDateTime>@date1 and t.OrderDateTime<@date2 AND t.CustomField1 not LIKE '%-' AND t.LineDeleted=0 
+ UNION ALL 
+ SELECT t.OrderKey,t.OrderDateTime, t.MenuItemText
+ ,t.MenuItemID, t.BranchID,p.ProductCode,isnull(f.NetCost,0)*t.Quantity AS Amount,t.Quantity,' ',' ' AS groupField,2 AS SortID,(t.ExtendedPrice) saleAmount
+ FROM OrderTransactions as t WITH(NOLOCK)
+ LEFT OUTER JOIN GlobalMenuItems ON GlobalMenuItems.MenuItemKey = t.MenuItemKey AND GlobalMenuItems.BranchID = t.BranchID
+ LEFT OUTER JOIN posProducts AS p ON p.ProductKey=GlobalMenuItems.MenuItemGlobalKey
+ LEFT OUTER JOIN posManafactureFormulaAssign AS a ON a.ProductID = p.ProductID AND a.BranchID = t.BranchID
+ LEFT OUTER JOIN posManafactureFormula AS f ON f.FormulaID = a.FormulaID
+ WHERE t.CustomField1 IS NULL AND t.@BranchID
+ AND t.OrderDateTime>@date1 and t.OrderDateTime<@date2 AND t.LineDeleted=0
+ ) AS r ORDER BY r.OrderDateTime,r.groupField,r.SortID,r.saleAmount desc

@@ -1,0 +1,16 @@
+SELECT 
+        CONVERT(CHAR(24),OrderTransactions.OrderDateTime,120)  AS Tarih,
+       OrderTransactions.OrderID AS [Çek No],
+       OrderTransactions.MenuItemText AS Ürün,
+       OrderTransactions.Quantity AS Miktar,
+       OrderTransactions.ExtendedPrice AS Tutar,
+ OrderTransactions.MenuItemGroupText as Grubu
+FROM   OrderTransactions
+       
+WHERE  (OrderTransactions.LineDeleted = 0)
+     
+       AND OrderTransactions.OrderDateTime >= @ilkTarih
+       AND OrderTransactions.OrderDateTime <= @sonTarih
+       AND OrderTransactions.@BranchID
+ORDER BY
+       OrderTransactions.OrderID DESC

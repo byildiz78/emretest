@@ -1,0 +1,12 @@
+SELECT r.Şube,r.ÜRÜN,r.GRUP,r.Tutar,r.MİKTAR,r.Gramaj,r.[Toplam Gramaj]
+FROM (SELECT efr_Branchs.BranchName AS Şube,OrderTransactions.MenuItemText AS ÜRÜN,OrderTransactions.MenuItemGroupText AS GRUP,SUM(OrderTransactions.ExtendedPrice) AS Tutar,SUM(OrderTransactions.Quantity) AS 
+ MİKTAR,ISNULL(GlobalMenuItems.Barcode2, 1) AS Gramaj,ISNULL(GlobalMenuItems.Barcode2, 1) * SUM(OrderTransactions.Quantity) AS [Toplam Gramaj]
+ FROM OrderTransactions WITH (NOLOCK)
+ LEFT OUTER  JOIN GlobalMenuItems ON OrderTransactions.MenuItemKey = GlobalMenuItems.MenuItemKey AND OrderTransactions.BranchID = GlobalMenuItems.BranchID
+ LEFT OUTER JOIN efr_Branchs ON OrderTransactions.BranchID = efr_Branchs.BranchID
+ WHERE OrderTransactions.LineDeleted = 0 AND OrderTransactions.TransactionDateTime >= @date1 AND OrderTransactions.TransactionDateTime <= @date2 
+ AND OrderTransactions.@BranchID 
+ AND ISNULL(GlobalMenuItems.Barcode2, 1) >= 1 
+AND OrderTransactions.ExtendedPrice >= 0
+ GROUP BY OrderTransactions.MenuItemText,OrderTransactions.MenuItemGroupText,GlobalMenuItems.Barcode2,efr_Branchs.BranchName) AS r
+WHERE ROUND(r.Gramaj, 2) >= 0

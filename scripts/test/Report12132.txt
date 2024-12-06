@@ -1,0 +1,19 @@
+Select
+eb.branchName as [Şube],
+Convert(varchar,ot.Orderdatetime,103) as Tarih,
+ot.MenuItemText as [Ürün],
+ot.MenuItemGroupText as [Grup],
+Sum(ot.Quantity) as [Miktar],
+Sum(ot.ExtendedPrice) as [Tutar]
+from OrderTransactions AS ot WITH(NOLOCK)
+INNER JOIN NewGlobalMenuItems as ng on ng.MenuItemKey=ot.MenuItemKey
+INNER JOIN OrderHeaders AS oh WITH(NOLOCK) on oh.OrderKey=ot.OrderKey
+INNER JOIN efr_Branchs AS eb WITH(NOLOCK) ON eb.BranchID=oh.BranchID
+ WHERE ng.Barcode2='v'
+ AND ot.OrderDateTime >= @date1
+ AND ot.OrderDateTime <= @date2
+ AND ot.@BranchID
+ AND ot.linedeleted=0
+ AND oh.linedeleted=0
+ Group by Convert(varchar,ot.Orderdatetime,103),eb.BranchName,ot.MenuItemText,ot.MenuItemGroupText
+ Order by ot.MenuItemGroupText

@@ -1,0 +1,33 @@
+SELECT
+	BR.BranchName,
+	OH.BranchID,
+	OH.OrderKey,
+	OH.SubTotal,
+	OH.DiscountOrderAmount,
+	OH.DiscountCashAmount,
+	OH.DiscountTotalAmount,
+	OH.DiscountLineAmount,
+	OH.AmountDue,
+	ROUND(ISNULL(SUM(OT.ExtendedPrice), 0),2) SatirTutar
+FROM
+	OrderHeaders OH WITH (NOLOCK)
+INNER JOIN efr_Branchs BR ON BR.BranchID = OH.BranchID
+LEFT OUTER JOIN OrderTransactions OT ON OT.OrderKey = OH.OrderKey AND OT.BranchID = BR.BranchID AND OT.LineDeleted = 0
+WHERE
+	OH.OrderDateTime >=@date1
+AND OH.OrderDateTime <=@date2
+AND OH.LineDeleted = 0
+AND OH.OrderStatus = 2
+AND OH.BranchID IN (1,2,3,4,25,26,36,49,65,74,76,95,98,107,116,22,125)
+GROUP BY
+	BR.BranchName,
+	OH.BranchID,
+	OH.OrderKey,
+	OH.SubTotal,
+	OH.DiscountOrderAmount,
+	OH.DiscountCashAmount,
+	OH.DiscountTotalAmount,
+	OH.DiscountLineAmount,
+	OH.AmountDue
+HAVING
+	ABS(OH.AmountDue + OH.DiscountTotalAmount - ISNULL(SUM(OT.ExtendedPrice), 0) - OH.DiscountLineAmount) > 0.01

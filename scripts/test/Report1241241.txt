@@ -1,0 +1,12 @@
+SELECT
+	t.CouponCode AS [Kupon Kodu],
+	h.OrderID AS [Çek No],
+	isnull( b.BranchName, '' ) AS [Şube],
+	CONVERT ( VARCHAR ( 50 ), t.UseDate, 120 ) AS [Tarih],
+	t.CampaignName AS [Kampanya]
+FROM
+	CouponTransactions t WITH (NOLOCK)
+	INNER JOIN OrderHeaders h WITH (NOLOCK) ON h.OrderKey = t.OrderKey
+	LEFT JOIN efr_Branchs b WITH (NOLOCK) ON b.BranchID = h.BranchID
+WHERE
+	ISNULL( t.IsUsed, 0 ) = 1

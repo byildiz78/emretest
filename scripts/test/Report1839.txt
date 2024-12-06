@@ -1,0 +1,44 @@
+SET NOCOUNT ON;
+IF OBJECT_ID('tempdb..#tempSale') IS NOT NULL DROP TABLE #tempSale; 
+CREATE TABLE #tempSale(BranchID int,OrderKey UNIQUEIDENTIFIER,MenuItemText NVARCHAR(100),UnitPrice FLOAT,Notes NVARCHAR(50),DefaultPrice FLOAT,Quantity FLOAT,ExtendedPrice FLOAT,MenuTotal FLOAT,NetPrice FLOAT,KomboName NVARCHAR(100),KomboPrice FLOAT); 
+INSERT INTO #tempSale(BranchID, OrderKey, MenuItemText, UnitPrice, Notes, DefaultPrice,Quantity,ExtendedPrice,NetPrice,KomboName,KomboPrice)
+SELECT t.BranchID, t.OrderKey,t.MenuItemText,t.MenuItemUnitPrice,left(isnull(t.CustomField1,''),15),m.DefaultUnitPrice,t.Quantity,t.ExtendedPrice,0.0,'',t.MenuItemUnitPrice
+FROM OrderHeaders AS h WITH(NOLOCK)
+INNER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey AND t.LineDeleted=0
+left outer JOIN GlobalMenuItems AS m ON t.BranchID=m.BranchID AND m.MenuItemKey = t.MenuItemKey
+WHERE h.OrderDateTime>@date1
+AND h.OrderDateTime<@date2
+AND h.@BranchID
+AND h.LineDeleted=0;
+WITH kaynak AS(SELECT m.MenuItemText,max(m.DefaultUnitPrice) as fiyat FROM GlobalMenuItems AS m WITH(NOLOCK) GROUP BY m.MenuItemText)
+UPDATE #tempSale SET DefaultPrice = k.fiyat
+FROM #tempSale INNER JOIN kaynak AS k ON #tempSale.MenuItemText = #tempSale.MenuItemText
+WHERE isnull(#tempSale.DefaultPrice,0)=0;
+DELETE FROM #tempSale WHERE Notes='' AND ExtendedPrice=0;
+DELETE FROM #tempSale WHERE Notes LIKE '%-' AND ExtendedPrice=0;
+UPDATE #tempSale SET MenuTotal =0;
+UPDATE #tempSale SET MenuTotal = (
+SELECT SUM(x.DefaultPrice) FROM #tempSale AS x WHERE x.OrderKey=#tempSale.OrderKey
+AND x.Notes LIKE PARSENAME(REPLACE(#tempSale.Notes, '-', '.'), 2) 
++'-%' AND x.Notes not LIKE '%-')
+WHERE Notes not LIKE '%-';
+UPDATE #tempSale SET NetPrice = ROUND((#tempSale.DefaultPrice*x.ExtendedPrice/#tempSale.MenuTotal/#tempSale.Quantity),5),KomboName=x.MenuItemText,KomboPrice = x.ExtendedPrice/x.Quantity
+FROM #tempSale
+INNER JOIN #tempSale AS x ON x.OrderKey = #tempSale.OrderKey AND x.Notes LIKE PARSENAME(REPLACE(#tempSale.Notes, '-', '.'), 2) 
++'-%' AND x.Notes LIKE '%-' AND x.ExtendedPrice>0
+AND #tempSale.MenuTotal>0
+WHERE #tempSale.Notes not LIKE '%-';
+UPDATE #tempSale SET NetPrice=ExtendedPrice/Quantity,MenuTotal=ExtendedPrice WHERE Notes='' OR NetPrice=0;
+UPDATE #tempSale SET NetPrice=NetPrice+(ExtendedPrice/Quantity) WHERE ExtendedPrice>0 AND ExtendedPrice<KomboPrice AND Notes LIKE '%-%' AND Notes NOT LIKE '%-';
+UPDATE #tempSale SET Notes = #tempSale.Notes+'0'
+FROM #tempSale LEFT JOIN #tempSale AS c ON c.OrderKey = #tempSale.OrderKey AND c.Notes LIKE #tempSale.Notes+'%' AND c.Notes<>#tempSale.Notes
+WHERE #tempSale.Notes LIKE '%-' AND c.BranchID IS NULL;
+DELETE FROM #tempSale WHERE Notes LIKE '%-';
+
+SELECT b.BranchName AS [Şube],s.KomboName AS Kombo,s.MenuItemText AS Menü,
+ROUND((s.NetPrice),2) AS [Menü Fiyat]
+,SUM(s.Quantity) AS Miktar,round(SUM(s.NetPrice*s.Quantity),2) AS Tutar
+FROM #tempSale AS s
+INNER JOIN efr_Branchs AS b ON b.BranchID=s.BranchID
+GROUP BY b.BranchName,s.MenuItemText,s.KomboName,s.NetPrice
+IF OBJECT_ID('tempdb..#tempSale') IS NOT NULL DROP TABLE #tempSale; 

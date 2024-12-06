@@ -1,0 +1,15 @@
+select 
+b.BranchName as Şube,
+convert(varchar,oh.OrderDateTime,120) as Tarih,
+oh.OrderID as ÇekNo,
+oh.OrderTypeSourceExternalNo as [QR Sipariş No],
+p.AmountPaid as Ödenen,
+p.PaymentMethodName as [Ödeme Tipi]
+from OrderHeaders oh with(nolock)
+inner join efr_Branchs b on b.BranchID=oh.BranchID
+inner join OrderPayments p with(nolock) on p.OrderKey=oh.OrderKey
+where 
+OrderDateTime between @date1 and @date2
+and OrderTypeSourceExternalNo like '%QRMenu%'
+and oh.LineDeleted=0
+and p.LineDeleted=0

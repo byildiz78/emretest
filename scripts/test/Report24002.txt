@@ -1,0 +1,58 @@
+
+
+
+
+Select 'Saat 01-02' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where (DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 1 or DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 2) and Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+Select 'Saat 03-06' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where (DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 3 or DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 6) and Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+
+Select 'Saat 07-08' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 7  and Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+
+
+Select 'Saat 08-09' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 8 and Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+
+Select 'Saat 09-10' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 9  and Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0   
+UNION ALL
+Select 'Saat 10-11' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 10 AND Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+Select 'Saat 11-12' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 11 AND Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+Select 'Saat 12-13' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 12 AND Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+Select 'Saat 13-14' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 13 AND Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+Select 'Saat 14-15' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 14 AND Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+Select 'Saat 15-16' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 15 AND Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+Select 'Saat 16-17' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 16 AND Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+Select 'Saat 17-18' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 17 AND Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+Select 'Saat 18-19' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 18 AND Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+
+
+Select 'Saat 19-20' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 19 AND Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+
+
+Select 'Saat 20-21' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 20  and Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+
+
+Select 'Saat 21-22' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 21  and Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+
+
+
+Select 'Saat 22-23' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 22  and Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+UNION ALL
+Select 'Saat 23-24' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 23 and Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+
+UNION ALL
+Select 'Saat 24-01' As Saat, ISNULL(SUM(ordertransactions.ExtendedPrice),0) As Tutar  From OrderTransactions Where DATEPART(HOUR, Ordertransactions.TransactionDateTime) = 0 and Ordertransactions.TransactionDateTime>=@ilkTarih  AND Ordertransactions.TransactionDateTime<=@sonTarih And Ordertransactions.@BranchID AND linedeleted=0  
+

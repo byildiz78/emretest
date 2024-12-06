@@ -1,0 +1,57 @@
+SELECT
+	b.BranchName AS [Şube],
+	r.OrderType AS [Satıs Tıpı],
+	SUM ( ( CASE WHEN r.FarkDakika <= 1 THEN r.Quantity ELSE 0 END ) ) AS [1 DK],
+	SUM ( ( CASE WHEN r.FarkDakika < 10 AND r.FarkDakika > 1 THEN r.Quantity ELSE 0 END ) ) AS [1-10 DK],
+	SUM ( ( CASE WHEN r.FarkDakika >= 10 AND r.FarkDakika< 20 THEN r.Quantity ELSE 0 END ) ) AS [10-20 DK],
+	SUM ( ( CASE WHEN r.FarkDakika >= 20 AND r.FarkDakika< 30 THEN r.Quantity ELSE 0 END ) ) AS [20-30 DK],
+	SUM ( ( CASE WHEN r.FarkDakika >= 30 AND r.FarkDakika< 40 THEN r.Quantity ELSE 0 END ) ) AS [30-40 DK],
+	SUM ( ( CASE WHEN r.FarkDakika >= 40 THEN r.Quantity ELSE 0 END ) ) AS [>40 DK],
+	ROUND( ( SUM ( r.FarkDakika ) / SUM ( r.Quantity ) ), 3 ) AS [ORTALAMA SÜRE] 
+FROM
+	(
+	SELECT
+	    CASE
+		when h.OrderType=1 then 'Masa Satış'	
+		when h.OrderType=3 then 'Al Götür'
+		when h.OrderType=4 then 'Tezgah Satış'
+		when h.OrderType=5 and h.OrderTypeSourceExternalNo like '%sepet%' then 'Yemek Sepeti'
+    when h.OrderType=5 and h.OrderTypeSourceExternalNo like '%getir%' then 'Getir'
+    when h.OrderType=5 and h.OrderTypeSourceExternalNo like '%trendy%' then 'Trendyol'
+		when h.OrderType=5 and h.OrderTypeSourceExternalNo like 'Web Sipariş_Web%' OR h.OrderTypeSourceExternalNo like 'Web Sipariş_telef%' then 'Web Sipariş'
+    when h.OrderType=5 and h.OrderTypeSourceExternalNo is null then 'Paket' 
+		else '' end as [OrderType],
+		t.BranchID,
+		t.OrderKey,
+		CAST (
+			DATEDIFF(
+				MINUTE,
+				t.TransactionDateTime,
+				CAST (CASE WHEN len( isnull( t.CustomField5, '' ) ) < 9 
+					  OR isnull( t.CustomField5, '' ) NOT LIKE '%201%' 	
+					  AND isnull( t.CustomField5, '' ) NOT LIKE '%202%'    
+					  OR isnull( t.CustomField5, '' ) LIKE '%t%' THEN	
+					  dateadd( MINUTE, 1, t.TransactionDateTime ) ELSE t.CustomField5
+				 	  END AS DATETIME 	
+					) 
+				) AS FLOAT 
+			) / Quantity AS FarkDakika,
+			Quantity 
+		FROM
+			OrderTransactions t WITH ( NOLOCK ) INNER JOIN OrderHeaders h WITH ( NOLOCK ) on t.orderkey=h.orderkey
+		
+		WHERE
+			1 = 1 
+			AND t.Transactiondatetime BETWEEN @date1 
+			AND @date2 
+			AND t.@BranchID 
+			AND t.LineDeleted = 0 
+			--AND m.CustomField5= 1 
+		) AS r
+		INNER JOIN efr_Branchs AS b ON b.BranchID = r.BranchID 
+	WHERE
+		R.FarkDakika< 70 
+		AND R.FarkDakika>= 1 
+GROUP BY
+	b.BranchName,
+	r.OrderType

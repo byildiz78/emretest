@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Report ReportInfo.Created="09/04/2019 18:43:47" ReportInfo.Modified="11/04/2020 15:19:19" ReportInfo.CreatorVersion="1.2.47.0">
+  <Dictionary>
+    <MsSqlDataConnection Name="Connection" ConnectionString="rijcmlqYds/3sNQPlSJevqJ33Romzi+E0dC7juNkLILQr62Gu+i6uaGEdATtRcUjueO9MD+g8ndjpIb+SXCFlu5pnqrAeJdPdaexcsd9G6U/5wu6phzlWjWtKn3C1eTzv0NOB2KBMxXaelGrebHO6aiFE/GHMsiM1mYxRAMgWjo3IbqZSVPzV6IGdWt8e18j9oxvytlvoxZ/V4tn8kYcLJKNvYdMJvs61sixehNVmgAbD+zhd0=">
+      <TableDataSource Name="Table" DataType="System.Int32" Enabled="true" SelectCommand="SELECT&#13;&#10;b.BranchName,&#13;&#10;OrderTransactions.OrderID,&#13;&#10;OrderTransactions.MenuItemText,&#13;&#10;OrderTransactions.BranchID,&#13;&#10;OrderHeaders.GuestNumber,&#13;&#10;OrderHeaders.DineInTableName,&#13;&#10;OrderTransactions.Quantity,&#13;&#10;OrderTransactions.ExtendedPrice,&#13;&#10;(SELECT ISNULL(SUM(AmountPaid),0) FROM OrderPayments p where p.OrderKey=OrderTransactions.OrderKey) AS Odenen,&#13;&#10;OrderHeaders.AmountDue,&#13;&#10;OrderHeaders.DiscountTotalAmount,&#13;&#10;OrderHeaders.OrderDateTime,&#13;&#10;CONVERT(VARCHAR, OrderTransactions.AddDateTime,8) as AddHour,&#13;&#10;OrderHeaders.EmployeeName,&#13;&#10;OrderTransactions.AddUserName   AS AddEmployeeName,&#13;&#10;	          (&#13;&#10;           CASE OrderHeaders.OrderType&#13;&#10;                WHEN 1 THEN 'MASA'&#13;&#10;                WHEN 2 THEN 'BAR SATIŞI'&#13;&#10;                WHEN 3 THEN 'AL GÖTÜR'&#13;&#10;                WHEN 4 THEN 'TEZGAH SATIŞI'&#13;&#10;                WHEN 5 THEN 'PAKET SATIŞI'&#13;&#10;                ELSE '-'&#13;&#10;           END&#13;&#10;       )                                AS OrderTypeName,&#13;&#10;&#13;&#10;&#13;&#10;OrderTransactions.OrderKey&#13;&#10;      &#13;&#10;FROM   OrderTransactions WITH (NOLOCK)&#13;&#10;LEFT JOIN OrderHeaders on OrderHeaders.OrderKey=OrderTransactions.OrderKey&#13;&#10;LEFT JOIN efr_Branchs b on b.BranchID=OrderHeaders.BranchID&#13;&#10;	  &#13;&#10;WHERE  &#13;&#10;OrderTransactions.OrderDateTime between @date1 and @date2&#13;&#10;AND OrderTransactions.@BranchID&#13;&#10;AND OrderTransactions.linedeleted = 0&#13;&#10;AND OrderTransactions.MenuItemtext NOT LIKE 'T-%'&#13;&#10;AND OrderHeaders.@OrderStatus&#13;&#10;Order by OrderTransactions.OrderID">
+        <Column Name="OrderID" DataType="System.Int32"/>
+        <Column Name="MenuItemText" DataType="System.String"/>
+        <Column Name="BranchID" DataType="System.Int32"/>
+        <Column Name="GuestNumber" DataType="System.Int32"/>
+        <Column Name="DineInTableName" DataType="System.String"/>
+        <Column Name="Quantity" DataType="System.Double"/>
+        <Column Name="ExtendedPrice" DataType="System.Double"/>
+        <Column Name="Odenen" DataType="System.Double"/>
+        <Column Name="AmountDue" DataType="System.Double"/>
+        <Column Name="DiscountTotalAmount" DataType="System.Double"/>
+        <Column Name="OrderDateTime" DataType="System.DateTime"/>
+        <Column Name="AddHour" DataType="System.String"/>
+        <Column Name="EmployeeName" DataType="System.String"/>
+        <Column Name="AddEmployeeName" DataType="System.String"/>
+        <Column Name="OrderTypeName" DataType="System.String"/>
+        <Column Name="OrderKey" DataType="System.Guid"/>
+        <Column Name="BranchName" DataType="System.String"/>
+      </TableDataSource>
+    </MsSqlDataConnection>
+  </Dictionary>
+  <ReportPage Name="Page1">
+    <ReportTitleBand Name="ReportTitle1" Width="718.2"/>
+    <PageHeaderBand Name="PageHeader1" Top="4" Width="718.2"/>
+    <GroupHeaderBand Name="GroupHeader1" Top="8" Width="718.2" Height="170.1" Condition="[Table.OrderID]" KeepTogether="true">
+      <TextObject Name="Text3" Left="113.4" Top="56.7" Width="198.45" Height="18.9" Text="[Table.BranchName]" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text2" Left="56.7" Top="56.7" Width="56.7" Height="18.9" Text="Çek No :" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text7" Left="472.5" Top="56.7" Width="207.9" Height="37.8" Text="[Table.DineInTableName]"/>
+      <TextObject Name="Text9" Left="415.8" Top="56.7" Width="56.7" Height="18.9" Text="Masa :"/>
+      <TextObject Name="Text5" Left="56.7" Top="132.3" Width="56.7" Height="18.9" Text="Tarih :"/>
+      <TextObject Name="Text6" Left="113.4" Top="132.3" Width="198.45" Height="18.9" Text="[Table.OrderDateTime]" Format="Date" Format.Format="d"/>
+      <TextObject Name="Text10" Left="396.9" Top="94.5" Width="75.6" Height="18.9" Text="Personel :"/>
+      <TextObject Name="Text11" Left="472.5" Top="94.5" Width="207.9" Height="37.8" Text="[Table.EmployeeName]"/>
+      <TextObject Name="Text12" Left="368.55" Top="132.3" Width="103.95" Height="18.9" Text="Konuk Sayısı :"/>
+      <TextObject Name="Text13" Left="472.5" Top="132.3" Width="207.9" Height="18.9" Text="[Table.GuestNumber]"/>
+      <TextObject Name="Text1" Top="9.45" Width="718.2" Height="28.35" Text="[Table.OrderTypeName]" HorzAlign="Center" Font="Arial, 14pt, style=Bold"/>
+      <LineObject Name="Line1" Width="718.2"/>
+      <LineObject Name="Line2" Left="718.2" Height="160.65"/>
+      <LineObject Name="Line3" Left="718.2" Top="160.65" Height="9.45"/>
+      <LineObject Name="Line7" Height="160.65"/>
+      <LineObject Name="Line8" Top="160.65" Height="9.45"/>
+      <TextObject Name="Text29" Left="113.4" Top="94.5" Width="198.45" Height="18.9" Text="[Table.OrderID]" Font="Arial, 10pt, style=Bold"/>
+      <TextObject Name="Text30" Left="56.7" Top="94.5" Width="56.7" Height="18.9" Text="Çek No :" Font="Arial, 10pt, style=Bold"/>
+      <DataBand Name="Data1" Top="223.9" Width="718.2" Height="37.8" DataSource="Table">
+        <TextObject Name="Text4" Left="9.45" Top="9.45" Width="236.25" Height="18.9" Text="[Table.MenuItemText]"/>
+        <TextObject Name="Text14" Left="274.05" Top="9.45" Width="47.25" Height="18.9" Text="[Table.Quantity]" Format="Number" Format.UseLocale="true" HorzAlign="Center" VertAlign="Center" WordWrap="false" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text16" Left="321.3" Top="9.45" Width="103.95" Height="18.9" Text="[Table.ExtendedPrice]" Format="Currency" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.CurrencySymbol="₺" Format.PositivePattern="0" Format.NegativePattern="1" HorzAlign="Center" VertAlign="Center" WordWrap="false" Trimming="EllipsisCharacter"/>
+        <TextObject Name="Text18" Left="425.25" Top="9.45" Width="160.65" Height="18.9" Text="[Table.AddEmployeeName]" HorzAlign="Center" VertAlign="Center"/>
+        <TextObject Name="Text20" Left="604.8" Top="9.45" Width="75.6" Height="18.9" Text="[Table.AddHour]" HorzAlign="Center" VertAlign="Center"/>
+        <LineObject Name="Line5" Left="718.2" Height="37.8"/>
+        <LineObject Name="Line10" Height="37.8"/>
+        <DataHeaderBand Name="DataHeader1" Top="182.1" Width="718.2" Height="37.8">
+          <TextObject Name="Text8" Left="18.9" Width="255.15" Height="37.8" Border.Lines="Top, Bottom" Text="MenuItemText" VertAlign="Center"/>
+          <TextObject Name="Text15" Left="274.05" Width="47.25" Height="37.8" Border.Lines="Top, Bottom" Text="Miktar" HorzAlign="Center" VertAlign="Center"/>
+          <TextObject Name="Text17" Left="321.3" Width="103.95" Height="37.8" Border.Lines="Top, Bottom" Text="Tutar" HorzAlign="Center" VertAlign="Center"/>
+          <TextObject Name="Text19" Left="425.25" Width="179.55" Height="37.8" Border.Lines="Top, Bottom" Text="Ekleyen" HorzAlign="Center" VertAlign="Center"/>
+          <TextObject Name="Text21" Left="604.8" Width="85.05" Height="37.8" Border.Lines="Top, Bottom" Text="Saat" HorzAlign="Center" VertAlign="Center"/>
+          <LineObject Name="Line4" Left="718.2" Height="37.8"/>
+          <LineObject Name="Line9" Height="37.8"/>
+        </DataHeaderBand>
+      </DataBand>
+      <GroupFooterBand Name="GroupFooter1" Top="265.7" Width="718.2" Height="75.6">
+        <TextObject Name="Text24" Left="9.45" Top="9.45" Width="179.55" Height="28.35" Border.Lines="All" Border.Color="Gainsboro" Text="Indirim : [Table.DiscountTotalAmount]" Format="Currency" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.CurrencySymbol="₺" Format.PositivePattern="0" Format.NegativePattern="1" HorzAlign="Center" VertAlign="Center"/>
+        <TextObject Name="Text25" Left="198.45" Top="9.45" Width="160.65" Height="28.35" Border.Lines="All" Border.Color="Gainsboro" Text="Tutar : [Table.AmountDue]" Format="Currency" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.CurrencySymbol="₺" Format.PositivePattern="0" Format.NegativePattern="1" HorzAlign="Center" VertAlign="Center"/>
+        <LineObject Name="Line12" Top="66.15" Width="718.2"/>
+        <LineObject Name="Line6" Height="66.15"/>
+        <LineObject Name="Line13" Left="718.2" Height="66.15"/>
+        <TextObject Name="Text26" Left="368.55" Top="9.45" Width="151.2" Height="28.35" Border.Lines="All" Border.Color="Gainsboro" Text="Odenen : [Table.Odenen]" Format="Currency" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.CurrencySymbol="₺" Format.PositivePattern="0" Format.NegativePattern="1" HorzAlign="Center" VertAlign="Center"/>
+        <TextObject Name="Text28" Left="529.2" Top="9.45" Width="179.55" Height="28.35" Border.Lines="All" Border.Color="Gainsboro" Text="Kalan : [[Table.AmountDue]-[Table.Odenen]]" Format="Currency" Format.UseLocale="false" Format.DecimalDigits="2" Format.DecimalSeparator="," Format.GroupSeparator="." Format.CurrencySymbol="₺" Format.PositivePattern="0" Format.NegativePattern="1" HorzAlign="Center" VertAlign="Center"/>
+      </GroupFooterBand>
+    </GroupHeaderBand>
+    <PageFooterBand Name="PageFooter1" Top="345.3" Width="718.2" Height="18.9"/>
+  </ReportPage>
+</Report>

@@ -1,0 +1,9 @@
+Select
+  cast(DATEPART(YEAR, OrderPayments.PaymentDateTime) as nvarchar(20)) As Tipi,
+  isnull(Sum(OrderPayments.AmountPaid),0.0) As Tutar
+From
+  OrderPayments
+Where OrderPayments.@BranchID and OrderPayments.LineDeleted=0 
+  group by DATEPART(YEAR, OrderPayments.PaymentDateTime)
+  
+  

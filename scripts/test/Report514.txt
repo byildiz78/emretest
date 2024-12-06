@@ -1,0 +1,7 @@
+SELECT 
+COUNT(DISTINCT h.OrderKey) as value
+FROM OrderHeaders AS h WITH(NOLOCK)
+INNER JOIN OrderTransactions AS t WITH(NOLOCK) ON t.OrderKey = h.OrderKey
+WHERE h.OrderDateTime between @date1 and @date2 
+and h.@BranchID
+AND h.linedeleted=0 and t.LineDeleted=0

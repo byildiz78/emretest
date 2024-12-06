@@ -1,0 +1,221 @@
+SET NOCOUNT ON;
+DECLARE @dateX DATETIME;SET @dateX='1/1/2017';
+SET @dateX=(SELECT isnull(max(t.SaleDate),'1/1/2017') FROM KafePiTuketim AS t);
+IF (DATEADD(DAY,1,@dateX)<DATEADD(D,0,DATEDIFF(dd, 0,GETDATE())))
+BEGIN
+ EXEC dbo.kafePiSonAyUret;
+END;
+		
+DECLARE @depoID INT;
+DECLARE @branchID INT;
+SET @depoID=(SELECT ISNULL((SELECT TOP 1 w.WarehouseID FROM posDailyClosingHeader AS w 
+WHERE w.ClosingID=@closeID),0));
+SET @branchID=(SELECT ISNULL((SELECT TOP 1 w.BranchID FROM posDailyClosingHeader AS w 
+WHERE w.ClosingID=@closeID),0));
+DECLARE @currentID INT;
+DECLARE @openClosingID INT;
+DECLARE @lastClsID INT;
+DECLARE @openDate DATETIME;
+DECLARE @countDate DATETIME;
+DECLARE @lastDate DATETIME;
+SET @lastDate=DATEADD(DAY,1,@date2);
+SET @currentID=(SELECT isnull(MAX(b.CurrentID),0) FROM posBranchs AS b WHERE b.WarehouseID=@depoID);
+SET @countDate=(SELECT isnull(MAX(h.ClosingDate),0) FROM posDailyClosingHeader AS h WHERE h.ClosingID=@closeID);
+SET @openClosingID=@closeID;
+SET @lastClsID=@LastCloseID;
+SET @lastDate=(SELECT isnull(MAX(h.ClosingDate),'1/1/2010') FROM posDailyClosingHeader AS h WHERE h.ClosingDate<=@lastDate);
+SET @openDate=DATEADD(second,1,@countDate);
+IF @lastClsID<=0
+BEGIN
+SET @lastClsID=(SELECT isnull(MAX(h.ClosingID),0) FROM posDailyClosingHeader AS h WHERE h.branchID=@branchID and  h.ClosingDate<=@lastDate AND h.ClosingDate>@openDate);
+END
+IF OBJECT_ID('tempdb..#tempTable') IS NOT NULL
+BEGIN
+ DROP TABLE #tempTable;
+END;
+create table #tempTable
+( StokID int, StokAdi Varchar(150),Birim Varchar(150),Depo Varchar(150),DonemBaslangici DATETIME,OrtalamaFiyat FLOAT,  Devir FLOAT, Giren FLOAT,IadeGiren FLOAT, TransferGiren FLOAT,UretimdenGiren FLOAT,
+ SatisCikan FLOAT,IadeCikan FLOAT, FireCikan FLOAT, TransferCikan FLOAT,ReceteTuketim FLOAT, UretimeCikan FLOAT, OlmasiGereken FLOAT, Sayim FLOAT, SatisTutar FLOAT, Fark FLOAT, DisAlim FLOAT
+);
+INSERT INTO #tempTable ( StokID,StokAdi,Birim,Depo,DonemBaslangici,OrtalamaFiyat, Devir, Giren,IadeGiren, TransferGiren,UretimdenGiren, SatisCikan,IadeCikan, FireCikan,TransferCikan,ReceteTuketim, UretimeCikan, OlmasiGereken,Sayim,SatisTutar,DisAlim)
+SELECT p.ProductID,p.ProductName,'','',@openDate,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 FROM posProducts AS p WHERE p.IsSaleProduct=0 AND p.ProductID IN (SELECT distinct d.ProductID FROM posDailyClosingDetail AS d);
+IF @closeID>0
+BEGIN
+ UPDATE #tempTable SET Devir = posDailyClosingDetail.CountAmount,OrtalamaFiyat = posDailyClosingDetail.AveragePrice
+ FROM #tempTable INNER JOIN posDailyClosingDetail ON #tempTable.StokID=posDailyClosingDetail.ProductID AND posDailyClosingDetail.ClosingID=@openClosingID;
+END
+IF @lastClsID>0
+BEGIN
+ UPDATE #tempTable SET Sayim = posDailyClosingDetail.CountAmount,OrtalamaFiyat = isnull(posDailyClosingDetail.AveragePrice,0)
+ FROM #tempTable INNER JOIN posDailyClosingDetail ON #tempTable.StokID=posDailyClosingDetail.ProductID AND posDailyClosingDetail.ClosingID=@lastClsID;
+END
+
+UPDATE #tempTable SET Birim=u.UnitName
+FROM #tempTable INNER JOIN posProducts ON #tempTable.StokID=posProducts.ProductID INNER JOIN posProductUnits AS u ON u.UnitID=posProducts.UnitID;
+
+UPDATE #tempTable SET Depo = w.WarehouseName FROM #tempTable INNER JOIN posWarehouse AS w ON w.WarehouseID=@depoID;
+
+UPDATE #tempTable SET Giren= ISNULL(( SELECT sum(d.OutgoingMain) AS summm FROM posOrderDetail AS d 
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID AND h.BranchID=@branchID
+WHERE d.DocumentTypeID IN (6) AND d.ProductID=#tempTable.StokID 
+AND d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate),0) +
+ISNULL(( SELECT sum(d.OutgoingMain) AS summm
+FROM posOrderDetail AS d with(nolock) INNER JOIN posProducts AS p ON p.MainProductID=#tempTable.StokID
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID  AND h.BranchID=@branchID
+WHERE d.DocumentTypeID IN (6) AND d.ProductID=p.ProductID AND 
+d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate),0);
+
+UPDATE #tempTable SET DisAlim= ISNULL(( SELECT sum(d.IncomingMain) AS summm FROM posOrderDetail AS d 
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID AND h.BranchID=@branchID
+WHERE d.DocumentTypeID IN (42) AND d.ProductID=#tempTable.StokID AND h.RefDocumentNo='DIŞALIM' 
+AND d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate),0) +
+ISNULL(( SELECT sum(d.IncomingMain) AS summm
+FROM posOrderDetail AS d with(nolock) INNER JOIN posProducts AS p ON p.MainProductID=#tempTable.StokID
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID  AND h.BranchID=@branchID
+WHERE d.DocumentTypeID IN (42) AND d.ProductID=p.ProductID AND h.RefDocumentNo='DIŞALIM' AND 
+d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate),0);
+
+UPDATE #tempTable SET IadeGiren= ISNULL(( SELECT sum(d.IncomingMain) AS summm FROM posOrderDetail AS d 
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID
+WHERE d.DocumentTypeID IN (27) AND d.ProductID=#tempTable.StokID and d.WarehouseID=@depoID
+AND d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate
+AND isnull(h.IsConverted,0)=0),0) +
+ISNULL(( SELECT sum(d.IncomingMain) AS summm
+FROM posOrderDetail AS d with(nolock) INNER JOIN posProducts AS p ON p.MainProductID=#tempTable.StokID
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID 
+WHERE d.DocumentTypeID IN (27) AND d.ProductID=p.ProductID and d.WarehouseID=@depoID AND 
+d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate
+AND isnull(h.IsConverted,0)=0),0);
+
+UPDATE #tempTable SET UretimdenGiren= ISNULL(( SELECT sum(d.IncomingMain) AS summm FROM posOrderDetail AS d 
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID
+WHERE d.DocumentTypeID IN (35,36,37) AND d.ProductID=#tempTable.StokID and d.WarehouseID=@depoID
+AND d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate
+AND isnull(h.IsConverted,0)=0),0);
+UPDATE #tempTable SET UretimdenGiren=isnull(UretimdenGiren,0)+ISNULL(( SELECT sum(d.IncomingMain) AS summm
+FROM posOrderDetail AS d with(nolock) INNER JOIN posProducts AS p ON p.MainProductID=#tempTable.StokID
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID 
+WHERE d.DocumentTypeID IN (35,36,37) AND d.ProductID=p.ProductID and d.WarehouseID=@depoID AND 
+d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate
+AND isnull(h.IsConverted,0)=0),0);
+
+UPDATE #tempTable SET TransferGiren = ISNULL((
+SELECT SUM(d.Quantity *isnull(u.UnitRate,1)) FROM posWarehouseTransferDetail AS d 
+INNER JOIN posWarehouseTransfer AS h ON h.TransferID = d.TransferID
+LEFT OUTER JOIN posProductUnits AS u ON d.UnitID =u.UnitID  
+WHERE d.ProductID=#tempTable.StokID and h.TargetWarehouseID=@depoID AND 
+h.TransferDate>=@openDate AND h.TransferDate<@lastDate
+),0) + ISNULL((
+SELECT SUM(d.Quantity *isnull(u.UnitRate,1)) FROM posWarehouseTransferDetail AS d 
+INNER JOIN posProducts AS p ON p.MainProductID=#tempTable.StokID
+INNER JOIN posWarehouseTransfer AS h ON h.TransferID = d.TransferID
+LEFT OUTER JOIN posProductUnits AS u ON d.UnitID =u.UnitID  
+WHERE d.ProductID=p.ProductID and h.TargetWarehouseID=@depoID AND 
+h.TransferDate>=@openDate AND h.TransferDate<@lastDate ),0);
+
+UPDATE #tempTable SET SatisTutar=isnull(SatisTutar,0)+ISNULL(( 
+SELECT sum(rs.SatisTutari) AS SatisTutari FROM	(
+SELECT r.BranchID, r.SatisTutari,isnull(fd.ProductID,p.ProductID) AS StokId,
+isnull(fp.ProductName,p.ProductName) AS StokAdi,isnull(fp.ProductCode,p.ProductCode) AS StokKodu
+FROM (
+SELECT h.BranchID, t.MenuItemKey,sum(t.ExtendedPrice) AS SatisTutari
+  FROM OrderHeaders AS h WITH (NOLOCK) 
+INNER JOIN OrderTransactions AS t ON h.BranchID = t.BranchID AND h.OrderKey = t.OrderKey AND t.LineDeleted=0
+WHERE 
+h.BranchID=@branchID
+AND h.LineDeleted=0
+AND DATEADD(dd, DATEDIFF(dd, 0,h.OrderDateTime), 0.25)>=@openDate
+AND DATEADD(dd, DATEDIFF(dd, 0,h.OrderDateTime), 0.25)<=@lastDate
+GROUP BY h.BranchID,t.MenuItemKey
+) AS r
+INNER JOIN GlobalMenuItems AS m ON m.BranchID = r.BranchID AND m.MenuItemKey = r.MenuItemKey
+INNER JOIN posProducts AS p ON p.ProductKey=m.MenuItemGlobalKey
+LEFT OUTER JOIN posManafactureFormulaAssign AS fa ON fa.ProductID = p.ProductID AND fa.BranchID = 1
+LEFT OUTER JOIN posManafactureFormulaDetail AS fd ON fd.FormulaID = fa.FormulaID
+LEFT OUTER JOIN posManafactureFormula AS f ON f.FormulaID = fd.FormulaID
+LEFT OUTER JOIN posProducts AS fp ON fp.ProductID=fd.ProductID
+WHERE fp.ProductID=#tempTable.StokID
+GROUP BY r.BranchID,fd.ProductID,fp.ProductName,p.ProductID,p.ProductName,fp.ProductCode,p.ProductCode,SatisTutari
+) AS rs
+),0);
+
+UPDATE #tempTable SET SatisCikan =0;
+
+UPDATE #tempTable SET IadeCikan = ISNULL(( SELECT sum(d.OutgoingMain) AS summm FROM posOrderDetail AS d 
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID
+WHERE d.DocumentTypeID IN (43) AND d.ProductID=#tempTable.StokID and d.WarehouseID=@depoID
+AND d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate
+AND isnull(h.IsConverted,0)=0),0) +
+ISNULL(( SELECT sum(d.OutgoingMain) AS summm
+FROM posOrderDetail AS d with(nolock) INNER JOIN posProducts AS p ON p.MainProductID=#tempTable.StokID
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID 
+WHERE d.DocumentTypeID IN (43) AND d.ProductID=p.ProductID and d.WarehouseID=@depoID AND 
+d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate
+AND isnull(h.IsConverted,0)=0),0);
+
+UPDATE #tempTable SET TransferCikan = ISNULL((
+SELECT SUM(d.Quantity *isnull(u.UnitRate,1)) FROM posWarehouseTransferDetail AS d 
+INNER JOIN posWarehouseTransfer AS h ON h.TransferID = d.TransferID
+INNER JOIN posWarehouse AS w ON w.WarehouseID=h.TargetWarehouseID AND ISNULL(w.IsVirtual,0)=0
+LEFT OUTER JOIN posProductUnits AS u ON d.UnitID =u.UnitID  
+WHERE d.ProductID=#tempTable.StokID and h.WarehouseID=@depoID AND 
+h.TransferDate>=@openDate AND h.TransferDate<@lastDate ),0) 
++ISNULL(( SELECT SUM(d.Quantity *isnull(u.UnitRate,1)) FROM posWarehouseTransferDetail AS d 
+INNER JOIN posProducts AS p ON p.MainProductID=#tempTable.StokID
+INNER JOIN posWarehouseTransfer AS h ON h.TransferID = d.TransferID
+INNER JOIN posWarehouse AS w ON w.WarehouseID=h.TargetWarehouseID AND ISNULL(w.IsVirtual,0)=0
+LEFT OUTER JOIN posProductUnits AS u ON d.UnitID =u.UnitID  
+WHERE d.ProductID=p.ProductID and h.WarehouseID=@depoID AND 
+h.TransferDate>=@openDate AND h.TransferDate<@lastDate ),0);
+
+UPDATE #tempTable SET FireCikan = ISNULL((
+SELECT SUM(d.Quantity *isnull(u.UnitRate,1)) FROM posWarehouseTransferDetail AS d 
+INNER JOIN posWarehouseTransfer AS h ON h.TransferID = d.TransferID
+INNER JOIN posWarehouse AS w ON w.WarehouseID=h.TargetWarehouseID AND ISNULL(w.IsVirtual,0)=1
+LEFT OUTER JOIN posProductUnits AS u ON d.UnitID =u.UnitID  
+WHERE d.ProductID=#tempTable.StokID and h.WarehouseID=@depoID AND 
+h.TransferDate>=@openDate AND h.TransferDate<@lastDate ),0) 
++ISNULL(( SELECT SUM(d.Quantity *isnull(u.UnitRate,1)) FROM posWarehouseTransferDetail AS d 
+INNER JOIN posProducts AS p ON p.MainProductID=#tempTable.StokID
+INNER JOIN posWarehouseTransfer AS h ON h.TransferID = d.TransferID
+INNER JOIN posWarehouse AS w ON w.WarehouseID=h.TargetWarehouseID AND ISNULL(w.IsVirtual,0)=1
+LEFT OUTER JOIN posProductUnits AS u ON d.UnitID =u.UnitID  
+WHERE d.ProductID=p.ProductID and h.WarehouseID=@depoID AND 
+h.TransferDate>=@openDate AND h.TransferDate<@lastDate ),0);
+
+UPDATE #tempTable SET ReceteTuketim  =isnull(ReceteTuketim,0)+ ISNULL(( SELECT sum(d.UseQuantity) AS summm FROM KafePiTuketim AS d 
+WHERE d.ProductID=#tempTable.StokID and d.WarehouseID=@depoID
+AND d.SaleDate>=@openDate AND d.SaleDate<@lastDate ),0) +
+ISNULL(( SELECT sum(d.UseQuantity) AS summm
+FROM KafePiTuketim AS d with(nolock) INNER JOIN posProducts AS p ON p.MainProductID=#tempTable.StokID
+WHERE d.ProductID=p.ProductID and d.WarehouseID=@depoID AND 
+d.SaleDate>=@openDate AND d.SaleDate<@lastDate ),0);
+
+UPDATE #tempTable SET ReceteTuketim  =isnull(ReceteTuketim,0)+isnull(SatisCikan,0);
+
+UPDATE #tempTable SET UretimeCikan  =ISNULL(( SELECT sum(d.OutgoingMain) AS summm FROM posOrderDetail AS d 
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID
+WHERE d.DocumentTypeID IN (35) AND d.ProductID=#tempTable.StokID and d.WarehouseID=@depoID
+AND d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate 
+AND isnull(h.IsConverted,0)=0),0) +
+ISNULL(( SELECT sum(d.OutgoingMain) AS summm
+FROM posOrderDetail AS d with(nolock) INNER JOIN posProducts AS p ON p.MainProductID=#tempTable.StokID
+INNER JOIN posOrderHeader AS h ON h.OrderID = d.OrderID 
+WHERE d.DocumentTypeID IN (35) AND d.ProductID=p.ProductID and d.WarehouseID=@depoID AND 
+d.DocumentDateTime>=@openDate AND d.DocumentDateTime<@lastDate 
+AND isnull(h.IsConverted,0)=0),0);
+
+UPDATE #tempTable SET OlmasiGereken = Devir+(Giren+TransferGiren+UretimdenGiren+IadeGiren+DisAlim)-(IadeCikan+UretimeCikan+FireCikan+TransferCikan+ReceteTuketim),Fark=0;
+UPDATE #tempTable SET Fark = Sayim-OlmasiGereken;
+
+SELECT isnull(pb.BranchName,'') AS Şube,d.DonemBaslangici AS [Dönem Başlangıcı], isnull(pmc.PickValue,'') AS [Ana Kategori],isnull(pc.PickValue,'') AS Kategori,isnull(pg.PickValue,'') AS Grubu,p.ProductCode AS [Stok Kodu],d.StokAdi AS [Stok Adı],d.Birim,d.Depo,d.Devir AS Açılış,d.Giren AS Sevk,d.IadeGiren AS [İade Gelen],
+d.TransferGiren AS [Transfer Giren],d.DisAlim AS [Dış Alım],d.UretimdenGiren AS [Üretimden Giren],(d.Giren+d.TransferGiren+d.UretimdenGiren+d.IadeGiren+d.DisAlim) AS [Toplam Giren],d.ReceteTuketim AS [Reçete Tüketim]
+,d.IadeCikan AS [İade Çıkan],d.TransferCikan AS [Transfer Çıkan],d.FireCikan AS [Fire Çıkan],d.UretimeCikan AS [Üretime Çıkan],
+(d.IadeCikan+d.UretimeCikan+d.TransferCikan+d.ReceteTuketim) AS [Toplam Çıkan],d.OlmasiGereken AS [Olması Gereken],d.Sayim as [Sayım],d.Fark AS Fark
+FROM [#tempTable] AS d
+INNER JOIN posProducts AS p ON p.ProductID=d.StokID
+LEFT OUTER JOIN posPickList AS pg ON pg.ListID=p.GroupID
+LEFT OUTER JOIN posPickList AS pc ON pc.ListID=p.CategoryID
+LEFT OUTER JOIN posPickList AS pmc ON pmc.ListID=p.MainCategoryID
+LEFT OUTER JOIN posBranchs AS pb ON pb.WarehouseID=@depoID
+ORDER BY StokAdi;

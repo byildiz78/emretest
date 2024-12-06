@@ -1,0 +1,38 @@
+SELECT 
+	b.BranchName AS [Şube],
+	convert(varchar,tablo.tarih,104) as Tarih,
+	ROUND(SUM(tablo.YanUrunTutar),2) AS [Yan Ürün Tutar],
+	SUM(tablo.IcecekTutar) AS [İçecek Tutar],
+	ROUND(SUM(tablo.paketciro),2) AS [Şeften İste Ciro]
+	
+
+ FROM 
+ (
+	
+	
+	SELECT 
+		h.BranchID,
+		convert(varchar,h.OrderDateTime,104) as tarih,
+		SUM(CASE WHEN ISNULL(p.CustomField12,'')='YAN ÜRÜNLER' THEN (isnull(nullif(t.ExtendedPrice,0),t.Quantity*t.MenuItemUnitPrice) *ISNULL(((h.AmountDue/nullif(isnull(nullif(h.SubTotal,0),h.AmountDue),0))),1)) ELSE 0 END) AS YanUrunTutar,
+		SUM(CASE WHEN isnull(p.CustomField12,'')='İÇECEKLER' THEN t.ExtendedPrice ELSE 0 END) AS IcecekTutar,
+		case when h.OrderType=5 then round(SUM(nullif(t.ExtendedPrice,0)*(NULLIF(h.AmountDue,0)/NULLIF(h.SubTotal,0))),2) else 0 end as paketciro
+		
+		
+		
+	FROM 
+		OrderHeaders AS h WITH (NOLOCK)
+		INNER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey AND t.LineDeleted=0
+		LEFT JOIN posProducts AS p ON p.ProductKey=t.MenuItemKey
+		LEFT JOIN NewGlobalMenuItems m1 ON m1.MenuItemKey = t.MenuItemKey
+	WHERE 
+		h.OrderDateTime>@date1 AND h.OrderDateTime<@date2
+		AND h.LineDeleted=0
+		AND h.@BranchID
+	GROUP BY 
+		h.BranchID,h.OrderType,p.CustomField12,h.OrderDateTime
+) AS tablo
+INNER JOIN efr_Branchs AS b ON b.BranchID = tablo.BranchID
+GROUP BY 
+	b.CustomField12, b.BranchName,tablo.tarih
+ORDER BY 
+	b.BranchName

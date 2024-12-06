@@ -1,0 +1,19 @@
+DECLARE @sDate DATETIME = CONVERT(VARCHAR(10), @date1, 23)
+DECLARE @eDate DATETIME = DATEADD(DAY, -1, CONVERT(VARCHAR(10), @date2, 23))
+
+SELECT
+	CONVERT(VARCHAR, s.SheetDate, 104) AS [Tarih],
+	b.BranchName AS [Şube],
+	CONCAT(si.PaymentTypeID, '-', si.PaymentMethodName) [Ödeme],
+	si.SheetPaid [Tutar]
+FROM
+	posSheetItems si
+	INNER JOIN posSheets s ON s.SheetKey = si.SheetKey
+	INNER JOIN efr_Branchs b ON b.BranchID = s.BranchID 
+WHERE
+	s.SheetDate BETWEEN @sDate AND @eDate
+	AND s.@BranchID
+ORDER BY 
+	s.SheetDate,
+	b.BranchName,
+	si.PaymentTypeID

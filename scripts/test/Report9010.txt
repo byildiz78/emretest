@@ -1,0 +1,61 @@
+Detail|SELECT SUM(r.tutar) AS Tutar,
+       SUM(r.Konuk) AS Konuk,
+       COUNT(r.Cek) AS Cek,
+       r.saat,
+r.BranchID
+FROM  
+ (
+           SELECT h.GuestNumber AS Konuk,
+                  CONVERT(VARCHAR, h.OrderDateTime, 103) AS saat,
+                  h.amountdue AS tutar,
+                  h.OrderKey AS Cek,
+h.BranchID
+           FROM   OrderHeaders h
+           WHERE  H.OrderDateTime >= @ilkTarih
+                  AND H.OrderDateTime <= @SonTarih AND 
+                  h.linedeleted = 0
+        
+       ) AS r 
+WHERE r.@BranchID
+GROUP BY
+       r.saat,r.BranchID
+
+$INDIRIMLER|
+SELECT SUM(r.[Brüt Satışlar]) AS [Brüt Satışlar],
+       SUM(r.[Ürün İndirimleri]) AS [Ürün İndirimleri],
+       SUM(r.[Nakit İndirimler]) AS [Nakit İndirimler],
+       SUM(r.[Çek İndirimler]) AS [Çek İndirimler],
+       SUM(r.[Toplam Indirimler]) AS [Toplam Indirimler],
+       SUM(r.[Net Satışlar]) AS [Net Satışlar],
+       count(r.[Toplam Çek Sayısı]) AS [Toplam Çek Sayısı],
+       SUM(r.[Toplam Konuk]) AS [Toplam Konuk],
+       SUM(r.[Net Satışlar]) / NULLIF(SUM(r.[Toplam Konuk]), 0) AS 
+       [Kişi Başı Ortalama],
+       SUM(r.[Net Satışlar]) / NULLIF(count(r.[Toplam Çek Sayısı]), 0) AS 
+       [Çek Ortalama],
+       r.GUN,
+r.BranchID
+FROM   (
+           SELECT h.amountdue + h.discountTotalAmount AS [Brüt Satışlar],
+                  h.DiscountLineAmount AS [Ürün İndirimleri],
+                  h.DiscountCashAmount AS [Nakit İndirimler],
+                  h.DiscountOrderAmount AS [Çek İndirimler],
+                  h.DiscountTotalAmount AS [Toplam Indirimler],
+                  h.amountdue AS [Net Satışlar],
+                  h.OrderID AS [Toplam Çek Sayısı],
+                  h.GuestNumber AS [Toplam Konuk],
+                  h.amountdue / ISNULL(h.GuestNumber, 1) AS [Kişi Başı Ortalama],
+                  h.amountdue / ISNULL(h.orderID, 1) AS [Çek Ortalama],
+                  CONVERT(VARCHAR, h.OrderDateTime, 103) AS GUN,
+                  h.amountdue AS [GÜNLÜK TUTAR],
+		  h.BranchID
+           FROM   OrderHeaders h
+           WHERE  h.LineDeleted = 0
+                 AND h.OrderDateTime >= @ilkTarih
+                  AND h.OrderDateTime <= @SonTarih
+-- h.BranchID
+      
+       ) AS r
+ WHERE r.@BranchID
+GROUP BY
+       r.GUN,r.BranchID

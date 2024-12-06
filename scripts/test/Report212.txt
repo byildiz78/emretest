@@ -1,0 +1,15 @@
+﻿SELECT     efr_Branchs.BranchName AS Şube, MenuItems.MenuItemID AS [Ürün Kodu], MenuItems.MenuItemText AS [Ürün Adı], MenuGroups.MenuGroupText AS Grubu, 
+                      MenuCategories.MenuCategoryText AS Kategorisi, gsOrderTransactions.MenuItemUnitPrice AS [Birim Fiyat], SUM(gsOrderTransactions.Quantity) AS Miktar
+FROM         gsOrderTransactions INNER JOIN
+                      MenuItems ON gsOrderTransactions.MenuItemID = MenuItems.MenuItemID AND gsOrderTransactions.BranchID = MenuItems.BranchID INNER JOIN
+                      MenuCategories ON MenuItems.MenuCategoryID = MenuCategories.MenuCategoryID AND MenuItems.BranchID = MenuCategories.BranchID INNER JOIN
+                      MenuGroups ON MenuItems.BranchID = MenuGroups.BranchID AND MenuItems.MenuGroupID = MenuGroups.MenuGroupID INNER JOIN
+                      efr_Branchs ON gsOrderTransactions.BranchID = efr_Branchs.BranchID INNER JOIN
+                      gsorderHeaders ON gsOrderTransactions.BranchID = gsorderHeaders.BranchID AND gsOrderTransactions.OrderID = gsorderHeaders.OrderID
+WHERE 
+
+gsorderHeaders.OrderDateTime >= @ilkTarih
+ AND gsorderHeaders.OrderDateTime <= @sonTarih
+ AND gsOrderTransactions.BranchID=2 AND gsOrderTransactions.transactionstatus='1' AND gsorderHeaders.OrderStatus='2'
+GROUP BY efr_Branchs.BranchName, MenuItems.MenuItemID, MenuItems.MenuItemText, MenuGroups.MenuGroupText, MenuCategories.MenuCategoryText, 
+                      gsOrderTransactions.MenuItemUnitPrice

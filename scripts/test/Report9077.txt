@@ -1,0 +1,20 @@
+﻿SELECT DISTINCT b.BranchName AS [Şube], isnull(Discounts.DiscountText,'') AS AÇIKLAMA,
+ OrderHeaders.DiscountLineAmount AS [ÜRÜN İNDİRİMİ],
+ OrderHeaders.DiscountOrderAmount AS [ÇEK İNDİRİMİ],
+ OrderHeaders.DiscountCashAmount AS [NAKİT İNDİRİM],
+ OrderHeaders.OrderDateTime AS TARIH,
+ OrderHeaders.OrderID AS [ÇEK NO],
+ OrderHeaders.AmountDue+orderheaders.DiscountTotalAmount AS [ÇEK TUTARI],
+ OrderHeaders.DiscountTotalAmount AS [TOPLAM INDIRIM],
+ ISNULL(OrderHeaders.CustomerName, '') AS [MÜŞTERİ ADI],
+ ISNULL(OrderHeaders.SpecificCustomerName, '') AS [İLGİLİ KİŞİ.],
+ OrderHeaders.GuestNumber AS KonukSayisi,
+ OrderHeaders.CustomField2 AS [İndirim Yapan]
+FROM OrderHeaders
+ LEFT OUTER JOIN Discounts ON OrderHeaders.DiscountKey = Discounts.DiscountKey and orderheaders.BranchID=Discounts.BranchID
+ INNER JOIN efr_Branchs AS b ON b.BranchID = OrderHeaders.BranchID
+WHERE (OrderHeaders.DiscountTotalAmount > 0)
+ AND OrderHeaders.LineDeleted = 0
+ AND OrderHeaders.OrderDateTime >= @date1
+ AND OrderHeaders.OrderDateTime <= @date2
+ AND OrderHeaders.@BranchID

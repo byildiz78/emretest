@@ -1,0 +1,35 @@
+Detail|
+
+select getdate() as Tarih
+
+$KAZANCBILGILERI|
+SELECT    
+SUM( AmountPaid) AS GenelTOPLAM, 
+(OrderPayments.PaymentMethodName + (CASE WHEN ISNULL(OrderPayments.GlobalBankName,'') = '' THEN '' ELSE (' - ' + OrderPayments.GlobalBankName) END) + (CASE WHEN OrderHeaders.IsInvoice = 1 THEN ' (FATURA)' ELSE '' END)) AS PaymentMethodName
+FROM         OrderPayments
+INNER JOIN OrderHeaders ON OrderHeaders.OrderKey=OrderPayments.OrderKey
+WHERE  orderpayments.PaymentDateTime >= @date1
+       AND orderpayments.PaymentDateTime <= @date2
+       AND OrderPayments.LineDeleted = 0
+       AND OrderPayments.IsAccountPayment = 0 and orderpayments.@BranchID
+GROUP BY
+(OrderPayments.PaymentMethodName + (CASE WHEN ISNULL(OrderPayments.GlobalBankName,'') = '' THEN '' ELSE (' - ' + OrderPayments.GlobalBankName) END) + (CASE WHEN OrderHeaders.IsInvoice = 1 THEN ' (FATURA)' ELSE '' END))
+
+$KAZANCDURUMUNET|
+SELECT    
+SUM( AmountPaid) AS GenelTOPLAM, 
+(OrderPayments.PaymentMethodName + (CASE WHEN ISNULL(OrderPayments.GlobalBankName,'') = '' THEN '' ELSE (' - ' + OrderPayments.GlobalBankName) END) + (CASE WHEN OrderHeaders.IsInvoice = 1 THEN ' (FATURA)' ELSE '' END)) AS PaymentMethodName
+FROM         OrderPayments
+INNER JOIN OrderHeaders ON OrderHeaders.OrderKey=OrderPayments.OrderKey
+WHERE  orderpayments.PaymentDateTime >= @date1
+       AND orderpayments.PaymentDateTime <= @date2
+       AND OrderPayments.LineDeleted = 0 and OrderPayments.@BranchID
+GROUP BY
+(OrderPayments.PaymentMethodName + (CASE WHEN ISNULL(OrderPayments.GlobalBankName,'') = '' THEN '' ELSE (' - ' + OrderPayments.GlobalBankName) END) + (CASE WHEN OrderHeaders.IsInvoice = 1 THEN ' (FATURA)' ELSE '' END))
+
+$ACIKCEKLERR|SELECT SUM(oh.AmountDue)AS Toplam
+FROM   orderheaders oh
+WHERE  oh.LineDeleted = 0
+       AND oh.OrderDateTime >= @date1
+       AND oh.OrderDateTime <= @date2
+       AND oh.OrderStatus=1 and oh.@BranchID

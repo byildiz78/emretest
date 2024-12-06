@@ -1,0 +1,40 @@
+IF OBJECT_ID('tempdb..#temp') IS NOT NULL DROP TABLE #temp; 
+CREATE TABLE #temp (MenuItemText NVARCHAR(100),Quantity FLOAT,ExtendedPrice FLOAT,MenuItemKey UNIQUEIDENTIFIER,BranchID INT,OrderID INT,Tarih DATE); 
+INSERT INTO #temp (MenuItemText,Quantity,ExtendedPrice,MenuItemKey,	BranchID,orderID,Tarih)
+SELECT t.MenuItemText,sum(t.Quantity),sum(t.ExtendedPrice),t.MenuItemKey,t.BranchID,t.OrderID,CONVERT(DATE,t.OrderDateTime) as Tarih
+ FROM OrderTransactions AS t
+WHERE t.OrderDateTime>@date1
+AND t.OrderDateTime<@date2
+AND t.LineDeleted=0
+AND t.@BranchID
+AND t.CustomField1 LIKE '%-'
+GROUP BY t.MenuItemText,t.MenuItemKey,t.BranchID,t.OrderID,CONVERT(DATE,t.OrderDateTime);
+
+IF OBJECT_ID('tempdb..#combo') IS NOT NULL DROP TABLE combo; 
+CREATE TABLE #combo (MainMenuItemKey UNIQUEIDENTIFIER,MenuItemText NVARCHAR(100),Quantity FLOAT,ExtendedPrice FLOAT,BranchID INT,MainMenuItemText NVARCHAR(100),OrderID INT,Tarih DATE); 
+
+INSERT INTO #combo 
+(MainMenuItemKey,MenuItemText,Quantity,ExtendedPrice,BranchID,MainMenuItemText,OrderID,Tarih)
+SELECT t.MenuItemKey,c.MenuItemText,sum(c.Quantity),sum(c.ExtendedPrice) as ExtendedPrice,t.BranchID,t.MenuItemText,t.orderID,CONVERT(DATE,t.OrderDateTime) as Tarih
+ FROM OrderTransactions AS t
+INNER JOIN OrderTransactions AS c ON c.BranchID = t.BranchID AND c.OrderKey = t.OrderKey
+AND c.TransactionKey<>t.TransactionKey AND c.LineDeleted=0
+AND c.CustomField1 LIKE t.CustomField1+'%'
+WHERE t.OrderDateTime>@date1
+AND t.OrderDateTime<@date2
+AND t.LineDeleted=0
+AND t.@BranchID
+AND t.CustomField1 LIKE '%-'
+GROUP BY t.MenuItemKey,c.MenuItemText,t.BranchID,t.MenuItemText,t.OrderID,CONVERT(DATE,t.OrderDateTime);
+
+
+SELECT Tarih,b.BranchName AS [Şube],r.OrderID as [Çek No], r.MenuItemText AS Menü,r.Ürün,r.uruntutar as [Ürün Tutar],r.Miktar as [Miktar], r.Quantity AS [Menü Adet], r.ExtendedPrice AS [Menü Tutar]
+FROM(
+SELECT Tarih,t.OrderID,t.MenuItemText, t.Quantity,0 as uruntutar, t.ExtendedPrice,'' AS Ürün,0 AS Miktar,0 AS SiraNo,t.MenuItemKey,t.BranchID  FROM #temp AS t
+UNION ALL
+SELECT Tarih,c.orderID,c.MainMenuItemText,0,ExtendedPrice as uruntutar,0,c.MenuItemText,c.Quantity,1,c.MainMenuItemKey,c.BranchID FROM #combo AS c
+)AS r 
+INNER JOIN efr_Branchs AS b ON b.BranchID=r.BranchID
+ORDER BY  b.BranchName,OrderID,r.MenuItemKey,r.SiraNo,r.MenuItemText,r.Ürün
+IF OBJECT_ID('tempdb..#temp') IS NOT NULL DROP TABLE #temp;
+IF OBJECT_ID('tempdb..#combo') IS NOT NULL DROP TABLE #combo;

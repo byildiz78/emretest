@@ -1,0 +1,21 @@
+SELECT  
+
+b.BranchName AS ŞUBE,
+        convert(VARCHAR,etc.WorkDate , 103) AS TARIH,
+        convert(VARCHAR,etc.ClockInTime , 108)    AS GİRİŞ,
+       convert(VARCHAR,etc.clockoutTime , 108) AS ÇIKIŞ,
+     
+            
+       EmployeeFiles.FirstName AS ADI,
+       EmployeeFiles.LastName AS SOYADI
+FROM   EmployeeTimeCards  AS etc
+       LEFT OUTER JOIN EmployeeFiles
+            ON  etc.EmployeeKey= EmployeeFiles.EmployeeKey
+						INNER JOIN efr_Branchs b WITH ( NOLOCK ) ON b.BranchID= EmployeeFiles.BranchID
+
+
+
+
+WHERE  etc.ClockInTime >= @date1
+       AND etc.ClockInTime <= @date2
+and b.@BranchID

@@ -1,0 +1,5 @@
+Detail|SELECT     etc.WorkDate , etc.ClockInTime AS ClockIn, clockoutTime AS ClockOut, EmployeeFiles.FirstName, EmployeeFiles.LastName
+FROM         EmployeeTimeCards AS etc LEFT OUTER JOIN
+                      EmployeeFiles ON etc.EmployeeID = EmployeeFiles.EmployeeID
+                      
+WHERE etc.ClockInTime>=@ilkTarih AND etc.ClockInTime<=@SonTarih and etc.@BranchID

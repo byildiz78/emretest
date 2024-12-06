@@ -1,0 +1,25 @@
+select 
+convert(varchar,oh.OrderDateTime,103) as Tarih,
+br.BranchName as Şube,
+cast(oh.OrderID as varchar)as [Çek No],
+case when oh.OrderType=1 and (OrderTypeSourceExternalNo IS NULL or OrderTypeSourceExternalNo ='') then 'Masa Satış'
+when oh.OrderType=4 and (OrderTypeSourceExternalNo IS NULL or OrderTypeSourceExternalNo ='') then 'Tezgah Satış'
+when oh.OrderType=3 and (OrderTypeSourceExternalNo IS NULL or OrderTypeSourceExternalNo ='') then 'Al Götür'
+when oh.OrderType=5 and (OrderTypeSourceExternalNo IS NULL or OrderTypeSourceExternalNo ='') then 'Paket Satış'
+when OrderTypeSourceExternalNo LIKE '%sepeti%' THEN 'Yemek Sepeti'
+when OrderTypeSourceExternalNo LIKE '%web%' THEN 'Şeften İste'
+WHEN OrderTypeSourceExternalNo LIKE '%getir%' THEN 'Getir'
+WHEN OrderTypeSourceExternalNo LIKE '%trendyol%' THEN 'Trendyol'
+WHEN OrderTypeSourceExternalNo LIKE '%migros%' THEN 'migros'
+WHEN OrderTypeSourceExternalNo LIKE '%qr%' THEN 'QR KOD'
+else 'Diğer' end as [Satış Kanalı],
+op.PaymentMethodName as [Ödeme Tipi],
+sum(op.AmountPaid) as [Ödenen Toplam Tutar]
+from OrderHeaders oh with(nolock)
+inner join OrderPayments op with(nolock) on oh.OrderKey=op.OrderKey and op.LineDeleted=0
+inner join efr_Branchs br on oh.BranchID=br.BranchID
+where oh.OrderDateTime between @date1 and @date2
+and oh.LineDeleted=0
+and oh.@BranchID
+group by convert(varchar,oh.OrderDateTime,103),br.BranchName,oh.OrderID,oh.OrderType,OrderTypeSourceExternalNo,op.PaymentMethodName,OrderTypeSourceID
+order by convert(varchar,oh.OrderDateTime,103),br.BranchName,oh.OrderID

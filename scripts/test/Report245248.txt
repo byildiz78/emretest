@@ -1,0 +1,7 @@
+﻿ SELECT r.Adet, r.BonusUsed AS [Kullanılan Tutar], r.BonusEarned [Yüklenen Tutar],r.BonusEarned-r.BonusUsed AS [Kalan Tutar] FROM 
+ (
+ SELECT COUNT(c.AutoID) AS Adet,
+(Select isnull(SUM(t.BonusUsed),0.0) FROM BonusTransactions AS t) AS BonusUsed,
+(Select isnull(SUM(t.BonusEarned),0.0) FROM BonusTransactions AS t) AS BonusEarned
+ FROM BonusCustomerFiles AS c with(nolock)
+ ) AS r

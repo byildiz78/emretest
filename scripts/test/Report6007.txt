@@ -1,0 +1,11 @@
+﻿SELECT     posProducts.ProductName, posProductUnits.UnitName, posManafactureFormulaDetail.Amount, posManafactureFormulaDetail.OutagePercentage, 
+                      posManafactureFormulaDetail.UnitCost, posManafactureFormulaDetail.OutageCost AS Expr1, posManafactureFormulaDetail.NetCost AS Expr2, 
+                      posManafactureFormulaDetail.UnitPrice, posProductPrices.IncomingPrice, posProductPrices.LastIncomingPrice, posProductPrices.AvaragePurchasePrice, 
+                      posManafactureFormula.FormulaName, posManafactureFormula.GroupName, posManafactureFormula.OutageCost, posManafactureFormula.FormulaCost, 
+                      posProductPrices.OutgoingPrice AS KartSatış
+FROM         posManafactureFormula INNER JOIN
+                      posManafactureFormulaDetail ON posManafactureFormula.FormulaID = posManafactureFormulaDetail.FormulaID LEFT OUTER JOIN
+                      posProductPrices ON posManafactureFormulaDetail.ProductID = posProductPrices.ProductID LEFT OUTER JOIN
+                      posProducts ON posManafactureFormulaDetail.ProductID = posProducts.ProductID LEFT OUTER JOIN
+                      posProductUnits ON posManafactureFormulaDetail.ProductUnitID = posProductUnits.UnitID
+WHERE     (posManafactureFormula.GroupName <> 'YARI MAMÜLLER')

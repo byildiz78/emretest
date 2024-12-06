@@ -1,0 +1,30 @@
+
+SELECT efr_Branchs.BranchName          AS Şube,
+CONVERT(VARCHAR, OrderTransactions.OrderDateTime, 103) as Gün,
+       OrderTransactions.MenuItemText  AS [Ürün Adı],
+       OrderTransactions.MenuItemGroupText AS Grubu,
+       OrderTransactions.MenumItemCategoryText AS Kategorisi,
+       ROUND(SUM(OrderTransactions.Quantity), 3) AS Adet,
+       SUM(OrderTransactions.ExtendedPrice) AS Tutar,
+      DATEPART(HOUR,OrderTransactions.OrderDateTime) AS SAAT
+FROM   OrderTransactions
+       LEFT OUTER JOIN efr_Branchs
+            ON  OrderTransactions.BranchID = efr_Branchs.BranchID
+            
+      
+         WHERE  OrderTransactions.OrderDateTime >= @date1
+       AND OrderTransactions.OrderDateTime <= @date2
+       AND OrderTransactions.LineDeleted = 0
+       AND OrderTransactions.@BranchID                      
+
+
+
+GROUP BY
+       OrderTransactions.MenuItemText,
+       OrderTransactions.MenuItemGroupText,
+       OrderTransactions.MenumItemCategoryText,
+       efr_Branchs.BranchName,
+       OrderTransactions.OrderDateTime
+       
+       
+       

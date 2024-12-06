@@ -1,0 +1,87 @@
+Detail|
+SELECT 0 AS OrderCount ,b.BranchName,r.BranchID, 'KASA' as StationName,r.SignOutDateTime,r.SignInDateTime,rs2.RegisterStartAmount, isnull(rs2.DiscrepancyNotes,'') AS EmployeeName,isnull(NULLIF(rs2.ZReportID,0),r.RegisterSessionID) AS RegisterSessionID, r.PaymentTotal,r.PaymentClose,ROUND((r.PaymentClose-r.PaymentTotal),2) AS PaymentDifference, r.PaymentName
+FROM (
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod1, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod1, 0) AS PaymentClose, rs.PaymentMethodName1 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod2, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod2, 0) AS PaymentClose, rs.PaymentMethodName2 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod3, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod3, 0) AS PaymentClose, rs.PaymentMethodName3 AS PaymentName
+FROM RegisterSessions AS rs  WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod4, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod4, 0) AS PaymentClose, rs.PaymentMethodName4 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod5, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod5, 0) AS PaymentClose, rs.PaymentMethodName5 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod6, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod6, 0) AS PaymentClose, rs.PaymentMethodName6 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod7, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod7, 0) AS PaymentClose, rs.PaymentMethodName7 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod8, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod8, 0) AS PaymentClose, rs.PaymentMethodName8 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod9, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod9, 0) AS PaymentClose, rs.PaymentMethodName9 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod10, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod10, 0) AS PaymentClose, rs.PaymentMethodName10 AS PaymentName
+FROM RegisterSessions AS rs WHERE rs.SignInDateTime<=@date2 AND rs.SignInDateTime>@date1
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod11, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod11, 0) AS PaymentClose,rs.PaymentMethodName11 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod12, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod12, 0) AS PaymentClose,rs.PaymentMethodName12 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod13, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod13, 0) AS PaymentClose, rs.PaymentMethodName13 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod14, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod14, 0) AS PaymentClose, rs.PaymentMethodName14 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod15, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod15, 0) AS PaymentClose, rs.PaymentMethodName15 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod16, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod16, 0) AS PaymentClose, rs.PaymentMethodName16 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod17, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod17, 0) AS PaymentClose, rs.PaymentMethodName17 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod18, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod18, 0) AS PaymentClose, rs.PaymentMethodName18 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime,  rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod19, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod19, 0) AS PaymentClose, rs.PaymentMethodName19 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+UNION ALL 
+SELECT rs.EmployeeID,rs.BranchID, rs.StationID, rs.SignInDateTime, rs.SignOutDateTime, rs.RegisterSessionID, ISNULL(rs.TotalPaymentMethod20, 0) AS PaymentTotal, ISNULL(rs.ClosePaymentMethod20, 0) AS PaymentClose, rs.PaymentMethodName20 AS PaymentName
+FROM RegisterSessions AS rs WHERE (rs.SignOutDateTime IS NOT NULL) and rs.SignInDateTime>=@date1 AND rs.SignInDateTime<=@date2
+and rs.@BranchID
+)AS r
+INNER JOIN RegisterSessions AS rs2 ON rs2.RegisterSessionID=r.RegisterSessionID AND rs2.BranchID = R.BranchID
+INNER JOIN efr_Branchs AS b ON b.BranchID = r.BranchID
+WHERE r.PaymentTotal>0 AND r.PaymentName<>'CARI ISLEM'
+GROUP BY r.BranchID,r.SignInDateTime,rs2.ZReportID,b.BranchName,rs2.RegisterStartAmount, r.SignOutDateTime,isnull(rs2.DiscrepancyNotes,''), r.RegisterSessionID, r.PaymentTotal,r.PaymentClose,(r.PaymentClose-r.PaymentTotal), r.PaymentName

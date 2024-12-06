@@ -1,0 +1,11 @@
+﻿SELECT     orderheaders.CustomerName,
+SUM(AmountDue) AS [Toplam Harcama],orderheaders.OrderPhone as Telefon, COUNT(OrderKey) AS [Toplam Cek Sayisi], CONVERT(varchar, MAX(OrderDateTime), 103) AS [Son Siparis Tarihi]
+FROM         OrderHeaders
+WHERE     (LineDeleted = 0) AND (OrderType = 5) and orderheaders.@BranchID
+group by   orderheaders.CustomerName,orderheaders.OrderPhone
+
+ORDER BY [Toplam Harcama] DESC
+
+                      
+                     		
+              

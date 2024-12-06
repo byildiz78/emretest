@@ -1,0 +1,18 @@
+SELECT webBranchControlHeader.BranchName  AS [ŞUBE ADI],
+       webBranchControlHeader.ControlDate AS TARİH,
+       webBranchControlHeader.EmployeeName AS DENETLEYEN,
+       SUM(webBranchControlDetail.Score)       AS PUAN
+FROM   webBranchControlHeader
+       INNER JOIN webBranchControlDetail
+            ON  webBranchControlHeader.ControlID = webBranchControlDetail.ControlID
+            
+WHERE webBranchControlHeader.ControlDate>=@date1 AND webBranchControlHeader.ControlDate<=@date2
+
+and webBranchControlHeader.@BranchID
+AND (ISNULL(webBranchControlDetail.Yes, 0) = 1)
+            
+GROUP BY webBranchControlHeader.BranchName ,
+       webBranchControlHeader.ControlDate,
+       webBranchControlHeader.EmployeeName
+       
+ORDER BY PUAN DESC

@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<XtraReportsLayoutSerializer SerializerVersion="18.1.6.0" Ref="1" ControlType="DevExpress.XtraReports.UI.XtraReport, DevExpress.XtraReports.v18.1, Version=18.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" Name="Report1" Margins="54, 54, 41, 100" PageWidth="850" PageHeight="1100" Version="18.1" DataSource="#Ref-0">
+  <CalculatedFields>
+    <Item1 Ref="2" Name="calculatedField1" Expression="[toplamtutar]/[adet]" DataMember="Genel" />
+  </CalculatedFields>
+  <Bands>
+    <Item1 Ref="3" ControlType="TopMarginBand" Name="TopMargin" HeightF="40.625" />
+    <Item2 Ref="4" ControlType="DetailBand" Name="Detail" HeightF="1.04166663" />
+    <Item3 Ref="5" ControlType="BottomMarginBand" Name="BottomMargin" />
+    <Item4 Ref="6" ControlType="DetailReportBand" Name="DetailReport" Level="0" DataMember="Genel" DataSource="#Ref-0">
+      <Bands>
+        <Item1 Ref="7" ControlType="DetailBand" Name="Detail1" HeightF="38.5416679">
+          <Controls>
+            <Item1 Ref="8" ControlType="XRLabel" Name="label11" TextFormatString="{0:0.00%}" Multiline="true" Text="label4" TextAlignment="MiddleLeft" SizeF="65.5744,23" LocationFloat="527.3027, 9.999974" Font="Tahoma, 9.75pt" Padding="2,2,0,0,100">
+              <Summary Ref="9" Running="Group" />
+              <ExpressionBindings>
+                <Item1 Ref="10" Expression="sumPercentage([toplamtutar])" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="11" UseFont="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="12" ControlType="XRLabel" Name="label8" TextFormatString="{0:n2} TL" Multiline="true" Text="label8" TextAlignment="MiddleLeft" SizeF="87.2077942,23" LocationFloat="333.123657, 9.999974" Font="Tahoma, 9.75pt" Padding="2,2,0,0,100">
+              <ExpressionBindings>
+                <Item1 Ref="13" Expression="[calculatedField1]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="14" UseFont="false" UseTextAlignment="false" />
+            </Item2>
+            <Item3 Ref="15" ControlType="XRLabel" Name="label4" TextFormatString="{0:n2} TL" Multiline="true" Text="label4" TextAlignment="MiddleLeft" SizeF="91.73227,23" LocationFloat="427.095673, 9.999974" Font="Tahoma, 9.75pt" Padding="2,2,0,0,100">
+              <ExpressionBindings>
+                <Item1 Ref="16" Expression="[toplamtutar]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="17" UseFont="false" UseTextAlignment="false" />
+            </Item3>
+            <Item4 Ref="18" ControlType="XRLabel" Name="label2" Multiline="true" Text="label2" TextAlignment="MiddleLeft" SizeF="63.9995422,23" LocationFloat="264.6773, 9.999974" Font="Tahoma, 9.75pt" Padding="2,2,0,0,100">
+              <ExpressionBindings>
+                <Item1 Ref="19" Expression="[adet]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="20" UseFont="false" UseTextAlignment="false" />
+            </Item4>
+            <Item5 Ref="21" ControlType="XRLabel" Name="label1" Multiline="true" Text="label1" TextAlignment="MiddleLeft" SizeF="214.803192,23.0000038" LocationFloat="9.999974, 9.999974" Font="Tahoma, 9.75pt" Padding="2,2,0,0,100">
+              <ExpressionBindings>
+                <Item1 Ref="22" Expression="[ürün]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="23" UseFont="false" UseTextAlignment="false" />
+            </Item5>
+          </Controls>
+        </Item1>
+        <Item2 Ref="24" ControlType="GroupHeaderBand" Name="GroupHeader1" Level="1" HeightF="85.4166641">
+          <GroupFields>
+            <Item1 Ref="25" FieldName="sube" />
+          </GroupFields>
+          <Controls>
+            <Item1 Ref="26" ControlType="XRLabel" Name="label12" TextFormatString="{0:0.00%}" Multiline="true" Text="label4" TextAlignment="MiddleLeft" SizeF="109.637207,23" LocationFloat="606.898132, 10.0000067" Font="Tahoma, 12pt, style=Bold" ForeColor="Red" Padding="2,2,0,0,100">
+              <Summary Ref="27" Running="Report" />
+              <ExpressionBindings>
+                <Item1 Ref="28" Expression="sumPercentage([toplamtutar])" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="29" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+            </Item1>
+            <Item2 Ref="30" ControlType="XRPanel" Name="panel4" SizeF="741.999939,33.46457" LocationFloat="0, 41.9521027" BackColor="255,84,132,213">
+              <Controls>
+                <Item1 Ref="31" ControlType="XRLabel" Name="label23" Text="ADET" TextAlignment="MiddleLeft" SizeF="63.9996033,20.706955" LocationFloat="264.677216, 8.267666" Font="Tahoma, 9.75pt, style=Bold" ForeColor="White" Padding="2,2,0,0,100" BorderWidth="0">
+                  <StylePriority Ref="32" UseFont="false" UseForeColor="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="33" ControlType="XRLabel" Name="label22" Text="ORT. FİYAT" TextAlignment="MiddleLeft" SizeF="87.2077,20.706955" LocationFloat="333.123718, 8.267666" Font="Tahoma, 9.75pt, style=Bold" ForeColor="White" Padding="2,2,0,0,100" BorderWidth="0">
+                  <StylePriority Ref="34" UseFont="false" UseForeColor="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="35" ControlType="XRLabel" Name="label19" Text="GENEL YÜZDE" TextAlignment="MiddleLeft" SizeF="101.107361,20.7069283" LocationFloat="606.898, 8.267736" Font="Tahoma, 9.75pt, style=Bold" ForeColor="White" Padding="2,2,0,0,100" BorderWidth="0">
+                  <StylePriority Ref="36" UseFont="false" UseForeColor="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="37" ControlType="XRLabel" Name="label9" Text="YÜZDE" TextAlignment="MiddleLeft" SizeF="63.9996338,20.706955" LocationFloat="527.302734, 8.267653" Font="Tahoma, 9.75pt, style=Bold" ForeColor="White" Padding="2,2,0,0,100" BorderWidth="0">
+                  <StylePriority Ref="38" UseFont="false" UseForeColor="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item4>
+                <Item5 Ref="39" ControlType="XRLabel" Name="label6" Text="GRUP" SizeF="216.535431,20.7069283" LocationFloat="8.267713, 8.267689" Font="Tahoma, 9.75pt, style=Bold" ForeColor="White" Padding="2,2,0,0,100" BorderWidth="0">
+                  <StylePriority Ref="40" UseFont="false" UseForeColor="false" UseBorderWidth="false" />
+                </Item5>
+                <Item6 Ref="41" ControlType="XRLabel" Name="label7" Text="TUTAR" TextAlignment="MiddleLeft" SizeF="91.73227,20.706955" LocationFloat="427.095673, 8.267653" Font="Tahoma, 9.75pt, style=Bold" ForeColor="White" Padding="2,2,0,0,100" BorderWidth="0">
+                  <StylePriority Ref="42" UseFont="false" UseForeColor="false" UseBorderWidth="false" UseTextAlignment="false" />
+                </Item6>
+              </Controls>
+              <StylePriority Ref="43" UseBackColor="false" />
+            </Item2>
+            <Item3 Ref="44" ControlType="XRLabel" Name="label5" Multiline="true" Text="label5" TextAlignment="MiddleLeft" SizeF="390.625,23" LocationFloat="9.999974, 10.0000067" Font="Tahoma, 12pt, style=Bold" ForeColor="Red" Padding="2,2,0,0,100">
+              <ExpressionBindings>
+                <Item1 Ref="45" Expression="[sube]" PropertyName="Text" EventName="BeforePrint" />
+              </ExpressionBindings>
+              <StylePriority Ref="46" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+            </Item3>
+          </Controls>
+        </Item2>
+        <Item3 Ref="47" ControlType="GroupHeaderBand" Name="GroupHeader2" HeightF="50">
+          <GroupFields>
+            <Item1 Ref="48" FieldName="grup" />
+          </GroupFields>
+          <Controls>
+            <Item1 Ref="49" ControlType="XRPanel" Name="panel3" SizeF="740.8189,27.5590439" LocationFloat="1.18103027, 10.0000067" BackColor="255,234,234,234">
+              <Controls>
+                <Item1 Ref="50" ControlType="XRLabel" Name="label13" TextFormatString="{0:0.00%}" Multiline="true" Text="label4" TextAlignment="MiddleLeft" SizeF="99.63733,16.5354424" LocationFloat="605.7171, 5.67585564" Font="Tahoma, 9.75pt" Padding="2,2,0,0,100">
+                  <Summary Ref="51" Running="Report" />
+                  <ExpressionBindings>
+                    <Item1 Ref="52" Expression="sumPercentage([toplamtutar])" PropertyName="Text" EventName="BeforePrint" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="53" UseFont="false" UseTextAlignment="false" />
+                </Item1>
+                <Item2 Ref="54" ControlType="XRLabel" Name="label10" Multiline="true" Text="label4" TextAlignment="MiddleLeft" SizeF="91.73227,16.5354424" LocationFloat="425.914642, 5.67585564" Font="Tahoma, 9.75pt" Padding="2,2,0,0,100">
+                  <Summary Ref="55" Running="Group" />
+                  <ExpressionBindings>
+                    <Item1 Ref="56" Expression="sumSum([toplamtutar])" PropertyName="Text" EventName="BeforePrint" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="57" UseFont="false" UseTextAlignment="false" />
+                </Item2>
+                <Item3 Ref="58" ControlType="XRLabel" Name="label3" Multiline="true" Text="label3" TextAlignment="MiddleLeft" SizeF="390.625,16.5354424" LocationFloat="8.26772, 5.67585564" Font="Tahoma, 10pt, style=Bold" Padding="2,2,0,0,100">
+                  <ExpressionBindings>
+                    <Item1 Ref="59" Expression="[grup]" PropertyName="Text" EventName="BeforePrint" />
+                  </ExpressionBindings>
+                  <StylePriority Ref="60" UseFont="false" UseTextAlignment="false" />
+                </Item3>
+                <Item4 Ref="61" ControlType="XRLabel" Name="label15" Text="100.00%" TextAlignment="TopLeft" SizeF="63.9996338,16.5354328" LocationFloat="527.6965, 5.67585039" Font="Tahoma, 9pt, style=Bold" Padding="2,2,0,0,100">
+                  <Summary Ref="62" FormatString="{0:n2} TL" />
+                  <StylePriority Ref="63" UseFont="false" UseTextAlignment="false" />
+                </Item4>
+              </Controls>
+              <StylePriority Ref="64" UseBackColor="false" />
+            </Item1>
+          </Controls>
+        </Item3>
+      </Bands>
+    </Item4>
+    <Item5 Ref="65" ControlType="ReportHeaderBand" Name="ReportHeader" HeightF="101.542">
+      <Controls>
+        <Item1 Ref="66" ControlType="XRPageInfo" Name="pageInfo2" PageInfo="DateTime" TextFormatString="{0: dd MMMM yyyy HH:mm:ss}" TextAlignment="TopLeft" SizeF="216.535431,24.80315" LocationFloat="8.26772, 70.49719" Font="Arial, 9.75pt" Padding="2,2,0,0,100">
+          <StylePriority Ref="67" UseFont="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="68" ControlType="XRPanel" Name="panel1" SizeF="741.999939,48.04789" LocationFloat="0, 10.0000067" BackColor="255,84,132,213">
+          <Controls>
+            <Item1 Ref="69" ControlType="XRLabel" Name="label20" Text="GRUP SATIŞ ÖZETLERİ" TextAlignment="MiddleLeft" SizeF="350.910431,29.7802" LocationFloat="8.26772, 8.267688" Font="Tahoma, 16pt, style=Bold" ForeColor="White" Padding="2,2,0,0,100" BorderWidth="0">
+              <StylePriority Ref="70" UseFont="false" UseForeColor="false" UseBorderWidth="false" UseTextAlignment="false" />
+            </Item1>
+          </Controls>
+          <StylePriority Ref="71" UseBackColor="false" />
+        </Item2>
+      </Controls>
+    </Item5>
+    <Item6 Ref="72" ControlType="ReportFooterBand" Name="ReportFooter" HeightF="73.9583359">
+      <Controls>
+        <Item1 Ref="73" ControlType="XRLabel" Name="label16" Text="Genel Toplam :" TextAlignment="MiddleLeft" SizeF="129.624573,22.9999542" LocationFloat="297.4711, 26.6666412" Font="Tahoma, 11pt, style=Bold" ForeColor="Red" Padding="2,2,0,0,100" BorderWidth="0">
+          <StylePriority Ref="74" UseFont="false" UseForeColor="false" UseBorderWidth="false" UseTextAlignment="false" />
+        </Item1>
+        <Item2 Ref="75" ControlType="XRLabel" Name="label14" TextFormatString="{0:n2} TL" Multiline="true" Text="label14" TextAlignment="MiddleLeft" SizeF="166.666687,22.9999981" LocationFloat="427.095673, 26.6666412" Font="Tahoma, 11pt, style=Bold" ForeColor="Red" Padding="2,2,0,0,96">
+          <Summary Ref="76" Running="Report" />
+          <ExpressionBindings>
+            <Item1 Ref="77" Expression="sumSum([Genel].[toplamtutar])" PropertyName="Text" EventName="BeforePrint" />
+          </ExpressionBindings>
+          <StylePriority Ref="78" UseFont="false" UseForeColor="false" UseTextAlignment="false" />
+        </Item2>
+      </Controls>
+    </Item6>
+    <Item7 Ref="79" ControlType="PageFooterBand" Name="PageFooter" HeightF="37.5" />
+  </Bands>
+  <ObjectStorage>
+    <Item1 ObjectType="DevExpress.XtraReports.Serialization.ObjectStorageInfo, DevExpress.XtraReports.v18.1" Ref="0" Content="~Xtra#NULL" Type="System.Data.DataSet" />
+  </ObjectStorage>
+</XtraReportsLayoutSerializer>

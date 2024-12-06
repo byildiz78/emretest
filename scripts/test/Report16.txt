@@ -1,0 +1,13 @@
+﻿
+Select
+  AccessLogs.LogDate As Tarih,
+  AccessLogs.StationID As [Terminal No],
+  AccessLogs.WrongPassword As [Denenen Kod],
+  AccessLogs.ActionName As [Islem],
+  EmployeeFiles.FirstName As [Kod Hangi Personele Ait]
+From
+  AccessLogs Left Join
+  EmployeeFiles On EmployeeFiles.EmployeeID = AccessLogs.EmployeeID and EmployeeFiles.BranchID = AccessLogs.BranchID 
+Where
+AccessLogs.LogDate <=@sonTarih And
+AccessLogs.LogDate >=@ilkTarih  And AccessLogs.@BranchID 

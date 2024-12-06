@@ -1,0 +1,15 @@
+SELECT 
+	DISTINCT
+	b.BranchName as Şube,
+	b.BranchID,
+	OH.OrderKey,
+	OH.OrderID as [Çek No],
+	OH.OrderDateTime as [Tarih]
+
+FROM OrderHeaders AS OH WITH (NOLOCK)
+	INNER JOIN OrderTransactions AS OT WITH (NOLOCK) ON OT.OrderKey = OH.OrderKey AND OT.BranchID = OH.BranchID AND OT.LineDeleted=0
+	inner join efr_Branchs as b on b.BranchID=oh.branchID
+WHERE 1=1
+	AND OH.LineDeleted=1
+	AND b.@BranchID
+	AND OH.OrderDateTime BETWEEN @date1 AND @date2

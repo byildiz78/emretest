@@ -1,0 +1,18 @@
+﻿Detail|SELECT   
+       OrderHeaders.*,
+CASE OrderHeaders.OrderType
+WHEN '1' THEN 'MASA SERVIS'
+WHEN '2' THEN 'ISME ADISYON'
+WHEN '3' THEN 'AL GÖTÜR'
+WHEN '4' THEN 'TEZGAH SATIŞ'
+WHEN '5' THEN 'PAKET SERVIS'
+ELSE 'TANIMSIZ' 
+END As 'Satış Türü'
+ 
+ FROM 
+     OrderHeaders
+      
+      
+
+ WHERE LineDeleted=0  AND OrderDateTime >=@ilkTarih AND OrderStatus=1 AND 
+OrderDateTime<=@SonTarih and OrderHeaders.@BranchID

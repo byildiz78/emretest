@@ -1,0 +1,10 @@
+SELECT COUNT(DISTINCT br.BranchID) AS [reportValue]
+FROM efr_Branchs br WITH (NOLOCK) 
+LEFT OUTER JOIN Orderheaders WITH (NOLOCK) ON orderheaders.BranchID = br.BranchID
+AND orderheaders.orderdatetime between @date1 and @date2
+AND orderheaders.BranchID=br.BranchID
+AND orderheaders.linedeleted=0 
+WHERE 1=1
+AND br.@BranchID
+AND ISNULL(br.IsActive,1)=1
+AND ISNULL(br.ShowDashboard,0)=1

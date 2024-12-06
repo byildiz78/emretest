@@ -1,0 +1,28 @@
+SELECT 
+[Şube Adı],
+[Tarih],
+[Saat],
+Sum(Tutar) As Tutar,
+Count([Çek Sayısı]) as [Çek Sayısı]
+FROM (
+Select
+eb.branchname as [Şube Adı],
+Convert(varchar,oh.OrderDateTime,104) As [Tarih],
+CASE WHEN DATEPART(MINUTE,oh.OrderDateTime)<30 THEN CONVERT(VARCHAR(10),DATEPART(HOUR,oh.OrderDateTime)) ELSE CONVERT(VARCHAR(10),DATEPART(HOUR,oh.OrderDateTime))+':30' END SAAT,
+op.AmountPaid As Tutar,
+oh.Orderkey as [Çek Sayısı]
+
+from Orderheaders as oh
+LEFT OUTER JOIN OrderPayments as op on op.OrderKey=oh.OrderKey
+INNER JOIN efr_Branchs as eb on eb.BranchID=oh.BranchID
+
+where oh.linedeleted=0
+AND oh.OrderDateTime >= @date1
+AND oh.OrderDateTime <= @date2
+AND oh.@BranchID
+AND op.LineDeleted=0) AS TABLO
+group by 
+[Şube Adı],
+[Tarih],
+[Saat]
+order by tarih,saat

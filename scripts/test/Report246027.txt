@@ -1,0 +1,29 @@
+ IF OBJECT_ID('tempdb..#temp') IS NOT NULL DROP TABLE #temp; 
+CREATE TABLE #temp (ProductID int,ProductKey UNIQUEIDENTIFIER,MenuItemKey UNIQUEIDENTIFIER,MenuItemText nvarchar(150),Birim nvarchar(50),ProductCode nvarchar(50),RowID int); 
+INSERT INTO #temp (ProductID,ProductKey,MenuItemKey,MenuItemText,Birim,ProductCode,RowID)
+ select r.ProductID, r.ProductKey, r.MenuItemKey, r.MenuItemText,r.Birim,r.ProductCode,
+ ROW_NUMBER() OVER (order by r.ProductID) AS RowID FROM (
+ SELECT DISTINCT p.ProductID,p.ProductKey,m.MenuItemKey,m.MenuItemText,isnull(ppu.UnitName,'ADET') AS Birim,p.ProductCode
+ FROM posProducts AS p WITH(NOLOCK)
+ INNER JOIN GlobalMenuItems AS m ON m.MenuItemGlobalKey=p.ProductKey
+ LEFT OUTER JOIN posProductUnits ppu ON ppu.UnitID = p.UnitID
+ WHERE p.IsSaleProduct=1) as r;
+SELECT efr_Branchs.BranchName AS Şube,
+ t.MenuItemText AS [Ürün Adı],
+ t.MenuItemGroupText AS Grubu,
+ t.MenumItemCategoryText AS Kategorisi,
+ ROUND(SUM(t.Quantity), 3) AS Adet,
+ SUM(t.ExtendedPrice) AS Tutar,m.ProductCode AS [Stok Kodu]
+FROM  OrderTransactions AS t 
+LEFT OUTER JOIN efr_Branchs ON t.BranchID = efr_Branchs.BranchID
+LEFT OUTER JOIN #temp AS m ON m.RowID=(SELECT TOP 1 x.RowID FROM #temp AS x WHERE x.MenuItemKey=t.MenuItemKey)
+WHERE t.OrderDateTime >= @date1
+ AND t.OrderDateTime <= @date2
+ AND t.LineDeleted=0
+ AND t.@BranchID
+GROUP BY
+ t.MenuItemText,
+ t.MenuItemGroupText,
+ t.MenumItemCategoryText,
+ efr_Branchs.BranchName,
+ m.ProductCode

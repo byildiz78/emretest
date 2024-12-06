@@ -1,0 +1,40 @@
+﻿Detail|
+declare @dateDelete datetime;set @dateDelete=DATEADD(HOUR,-24,getdate());
+delete from OrderHeaders where AutoID in (
+select AutoID from OrderHeaders with(nolock) where OrderDateTime>@dateDelete and AutoID not in (
+select MAX(AutoID) from OrderHeaders where OrderDateTime>@dateDelete group by OrderKey));
+
+delete from OrderTransactions where AutoID in (
+select AutoID from OrderTransactions with(nolock) where OrderDateTime>@dateDelete and AutoID not in (
+select MAX(AutoID) from OrderTransactions where OrderDateTime>@dateDelete group by TransactionKey ));
+
+delete from OrderPayments where AutoID in (
+select AutoID from OrderPayments with(nolock) where PaymentDateTime>@dateDelete and AutoID not in (
+select MAX(AutoID) from OrderPayments where PaymentDateTime>@dateDelete group by PaymentKey ));
+
+SELECT efr_Branchs.BranchName AS DEPARTMAN,RegisterSessions.RegisterSessionID AS 
+ [KASA NO],RegisterSessions.StationID AS [TERMINAL NO],RegisterSessions.SignInDateTime AS 
+ [ACILIS TARIHI],ISNULL(RegisterSessions.SignOutDateTime, '') AS 
+ [KAPANIS TARIHI],RegisterSessions.RegisterStartAmount AS 
+ [KASA BASLANGIC TUTARI],RegisterSessions.RegisterEndAmount AS 
+ [KASA KAPANIS TUTARI],RegisterSessions.DiscrepancyAmount AS 
+ [KASA FARK TUTARI],RegisterSessions.TotalPaymentMethod1 AS NAKIT,
+ RegisterSessions.TotalPaymentMethod4 AS VISA,RegisterSessions.TotalPaymentMethod5 AS 
+ [KAMPÜS KART],RegisterSessions.TotalPaymentMethod6 AS KARTSIZALACAK,
+ RegisterSessions.ClosePaymentMethod1 AS [NAKIT BEYAN],RegisterSessions.ClosePaymentMethod4 AS 
+ [VISA BEYAN],RegisterSessions.ClosePaymentMethod5 AS [KAMPUS BEYAN],
+ RegisterSessions.ClosePaymentMethod6 AS [KARTSIZ BEYAN],RegisterSessions.ZReportID AS 
+ ZRAPORNO,RegisterSessions.DiscrepancyNotes AS FirstName,'' AS lastname,ISNULL(SUM(h.AmountDue),0.0) AS [AÇIK ÇEK TOPLAMI]
+FROM RegisterSessions
+ LEFT OUTER JOIN efr_Branchs ON RegisterSessions.BranchID = efr_Branchs.BranchID
+ LEFT OUTER JOIN GlobalEmployeeFiles ON RegisterSessions.EmployeeID = GlobalEmployeeFiles.EmployeeID
+ LEFT OUTER JOIN OrderHeaders AS h ON h.StationID = RegisterSessions.StationID AND h.BranchID = RegisterSessions.BranchID AND h.OrderDateTime > 
+ RegisterSessions.SignInDateTime AND h.OrderDateTime < isnull(RegisterSessions.SignOutDateTime,GETDATE()) AND h.OrderStatus = 1
+WHERE RegisterSessions.SignInDateTime >= @date1
+ AND RegisterSessions.@BranchID
+ AND RegisterSessions.SignOutDateTime <= @date2 
+GROUP BY efr_Branchs.BranchName,RegisterSessions.RegisterSessionID,RegisterSessions.StationID,RegisterSessions.SignInDateTime,
+RegisterSessions.SignOutDateTime,RegisterSessions.RegisterStartAmount,RegisterSessions.RegisterEndAmount,
+RegisterSessions.DiscrepancyAmount,RegisterSessions.TotalPaymentMethod1, RegisterSessions.TotalPaymentMethod4,RegisterSessions.TotalPaymentMethod5,
+RegisterSessions.TotalPaymentMethod6, RegisterSessions.ClosePaymentMethod1,RegisterSessions.ClosePaymentMethod4,RegisterSessions.ClosePaymentMethod5,
+RegisterSessions.ClosePaymentMethod6,RegisterSessions.ZReportID,RegisterSessions.DiscrepancyNotes

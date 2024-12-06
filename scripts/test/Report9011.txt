@@ -1,0 +1,42 @@
+Detail|
+SELECT --distinct isnull(Discounts.DiscountText,'') AS AÇIKLAMA,
+CASE WHEN ISNULL(OrderHeaders.DiscountAmountValue,0)>0 AND ISNULL(OrderHeaders.DiscountBasisValue,0)=0 THEN 'İNDİRİM %'+CAST(ISNULL(OrderHeaders.DiscountAmountValue,0) AS VARCHAR) ELSE ''END AÇIKLAMA,
+       OrderHeaders.DiscountLineAmount AS [ÜRÜN İNDİRİMİ],
+       OrderHeaders.DiscountOrderAmount AS [ÇEK İNDİRİMİ],
+       OrderHeaders.DiscountCashAmount AS [NAKİT İNDİRİM],
+       OrderHeaders.OrderDateTime AS TARIH,
+       OrderHeaders.OrderID AS [ÇEK NO],
+       OrderHeaders.AmountDue+orderheaders.DiscountTotalAmount AS [ÇEK TUTARI],
+       OrderHeaders.DiscountTotalAmount AS [TOPLAM INDIRIM],
+      isnull(ISNULL(OrderHeaders.SpecificCustomerName,OrderHeaders.CustomerName),'') AS [MÜŞTERİ ADI],
+       '' AS [İLGİLİ KİŞİ.],
+       OrderHeaders.GuestNumber AS KonukSayisi,
+       OrderHeaders.CustomField2 AS [İndirim Yapan]
+FROM   OrderHeaders
+       LEFT OUTER JOIN Discounts
+            ON  OrderHeaders.DiscountKey = Discounts.DiscountKey
+and orderheaders.BranchID=Discounts.BranchID
+WHERE  (OrderHeaders.DiscountTotalAmount > 0)
+       AND OrderHeaders.LineDeleted = 0
+       AND OrderHeaders.OrderDateTime >= @ilkTarih
+       AND OrderHeaders.OrderDateTime <= @SonTarih
+       AND OrderHeaders.@BranchID
+ --AND discounts.@BranchID
+ 
+
+$INDIRIMLER|SELECT (SUM(h.amountdue) + SUM(h.DiscountTotalAmount)) AS [Brüt Satışlar],
+ SUM(h.DiscountLineAmount) AS [Ürün İndirimleri],
+ SUM(h.DiscountCashAmount) AS [Nakit İndirimler],
+ SUM(h.DiscountOrderAmount) AS [Çek İndirimler],
+ SUM(h.DiscountTotalAmount) AS [Toplam Indirimler],
+ SUM(h.amountdue) AS [Net Satışlar],
+ COUNT(h.OrderKey) AS [Toplam Çek Sayısı],
+ SUM(h.GuestNumber) AS [Toplam Konuk],
+ SUM(h.amountdue) / ISNULL(SUM(h.GuestNumber), 1) AS [Kişi Başı Ortalama],
+ SUM(h.amountdue) / ISNULL(COUNT(h.orderkey), 1) AS [Çek Ortalama]
+FROM OrderHeaders h
+WHERE h.LineDeleted = 0
+ AND h.OrderDateTime >= @ilkTarih
+ AND h.OrderDateTime <= @SonTarih
+ and h.@BranchID
+

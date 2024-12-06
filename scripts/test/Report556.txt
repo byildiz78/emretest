@@ -1,0 +1,20 @@
+﻿SELECT b.BranchName AS [Şube Adı], r.OrderID AS ÇekID, r.OrderDateTime AS [Fatura Tarihi], (r.OrderAmount-r.Tax_18-r.Tax_08) AS [Fatura Matrahı], r.Tax_08 AS [Kdv 8], r.Tax_18 AS [KDV 18], r.OrderAmount AS [Fatura Tutarı]
+FROM 
+(SELECT 
+result.BranchID, result.OrderID,result.OrderDateTime,(result.OtherPayment) AS OrderAmount,
+CASE result.Tax08 WHEN 0 THEN 0	ELSE (result.Tax08*8/100*result.OtherPayment/result.ExtendedPrice) END AS Tax_08,
+CASE result.Tax18 WHEN 0 THEN 0	ELSE (result.Tax18*18/100*result.OtherPayment/result.ExtendedPrice) END AS Tax_18
+FROM 
+(
+ SELECT TOP 1000 h.BranchID AS BranchID, h.OrderID AS [OrderID], h.OrderDateTime AS OrderDateTime,
+ isnull(h.DiscountAmountUsed,0) AS DiscountAmount, isnull(h.CashDiscountAmount,0) AS CashDiscount, h.AmountDue AS AmountPaid,
+ (SELECT Round(isnull(SUM(t.ExtendedPrice),0),2) FROM OrderTransactions AS t WHERE t.BranchID=h.BranchID AND t.OrderID=h.OrderID AND t.TransactionStatus='1') AS ExtendedPrice,
+ (SELECT isnull(SUM(p.AmountPaid),0) FROM OrderPayments AS p WHERE p.BranchID=h.BranchID AND p.OrderID=h.OrderID AND p.PaymentMethod=2) AS ChequePayment,
+ (SELECT Round(isnull(SUM(p.AmountPaid),0),2) FROM OrderPayments AS p WHERE p.BranchID=h.BranchID AND p.OrderID=h.OrderID AND p.PaymentMethod<>2) AS OtherPayment,
+ (SELECT Round(isnull(SUM(t.ExtendedPrice),0),2) FROM OrderTransactions AS t WHERE t.BranchID=h.BranchID AND t.OrderID=h.OrderID AND t.TransactionStatus='1' AND t.MenuItemID IN (SELECT MenuItemID FROM MenuItems WHERE MenuItems.MenuCategoryID IN (1))) AS Tax18,
+ (SELECT Round(isnull(SUM(t.ExtendedPrice),0),2) FROM OrderTransactions AS t WHERE t.BranchID=h.BranchID AND t.OrderID=h.OrderID AND t.TransactionStatus='1' AND t.MenuItemID NOT IN (SELECT MenuItemID FROM MenuItems WHERE MenuItems.MenuCategoryID IN (1))) AS Tax08
+  FROM OrderHeaders AS h WHERE h.OrderStatus='2' AND h.OrderDateTime>= @ilkTarih AND h.OrderDateTime<=@sonTarih AND h.@BranchID 
+) AS result
+) AS r 
+ INNER JOIN efr_Branchs AS b ON b.BranchID = r.BranchID
+ORDER BY r.OrderID

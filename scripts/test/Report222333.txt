@@ -1,0 +1,28 @@
+IF OBJECT_ID('tempdb..#combo') IS NOT NULL DROP TABLE combo; 
+CREATE TABLE #combo (MainMenuItemKey UNIQUEIDENTIFIER,MenuItemText NVARCHAR(100),Quantity FLOAT,ExtendedPrice FLOAT,BranchID INT,MainMenuItemText NVARCHAR(100),OrderID INT,Tarih DATE,MenuItemGroupText NVARCHAR(100),MainMenuItemTransactionKey UNIQUEIDENTIFIER); 
+
+INSERT INTO #combo 
+(MainMenuItemKey,MenuItemText,Quantity,ExtendedPrice,BranchID,MainMenuItemText,OrderID,Tarih,MenuItemGroupText,MainMenuItemTransactionKey)
+SELECT t.MenuItemKey,c.MenuItemText,sum(c.Quantity),sum(c.ExtendedPrice) as ExtendedPrice,t.BranchID,t.MenuItemText,t.orderID,CONVERT(DATE,t.OrderDateTime) as Tarih
+,CASE WHEN c.MenuItemGroupText ='BEYAZ ETLER TAVA' or c.MenuItemGroupText ='BEYAZ ETLER IZGARA' or c.MenuItemGroupText ='KIRMIZI ETLER TAVA' THEN 'ANA YEMEK' ELSE c.MenuItemGroupText END MenuItemGroupText,c.MainMenuItemTransactionKey
+ FROM OrderTransactions AS t
+INNER JOIN OrderTransactions AS c ON c.BranchID = t.BranchID AND c.OrderKey = t.OrderKey
+AND c.TransactionKey<>t.TransactionKey AND c.LineDeleted=0
+AND c.CustomField1 LIKE t.CustomField1+'%'
+WHERE t.OrderDateTime>@date1
+AND t.OrderDateTime<@date2
+AND t.LineDeleted=0
+AND t.@BranchID
+AND t.CustomField1 LIKE '%-'
+GROUP BY t.MenuItemKey,c.MenuItemText,t.BranchID,t.MenuItemText,t.OrderID,CONVERT(DATE,t.OrderDateTime),c.MenuItemGroupText,c.MainMenuItemTransactionKey;
+
+SELECT Tarih,Şube,[Çek No],Menü,  CASE WHEN [ANA YEMEK]>0 THEN 'X' ELSE null END [ANA YEMEK],CASE WHEN [ÇORBA]>0 THEN 'X' ELSE null END [ÇORBA], CASE WHEN [SOĞUK İÇECEKLER]>0 THEN 'X' ELSE null END [SOĞUK İÇECEKLER] from (
+SELECT * from (
+SELECT Tarih,b.BranchName as Şube,c.orderID as [Çek No],MenuItemGroupText as Grup,c.MainMenuItemText as Menü,c.MenuItemText as Ürün,MainMenuItemTransactionKey as MenuKey  FROM #combo AS c
+INNER JOIN efr_Branchs AS b ON b.BranchID=c.BranchID
+) as combolar 
+PIVOT(
+COUNT(Ürün) FOR Grup IN ([ANA YEMEK],[ÇORBA],[SOĞUK İÇECEKLER])
+) as Sonuc
+) AS TABLO group by MenuKey,Tarih,Şube,[Çek No],Menü,[ANA YEMEK],[ÇORBA],[SOĞUK İÇECEKLER] order by [Çek No]
+IF OBJECT_ID('tempdb..#combo') IS NOT NULL DROP TABLE #combo;

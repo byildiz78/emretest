@@ -1,0 +1,20 @@
+﻿SELECT 
+ h.DocumentDateTime AS [Sipariş Tarihi],
+ h.OrderSerialNo AS [Sipariş No],
+ sh.OrderSerialNo  AS [Mal Kabul No],
+ sh.DocumentDateTime AS [Mal Kabul Tarihi],
+ od.ProductCode AS [Stok Kodu],
+ od.ProductName  AS [Stok Adı],
+ od.Outgoing  AS [Sipariş Miktarı],
+ sd.Incoming AS [Mal Kabul Miktarı],
+ c.CurrentCode  AS [Cari Kodu],
+ c.CurrentName  AS [Cari Adı],
+ b.BranchName AS [Şube Adı]
+FROM   posOrderHeader AS h 
+INNER JOIN posCurrents AS c ON c.CurrentID = h.CurrentID
+INNER JOIN posBranchs AS pb ON pb.CurrentID = h.CurrentID
+INNER JOIN efr_Branchs AS b ON b.BranchID = pb.BranchCode
+INNER JOIN posOrderDetail AS od ON od.OrderID = h.OrderID
+LEFT OUTER JOIN posOrderHeader AS sh ON sh.MainOrderID = h.OrderID AND sh.OrderTypeID=42
+LEFT OUTER JOIN posOrderDetail AS sd ON sd.OrderID = sh.OrderID AND sd.ProductID=od.ProductID
+WHERE h.OrderTypeID=8 AND h.MainOrderID>0 AND h.DocumentDateTime <=@date2 And  h.DocumentDateTime >=@date1 and b.@BranchID

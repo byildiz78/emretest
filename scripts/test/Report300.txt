@@ -1,0 +1,6 @@
+SELECT m.MessageTitle AS Konu,
+left(CONVERT(varchar,m.MessageDate,121),16) AS Tarih,COUNT(m.MessageID) AS [Şube Adet]
+FROM efr_BranchMessage AS m
+INNER JOIN efr_Branchs AS b ON b.BranchID = m.BranchID
+WHERE m.MessageDate>DATEADD(day,-30,GETDATE())
+GROUP BY m.MessageTitle,left(CONVERT(varchar,m.MessageDate,121),16)

@@ -1,0 +1,33 @@
+
+Select
+
+CASE WHEN DateName(Month,h.DocumentDateTime)='January' Then 'Ocak'
+	 WHEN DateName(Month,h.DocumentDateTime)='February' Then 'Şubat'
+	 WHEN DateName(Month,h.DocumentDateTime)='March' Then 'Mart'
+	 WHEN DateName(Month,h.DocumentDateTime)='April' Then 'Nisan'
+	 WHEN DateName(Month,h.DocumentDateTime)='May' Then 'Mayıs'
+	 WHEN DateName(Month,h.DocumentDateTime)='June' Then 'Haziran'
+	 WHEN DateName(Month,h.DocumentDateTime)='July' Then 'Temmuz'
+	 WHEN DateName(Month,h.DocumentDateTime)='August' Then 'Ağustos'
+	 WHEN DateName(Month,h.DocumentDateTime)='September' Then 'Eylül'
+	 WHEN DateName(Month,h.DocumentDateTime)='October' Then 'Ekim'
+	 WHEN DateName(Month,h.DocumentDateTime)='November' Then 'Kasım'
+	 WHEN DateName(Month,h.DocumentDateTime)='December' Then 'Aralık'
+ELSE'' END,
+poscurrents.CurrentName AS [Cari İsim],
+ck.CurrentName AS [Satış Tipi],
+SUM(((d.Outgoing*d.UnitPrice) / (100-isnull(poscurrents.DiscountPercent,0))))*100 AS [Brüt Toplam],
+SUM((((d.Outgoing*d.UnitPrice) / (100-isnull(poscurrents.DiscountPercent,0)))*100) - (d.Outgoing*d.UnitPrice)) AS [Gen.İsk.Toplamı],
+SUM(d.Outgoing*d.UnitPrice) AS [Net Toplam],
+SUM((d.Outgoing*d.UnitPrice)*(1+(d.TaxPercent1/100))-(d.Outgoing*d.UnitPrice)) AS [KDV Toplamı],
+SUM((d.Outgoing*d.UnitPrice)*(1+(d.TaxPercent1/100))) AS [Genel Toplam]
+FROM posOrderHeader AS h
+INNER JOIN posLogisticsHeader ON h.RefDocumentNo=posLogisticsHeader.DocumentSerialNo AND (posLogisticsHeader.CustomField3 LIKE '%kurumsal%' or posLogisticsHeader.CustomField3 LIKE '%target%')
+LEFT OUTER JOIN posOrderDetail AS d ON d.OrderID = h.OrderID
+LEFT OUTER JOIN posCurrents ON posCurrents.CurrentID = h.CurrentID
+LEFT OUTER JOIN posCurrents as ck ON ck.CurrentID =posLogisticsHeader.CurrentID
+WHERE h.DocumentDateTime>=@date1 
+AND h.DocumentDateTime<=@date2
+AND h.OrderTypeID=6
+GROUP BY poscurrents.CurrentName,ck.CurrentName,h.DocumentDateTime,poscurrents.CurrentCode
+

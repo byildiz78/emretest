@@ -1,0 +1,5 @@
+Detail|SELECT distinct EmployeeFiles.FirstName, EmployeeFiles.LastName, EmployeeFiles.SecurityLevel
+FROM         EmployeeFiles 
+                      
+WHERE EmployeeFiles.EmployeeActive=1 and EmployeeFiles.@BranchID
+

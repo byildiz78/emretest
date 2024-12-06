@@ -1,0 +1,36 @@
+﻿
+
+SELECT  b.BranchName       AS Şube,
+       h.OrderDateTime           AS [Sipariş Tarihi],
+       p.GroupID                 AS ID,
+       p.CustomField2            AS [Talep Alt Grubu],
+       ISNULL(d.LineNotes, '')   AS Açıklama,
+       h.SendDatetime            AS [Sevk Tarih],
+       p.ProductCode             AS [Ürün Kodu],
+       p.ProductName             AS Ürün,
+       d.Quantity                AS Miktar,
+       posProductUnits.UnitName  AS Birim,
+       posOrderList.ListName AS [Talep Grubu]
+ 
+FROM   posPortalLogisticsDetail  AS d
+       INNER JOIN posPortalLogisticsHeader AS h
+            ON  h.OrderKey = d.OrderKey
+       INNER JOIN posBranchs     AS b
+            ON  b.BranchID = h.BranchID
+       INNER JOIN posProducts    AS p
+            ON  p.ProductID = d.ProductID
+       LEFT OUTER JOIN posOrderList
+            ON  h.OrderListID = posOrderList.OrderListID
+       LEFT OUTER JOIN posProductUnits
+            ON  d.UnitID = posProductUnits.UnitID
+            
+            
+            
+            
+            
+WHERE  h.OrderDateTime >= @date1
+       AND h.OrderDateTime <=@date2
+           --and h.OrderDateTime>'5/5/2015'
+       AND ISNULL(d.LineDeleted, 0) = 0
+       AND ISNULL(h.IsDeleted, 0) = 0
+           and h.@BranchID

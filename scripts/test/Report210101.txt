@@ -1,0 +1,106 @@
+﻿Detail|SELECT isnull(r.PickValue,'DİĞER') AS Kategori, round(sum(r.tutar),2) AS Satis, round(sum(r.maliyet),2) AS Maliyet
+,round(sum(r.tutar),2)-round(sum(r.maliyet),2) AS Kar
+,round(isnull((round(sum(r.maliyet),2)/nullif(sum(r.tutar),0)*100),0),2) AS Yuzde FROM(
+SELECT l.PickValue, round(SUM(t.ExtendedPrice*100/(100+isnull(m.TaxPercent,0))),5) AS tutar, round(SUM(t.Quantity),5)*isnull(m.MenuItemCost,t.MenuItemUnitPrice/3) AS maliyet
+FROM OrderTransactions AS t WITH (NOLOCK) 
+LEFT OUTER JOIN GlobalMenuItems AS m ON m.BranchID = t.BranchID AND m.MenuItemKey = t.MenuItemKey
+LEFT OUTER JOIN posProducts AS p ON p.ProductKey=m.MenuItemGlobalKey
+LEFT OUTER JOIN posPickList AS l ON l.ListID=p.MainCategoryID
+WHERE t.OrderDateTime>=@date1
+AND t.OrderDateTime<=@date2
+AND t.@BranchID
+AND t.LineDeleted=0
+GROUP BY l.PickValue,m.MenuItemCost,m.MenuItemKey,t.MenuItemUnitPrice,m.TaxPercent)
+AS r GROUP BY isnull(r.PickValue,'DİĞER')
+ORDER BY Satis DESC
+
+$Masraf|DECLARE @ciro FLOAT;
+SET @ciro= (SELECT isnull(round(SUM(h.AmountDue),2),0) AS Netsatis
+ FROM OrderHeaders AS h WITH(NOLOCK) WHERE 
+ h.@BranchID
+AND h.OrderDateTime>@date1
+AND h.OrderDateTime<@date2
+ AND h.LineDeleted=0);
+SELECT e.GroupName,
+e.ExpenseName, d.HeaderID, d.BranchID, d.ExpenseDate, d.ExpenseAmount,round(d.ExpenseAmount/@ciro*100,3) AS ToplamCiroYuzde
+FROM webExpenseData AS d with(nolock)
+INNER JOIN webExpenses AS e ON d.ExpenseID=e.AutoID
+where 
+DATEADD(hour,8,d.ExpenseDate)>=@date1
+AND DATEADD(hour,8,d.ExpenseDate)<=@date2
+AND d.@BranchID
+AND ISNULL(d.ExpenseAmount,0)>0
+ORDER BY e.GroupName, e.ExpenseName
+
+$ozet|DECLARE @sarf FLOAT;
+DECLARE @warehouseID INT;
+SET @warehouseID=(SELECT TOP 1 b.WarehouseID FROM posBranchs AS b WHERE 
+b.@BranchID );
+DECLARE @closeID INT;
+SET @closeID=(SELECT ISNULL((SELECT TOP 1 h.ClosingID FROM posWarehouseClosingHeader AS h WHERE h.ClosingDate>@date1 and h.WarehouseID=@warehouseID ORDER BY h.ClosingDate DESC),0));
+SET @sarf = 0;
+SELECT r.Netsatis+r.indirim AS BrutSatis, r.Netsatis, r.indirim,@sarf as Sarf, r.KdvsizNet, r.KdvTutar, r.Masraf, r.Maliyet,r.KdvsizNet-r.Masraf-r.Maliyet-@sarf AS NetKar
+  FROM(
+SELECT r.Netsatis, r.indirim,r.tindirim, r.KdvsizNet, r.KdvTutar,(
+SELECT round((isnull(sum(d.ExpenseAmount),0)),2) AS Masraf
+FROM webExpenseData AS d with(nolock) where 
+DATEADD(hour,8,d.ExpenseDate)>=@date1
+AND DATEADD(hour,8,d.ExpenseDate)<=@date2
+AND d.@BranchID
+AND ISNULL(d.ExpenseAmount,0)>0	
+) AS Masraf,
+(
+Select ISNULL((SELECT round(SUM((d.OlmasiGereken-d.CountAmount)*d.AveragePrice),2) AS [Tutar]
+FROM posWarehouseClosingDetail AS d
+INNER JOIN posProducts AS p ON p.ProductID = d.ProductID
+INNER JOIN posPickList AS c ON c.ListID=p.CategoryID
+WHERE d.ClosingID=@closeID),0)
+) AS Maliyet
+FROM (
+SELECT round(SUM(h.AmountDue),2) AS Netsatis,round(SUM(h.DiscountTotalAmount-h.DiscountLineAmount),2) AS indirim,SUM(h.DiscountTotalAmount) as Tindirim,
+round(SUM(h.AmountDue-h.SalesTaxAmount),2) AS KdvsizNet,
+round(SUM(h.SalesTaxAmount),2) AS KdvTutar
+ FROM OrderHeaders AS h WITH(NOLOCK) WHERE 
+ h.@BranchID
+AND h.OrderDateTime>@date1
+AND h.OrderDateTime<@date2
+AND h.LineDeleted=0
+) AS r) AS r
+
+$sarf|DECLARE @warehouseID INT;
+SET @warehouseID=(SELECT TOP 1 b.WarehouseID FROM posBranchs AS b WHERE b.@BranchID);
+DECLARE @closeID INT;
+SET @closeID=(SELECT ISNULL((SELECT TOP 1 h.ClosingID FROM posWarehouseClosingHeader AS h WHERE h.ClosingDate>@date1 and h.WarehouseID=@warehouseID ORDER BY h.ClosingDate DESC),0));
+SELECT c.PickValue AS Kategori,round(SUM((d.OlmasiGereken-d.CountAmount)*d.AveragePrice),2) AS [Tutar]
+FROM posWarehouseClosingDetail AS d
+INNER JOIN posProducts AS p ON p.ProductID = d.ProductID
+INNER JOIN posPickList AS c ON c.ListID=p.CategoryID
+WHERE d.ClosingID=@closeID
+GROUP BY c.PickValue
+
+$stok|DECLARE @closingID INT;
+
+SET @closingID=(SELECT ISNULL((SELECT TOP 1 ch.ClosingID FROM posBranchs AS b 
+INNER JOIN posWarehouseClosingHeader AS ch ON ch.WarehouseID=b.WarehouseID
+AND ch.ClosingDate>=@date1 AND ch.ClosingDate<=@date2
+WHERE b.@BranchID
+ORDER BY ch.ClosingDate DESC),0));
+DECLARE @toplamCiro float;
+SET @toplamCiro=(
+SELECT isnull(SUM(h.AmountDue),0) AS ciro FROM OrderHeaders AS h WITH (NOLOCK)
+WHERE h.@BranchID
+AND h.OrderDateTime>=@date1
+AND h.LineDeleted=0
+AND h.OrderDateTime<@date2);
+SELECT isnull(pgc.PickValue,'') AS grup,sum(d.Devir*d.AveragePrice) AS Baslangic,
+sum((d.OlmasiGereken-d.Devir) *d.AveragePrice) AS SatinAlma,
+sum((d.OlmasiGereken) *d.AveragePrice) AS OlmasiGereken,
+sum((d.OlmasiGereken-d.CountAmount)*d.AveragePrice) AS GercekTuketim,
+sum(d.CountAmount*d.AveragePrice) AS DonemSonu,
+isnull((sum((d.OlmasiGereken-d.CountAmount)*d.AveragePrice)/nullif(@toplamCiro,0)*100),0.0) AS YuzdeDegeri,@toplamCiro as Ciro
+  FROM posWarehouseClosingDetail AS d
+INNER JOIN posProducts AS p ON p.ProductID = d.ProductID
+INNER JOIN posPickList AS pgc ON pgc.ListID=p.CategoryID
+WHERE d.ClosingID=@closingID
+GROUP BY pgc.PickValue
+order by pgc.PickValue

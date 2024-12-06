@@ -1,0 +1,15 @@
+
+SELECT e.BranchID AS [Şube Kodu],
+e.BranchName AS [Şube Adı],
+e.VerisonInfo versiyon,
+e.StartDateTime AS [Veri Gönderim],
+isnull(p.CustomField1,'ŞUBE') AS [Cari Adı],
+p.logoCurrentCodeField AS [Logo Kodu],
+e.CustomField10 as [Açılış Tarihi],
+e.lastdailycontroldatetime as [Son Gün Sonu Tarihi]
+
+
+FROM   efr_Branchs e
+LEFT OUTER join posBranchs p ON p.BranchID = e.BranchID
+
+WHERE  e.@BranchID

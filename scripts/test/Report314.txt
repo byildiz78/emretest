@@ -1,0 +1,13 @@
+SELECT 
+CASE WHEN LEN(DATEPART(HOUR,h.OrderDateTime))=1 THEN '0'+CAST(DATEPART(HOUR,h.OrderDateTime) AS VARCHAR)+':00' ELSE CAST(DATEPART(HOUR,h.OrderDateTime) AS VARCHAR)+':00' END Saat,
+ROUND(SUM(t.ExtendedPrice * ISNULL( h.AmountDue / NULLIF( h.SubTotal ,0)  ,0))  ,4) as Tutar,
+SUM(CASE WHEN m.CustomField12='TABAKLAR' THEN t.Quantity ELSE 0 END) Konuk,
+COUNT( DISTINCt h.OrderID) as Cek
+FROM OrderTransactions AS t WITH(NOLOCK)
+INNER JOIN OrderHeaders h on h.Orderkey=t.OrderKey
+INNER JOIN posProducts as m WITH (NOLOCK) on m.ProductKey=t.MenuItemKey 
+WHERE t.OrderDateTime between @date1 and @date2
+AND t.@BranchID
+AND t.linedeleted=0
+GROUP BY DATEPART(HOUR,h.OrderDateTime)
+order by DATEPART(HOUR,h.OrderDateTime)

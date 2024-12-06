@@ -1,0 +1,3 @@
+$Headers|SELECT GETDATE()
+
+$Details|SELECT GETDATE()

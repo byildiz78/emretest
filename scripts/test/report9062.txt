@@ -1,0 +1,25 @@
+﻿DECLARE @FinalResults TABLE (BranchID INT, lastDate DATETIME);
+INSERT INTO @FinalResults SELECT b.BranchID,isnull((MAX(c.CountDate)),'1/1/2013') AS lastDate FROM efr_Branchs AS b
+LEFT OUTER JOIN WorkcubeCount AS c ON c.BranchID = b.BranchID WHERE b.@BranchID 
+GROUP BY b.BranchID 
+
+SELECT b.BranchName AS [Şube Adı], r.[Stok Adı],r.[Birimi],ISNULL(wc.CountValue,0)+ISNULL(sum(w.STOCK_IN),0)+r.[Olması Gereken] AS [Olması Gereken]
+  FROM 
+(
+	SELECT m.MenuItemText AS [Stok Adı],u.UnitName AS [Birimi],-1* isnull(SUM(t.Quantity),0) AS [Olması Gereken],
+	m.AccountingCode,b.ExternalCode,m.MenuItemKey,b.BranchID,lc.lastDate
+	FROM GlobalMenuItems AS m 
+	INNER JOIN posProducts AS p ON p.ProductKey=m.MenuItemGlobalKey
+	INNER JOIN posProductUnits AS u ON u.UnitID = p.UnitID
+	INNER JOIN efr_Branchs AS b ON b.BranchID=m.BranchID
+	INNER JOIN @FinalResults as lc ON lc.BranchID = b.BranchID
+	LEFT OUTER JOIN OrderTransactions AS t ON t.BranchID=m.BranchID AND t.MenuItemKey=m.MenuItemKey AND t.OrderDateTime>lc.lastDate  AND t.LineDeleted=0
+	WHERE b.@BranchID
+	GROUP BY m.MenuItemText,u.UnitName,m.AccountingCode,b.ExternalCode,m.MenuItemKey,b.BranchID,lc.lastDate
+)
+AS r
+LEFT OUTER JOIN efr_Branchs AS b ON b.BranchID=r.BranchID
+LEFT OUTER JOIN WorkCube AS w ON w.STOCK_ID=r.AccountingCode AND w.COMPANY_ID=r.ExternalCode
+LEFT OUTER JOIN WorkcubeCount AS wc ON wc.BranchID=r.BranchID AND wc.CountDate=r.lastDate and wc.MenuItemKey=r.MenuItemKey 
+GROUP BY 
+r.[Stok Adı],r.[Birimi],r.[Olması Gereken],ISNULL(wc.CountValue,0),b.BranchName 

@@ -1,0 +1,19 @@
+Select
+eb.branchname as [Şube Adı],
+Convert(varchar,oh.OrderDateTime,104) As [Tarih],
+LEFT(Convert(varchar,oh.OrderDateTime,108),2) As [Saat],
+Sum(op.AmountPaid) As Tutar,
+Count(oh.Orderkey) as [Çek Sayısı]
+
+from Orderheaders as oh
+LEFT OUTER JOIN OrderPayments as op on op.OrderKey=oh.OrderKey
+INNER JOIN efr_Branchs as eb on eb.BranchID=oh.BranchID
+
+where oh.linedeleted=0
+AND oh.OrderDateTime >= @date1
+AND oh.OrderDateTime <= @date2
+AND oh.@BranchID
+AND op.LineDeleted=0
+
+Group by LEFT(Convert(varchar,oh.OrderDateTime,108),2),Convert(varchar,oh.OrderDateTime,104),eb.BranchName
+Order by Convert(varchar,oh.OrderDateTime,104),LEFT(Convert(varchar,oh.OrderDateTime,108),2) ASC

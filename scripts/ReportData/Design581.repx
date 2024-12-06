@@ -1,0 +1,780 @@
+/// <XRTypeInfo>
+///   <AssemblyFullName>DevExpress.XtraReports.v11.1, Version=11.1.6.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a</AssemblyFullName>
+///   <AssemblyLocation>C:\WINDOWS\assembly\GAC_MSIL\DevExpress.XtraReports.v11.1\11.1.6.0__b88d1754d700e49a\DevExpress.XtraReports.v11.1.dll</AssemblyLocation>
+///   <TypeName>DevExpress.XtraReports.UI.XtraReport</TypeName>
+///   <Localization>tr-TR</Localization>
+/// </XRTypeInfo>
+namespace XtraReportSerialization {
+    
+    public class repCurrentList : DevExpress.XtraReports.UI.XtraReport {
+        private DevExpress.XtraReports.UI.DetailBand detailBand1;
+        private DevExpress.XtraReports.UI.XRLabel label4;
+        private DevExpress.XtraReports.UI.XRLabel label8;
+        private DevExpress.XtraReports.UI.ReportHeaderBand ReportHeader;
+        private DevExpress.XtraReports.UI.XRPanel panel1;
+        private DevExpress.XtraReports.UI.XRPageInfo pageInfo2;
+        private DevExpress.XtraReports.UI.XRLabel label12;
+        private DevExpress.XtraReports.UI.XRPictureBox pictureBox1;
+        private DevExpress.XtraReports.UI.XRLabel label2;
+        private DevExpress.XtraReports.UI.XRPageInfo pageInfo3;
+        private DevExpress.XtraReports.UI.PageFooterBand PageFooter;
+        private DevExpress.XtraReports.UI.XRPanel panel2;
+        private DevExpress.XtraReports.UI.XRPageInfo pageInfo4;
+        private DevExpress.XtraReports.UI.XRLabel label13;
+        private DevExpress.XtraReports.UI.XRLabel label14;
+        private DevExpress.XtraReports.UI.XRPictureBox pictureBox2;
+        private DevExpress.XtraReports.UI.GroupFooterBand GroupFooter1;
+        private DevExpress.XtraReports.UI.XRLabel label1;
+        private DevExpress.XtraReports.UI.GroupHeaderBand GroupHeader1;
+        private DevExpress.XtraReports.UI.XRPanel panel4;
+        private DevExpress.XtraReports.UI.XRLabel label10;
+        private DevExpress.XtraReports.UI.XRLabel label6;
+        private DevExpress.XtraReports.UI.XRLabel label7;
+        private DevExpress.XtraReports.UI.TopMarginBand topMarginBand1;
+        private DevExpress.XtraReports.UI.BottomMarginBand bottomMarginBand1;
+        private DevExpress.XtraReports.UI.XRControlStyle ProductData;
+        private DevExpress.XtraReports.UI.XRControlStyle OddStyle;
+        private DevExpress.XtraReports.UI.XRControlStyle GroupHeader;
+        private DevExpress.XtraReports.UI.XRControlStyle ProductHeader;
+        private DevExpress.XtraReports.UI.XRControlStyle SupplierTitle;
+        private DevExpress.XtraReports.UI.XRControlStyle EvenStyle;
+        private DevExpress.XtraReports.UI.XRControlStyle SupplierInfo;
+        private System.Resources.ResourceManager _resources;
+        public repCurrentList() {
+            this.InitializeComponent();
+        }
+        private System.Resources.ResourceManager resources {
+            get {
+                if (_resources == null) {
+                    string resourceString = "zsrvvgEAAACRAAAAbFN5c3RlbS5SZXNvdXJjZXMuUmVzb3VyY2VSZWFkZXIsIG1zY29ybGliLCBWZXJza" +
+                        "W9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVibGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4O" +
+                        "SNTeXN0ZW0uUmVzb3VyY2VzLlJ1bnRpbWVSZXNvdXJjZVNldAIAAAACAAAAAQAAAGhTeXN0ZW0uRHJhd" +
+                        "2luZy5CaXRtYXAsIFN5c3RlbS5EcmF3aW5nLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhb" +
+                        "CwgUHVibGljS2V5VG9rZW49YjAzZjVmN2YxMWQ1MGEzYVBBRFBBROdZHTfkhuldJwAAAAAAAAB6AQAAI" +
+                        "nAAaQBjAHQAdQByAGUAQgBvAHgAMQAuAEkAbQBhAGcAZQAAAAAAInAAaQBjAHQAdQByAGUAQgBvAHgAM" +
+                        "gAuAEkAbQBhAGcAZQBiDQAAQAABAAAA/////wEAAAAAAAAADAIAAABRU3lzdGVtLkRyYXdpbmcsIFZlc" +
+                        "nNpb249NC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iMDNmNWY3ZjExZDUwY" +
+                        "TNhBQEAAAAVU3lzdGVtLkRyYXdpbmcuQml0bWFwAQAAAAREYXRhBwICAAAACQMAAAAPAwAAAL8MAAACi" +
+                        "VBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6J" +
+                        "gAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAACXBIWXMAAA68AAAOvAGVvHJJAAAMNUlEQ" +
+                        "VR4Xu1ZaWxc1Rl1V7r+qASkwWPPzJt5M46hbGkbIjYRla0FUdGWpa0KFApVKaUtakuEqoJoVaqqaqASo" +
+                        "oTQJBBatpCSEGeBeN+38Tb2eI+z4MRpFiceI0Ly9Zw3947fzLxZHLI4yJ905PF7b96959xvu3fyZm3WZ" +
+                        "m3WZm3WZq6t9/vPqPCYCyq9/rurvL4lVV7/6irDX09UA7j+SqXh/1OlEbi+NBA4U33t9LUqt++qaq+/p" +
+                        "Mbrf7/ZF5AGoNYwpQaotqEqCZVArXoegmyvcJu3qVfOfKszzPvqDXNvCyaPvxZhO0heQ5PV0AJoUez36" +
+                        "vG+cq/vfjXMzLLSs4q/0GD4y0OKtAbEsIjCtaXU45O3gc3AJmCj2ycbgBK3IeuBt4B1wJvAf4G1hQae9" +
+                        "yeIQECcHjXszLBmw9zQ6g9a7kqQOFzeIo0VkzKQJfktwDtALiKsBSwhIMIbwJt4xi5ChddsUcOfOqt1B" +
+                        "z0dIN4I0oQV3yCNmLeABIeJTk+E1wq9sqoghtfxWYuwBlgNlHtjAjA8KozApWoqJ98aPeaP2kC+CaQJu" +
+                        "D9W3i91IMzV1yLQC7KJQPwHhJe5PPJ8EnjtVdyjAPQEimBLmofUdE6uNRnmK60gzawO95cmEG8ELBFAl" +
+                        "l6gRaAXZBKBWFkwRfhfwEoQXkG4vPHr/7aJsBbeYiVIjL9yzpzPq2mdHAsZgW3M7kQrJtECJItAL3AWw" +
+                        "Zciwhq4uCa5EoSfO8d9kRoqb+nZ3jnLXZ739X0KoEOBXlABbPH6fq0eP7FWFQx+sYOkFdp8poQwAScRd" +
+                        "ChkE4HgihMrgKcLC7+khkuwF7D6lkDwFJ0PyvhujIl3tqrHTpw1+3wLuxHvJN4OdIB8O5BOBHs+SCuC8" +
+                        "gISJ0BwjxouxZbluzdQAOYDVgeKsAnlkX1Bg8+MqsdOjLV5zUc7QZ71vQuEiU4gnQgJ+SCLCBSAq8uVX" +
+                        "ZHv6VNDptjSfPdftQC6TyhBHqAHMA+px46/tRuBaq54G9ADdANhEM4kQkpSzCACQ4Hl7kXgpQLvB2rYF" +
+                        "Fvmco9oAdgn0AtKIN4JFQDxPhFz94D0+gMSAXIRwTEp5hfIvi2lMvC7xQkiEMzuIG/hBZfn92r4uIH0l" +
+                        "UiEVg54AZ6iGyUKwLaayVg9enys1TTze+HyJB4G+kG8D8hVBKekKEePiraacwoSRGATxB6AQhCrCjztI" +
+                        "HzF83MLL17pcq9jiDBJUgB2irpbZA9BAdiDqKl/eAPpW3vNIot8RJHXSBXBdBTBng/aL7lU0Y7Z6PLlU" +
+                        "seJg7hdhNXo+F4GUbsQlkcAVn4AeXaF9pa5HN/jPgPv2qWm/+EMpJcz0zPhkaydfDYRKIAWQYdC73dvU" +
+                        "bRjNvDAg9KAmGdOqMkvlBqQsItAt35ZCaEFYH6gCIz55JaZ31UClCsKx269vuBAF4gTTsTtcBJBewFhh" +
+                        "QJIHmpuVtRFdi55UppAnuHQcuHFcvSDD2S8sUlqQJgCaBGYGDd6pnr/DSDKZil538AKEN9tenz3KhrTt" +
+                        "1K3+zNY9aNhEOfqOxF2QrIITqHQMe9cRT9m3TfdLD233q7+i5k9HxCx8hgrken2DRRhEwRoAPkmAztPd" +
+                        "/GXFZ3pWYfHvGAI8U7ikWmQ19Ai9ADpkmLk+m8pqqnWgXvTaZntIjD+ufNsx7wVnelZxGc+NADyPXhBu" +
+                        "njPBVqE3ovmy8DV10oYLp4swvaHFyvKyo4ckZai4niJbJh3nnTfcZeVE3IVQZ874PshRSl3w2q/wzJ3L" +
+                        "KtODCjwM8l3QcjDB9+X93bul96fPiiVmKCetDVhEBt66jmZ6B2VKHAwNChvzc23ElnVNTfIkehhOTJ5W" +
+                        "Frvusd6vhQtbjlPgZQIyeFA8OyB5a8eLbqilZthxYZJPFfymijdnCuKbbDltva4rULSmhzeLxM970q0f" +
+                        "0zqLl+UsGLEZlehjG2stZ4hdpdUSdvPfyPRvt3W/+8N7pUN512YcPih9/6vW/Di/1g10LWf1UrRys2w6" +
+                        "iO5kKdbswGyt7UJrS1IJ8duC1ZSk5kc2ivlvmCK2246xyUH27fGRZiIjMaeh2gbis5NOQazi8A+gSK8C" +
+                        "rDzsw5gfP5nFLXsFjGCJZnIW66sYjZ5c5PS27u9Ug9CySL0/OK3cVLR/j1SivY3RQRcm8Q9LcJ427Csx" +
+                        "7V0Z4HJIrBCsPef1ur3eAPn9yNOSd6e8GIrnVjDdeJKJ0L7omvkEFZx7zsN0lB0ntSCFAWwRMCktz+7a" +
+                        "oocYn0LVt0uwu61pdJ0yw+t+7vwuWSuK97ZZROB4Hbc8gDDfEXRy26o1RMkz8SnV3uqicldhEaunop1g" +
+                        "vE+umqN1LjccU+oKnDLvrKW+DNja8ukFK1s1fwFMjn4v9j18A7ZePZc1HIvmp5YZ8eGRwvhJALJN6LmU" +
+                        "wD2LIpadmuaP/9TrPX21effYxGhCe3r5NA+i8Shzm1TMYwENvDwY1INgRgKlWhuDnXtiIuw88U3JDoQc" +
+                        "3uGRsv3fpDQ1GgR7AIki8DnSJ5nEs1e/48VvewWMedd4VTysomgBbCLQC8Ye7XEIrK/rFnC37ldoiCvi" +
+                        "TIJhr75balCrFYCmrQGxatecGlCTrC3t5lE4HkEybcZZtpTI0fr9RddQ/LJAkxHBLsXdCy4DLV8l0WuC" +
+                        "dfrXQUyuuI1i7xFFF5xoK5Laou/IrUoa/QOfZ3dG/NBcmLMJAIFsIgDbNpK8678pKKWm4X9RVdqD9Ahk" +
+                        "FkEtbtDLIfPvyhFhBaEgSa74+//RDJCV1bokR3/WBZfaYKuvhPC1F/8dRl8/G9Sjvc5dXXZRGjEmCTPr" +
+                        "B8yApcpWrnbiMv12UGVA3QSTCeAFqH/uhvRte2yEN06Lu1oYuwibH/iyRhJJLX6s+bInjc2T5Hv3mmL9" +
+                        "zGpCRRnbW3TicDjLp5IESGv+YSiNH0bVgI4hUGyCNt+8oBMaHcGJrcekI6CwgRPaAvMs8jx/qG2ofizB" +
+                        "+rCUoeVrsPKja3eLNueXGqVRqtbzCICBdAiMCnWeBmCseM4bK03KyrHZljVVVoApzCIi4A6H0UXRzJ04" +
+                        "ZGf/Uo64d7JlSGE8sV+XhNnfO9+6U1pgFBWowQkn/qkiID7TiJQAB5ydCryHYZZpmgcu/X6/WfoUpjOC" +
+                        "4gdIGyRhwf0fW1hLCmCTBcwdOd9suOxv0j3FYukDQQG77k/Tn7kD3+WJuwHErpFILlTzEUENjmMdwuGu" +
+                        "UVR+PDW7QtWZfOC0Ucej5FC7A9ed4P0L7xc9q2vsGI9vtq4t+fldRJCXtDesuf1jazNqS2zgwhagGQRK" +
+                        "AB/ZeaJFM8nuozAU2rqx8fQN35iaxYvGL7q6ljyU0Tjnwk2PYT6PHD7HbIf7TD/Z3fYjJbWcd+QQQT9Y" +
+                        "2kFyLO7I9iyd/kCN6lpH1+L+MzFWgCnitCPyYyXT7WxFhAOBxsjMoz+ffjOe+OiHKhul/DCy2RyZFz2r" +
+                        "q+UVoTAlABJIoBoOhEY76zv1nEcyCNcz1LTPTE24A/u1yI4hUIfEtzoI3+U8cqQjC15VvounC89EIbls" +
+                        "QtNz1T2H5YOXA+h/WVO0I1SshdkEoENDskTmM+YmuKJtaa58z+31ZyXMRQsINvbyyNFGP7+XXD/mAfse" +
+                        "mZl2m4xUygQFECfQ9ITu43gGjW9k2Nhw7xNd4cZRQD6MPGhRdfKOHd4yv2jiPkuxG2mljmdCPQEPS4rU" +
+                        "48/cLea1sm1iC/4tp6IYz5Q2PXoEwnJMDq8T3q/eknOW2i7CC24p8ccAflud9CjpnNqrM8XPKgn1JdGh" +
+                        "HcfekQmEPcshfvXlUlE5YNMW2gtgBaBSdH6qU2NBUyqKZxak7y8j9nbZMf+AIQGzj1f+kC8D5+nu3ukA" +
+                        "CxvfD89DUJXqOFnhvUEAmfa+4N0TZJGQmLMQQT9Xm7I8NxiNezMsrCvaKHeMR6bCKm/EhP6fVuxeYqY5" +
+                        "gVquJlpYdO8GT1CTiLYBXASIWxdj72n3x883Flc/Gk1zMy2iGHex5/L9OQzVYcELwB0KKimRpEPdKpXn" +
+                        "z4WNoputu8cFRFHJIsQfx7fh1csUa88/Szs9QbsiZGIZXBnEezPsap0ec1vqFedvoYS+fGIL7DX3jFmA" +
+                        "0pclEdw6hUfDUNI3EFvSCcEr7OrQwj8Un3lo2lhr/9qJLgQCXMzxWTZ6wuG8f+N6pFZm7VZm7VZO/WWl" +
+                        "/d/bvhWjxjmw+QAAAAASUVORK5CYIILQAABAAAA/////wEAAAAAAAAADAIAAABRU3lzdGVtLkRyYXdpb" +
+                        "mcsIFZlcnNpb249NC4wLjAuMCwgQ3VsdHVyZT1uZXV0cmFsLCBQdWJsaWNLZXlUb2tlbj1iMDNmNWY3Z" +
+                        "jExZDUwYTNhBQEAAAAVU3lzdGVtLkRyYXdpbmcuQml0bWFwAQAAAAREYXRhBwICAAAACQMAAAAPAwAAA" +
+                        "JIxAAACiVBORw0KGgoAAAANSUhEUgAAAgUAAACYCAYAAAB0+5q5AAAABGdBTUEAALGOfPtRkwAAACBjS" +
+                        "FJNAACHDwAAjA8AAP1SAACBQAAAfXkAAOmLAAA85QAAGcxzPIV3AAAKOWlDQ1BQaG90b3Nob3AgSUNDI" +
+                        "HByb2ZpbGUAAEjHnZZ3VFTXFofPvXd6oc0wAlKG3rvAANJ7k15FYZgZYCgDDjM0sSGiAhFFRJoiSFDEg" +
+                        "NFQJFZEsRAUVLAHJAgoMRhFVCxvRtaLrqy89/Ly++Osb+2z97n77L3PWhcAkqcvl5cGSwGQyhPwgzyc6" +
+                        "RGRUXTsAIABHmCAKQBMVka6X7B7CBDJy82FniFyAl8EAfB6WLwCcNPQM4BOB/+fpFnpfIHomAARm7M5G" +
+                        "SwRF4g4JUuQLrbPipgalyxmGCVmvihBEcuJOWGRDT77LLKjmNmpPLaIxTmns1PZYu4V8bZMIUfEiK+IC" +
+                        "zO5nCwR3xKxRoowlSviN+LYVA4zAwAUSWwXcFiJIjYRMYkfEuQi4uUA4EgJX3HcVyzgZAvEl3JJS8/hc" +
+                        "xMSBXQdli7d1NqaQffkZKVwBALDACYrmcln013SUtOZvBwAFu/8WTLi2tJFRbY0tba0NDQzMv2qUP918" +
+                        "29K3NtFehn4uWcQrf+L7a/80hoAYMyJarPziy2uCoDOLQDI3fti0zgAgKSobx3Xv7oPTTwviQJBuo2xc" +
+                        "VZWlhGXwzISF/QP/U+Hv6GvvmckPu6P8tBdOfFMYYqALq4bKy0lTcinZ6QzWRy64Z+H+B8H/nUeBkGce" +
+                        "A6fwxNFhImmjMtLELWbx+YKuGk8Opf3n5r4D8P+pMW5FonS+BFQY4yA1HUqQH7tBygKESDR+8Vd/6Nvv" +
+                        "vgwIH554SqTi3P/7zf9Z8Gl4iWDm/A5ziUohM4S8jMX98TPEqABAUgCKpAHykAd6ABDYAasgC1wBG7AG" +
+                        "/iDEBAJVgMWSASpgA+yQB7YBApBMdgJ9oBqUAcaQTNoBcdBJzgFzoNL4Bq4AW6D+2AUTIBnYBa8BgsQB" +
+                        "GEhMkSB5CEVSBPSh8wgBmQPuUG+UBAUCcVCCRAPEkJ50GaoGCqDqqF6qBn6HjoJnYeuQIPQXWgMmoZ+h" +
+                        "97BCEyCqbASrAUbwwzYCfaBQ+BVcAK8Bs6FC+AdcCXcAB+FO+Dz8DX4NjwKP4PnEIAQERqiihgiDMQF8" +
+                        "UeikHiEj6xHipAKpAFpRbqRPuQmMorMIG9RGBQFRUcZomxRnqhQFAu1BrUeVYKqRh1GdaB6UTdRY6hZ1" +
+                        "Ec0Ga2I1kfboL3QEegEdBa6EF2BbkK3oy+ib6Mn0K8xGAwNo42xwnhiIjFJmLWYEsw+TBvmHGYQM46Zw" +
+                        "2Kx8lh9rB3WH8vECrCF2CrsUexZ7BB2AvsGR8Sp4Mxw7rgoHA+Xj6vAHcGdwQ3hJnELeCm8Jt4G749n4" +
+                        "3PwpfhGfDf+On4Cv0CQJmgT7AghhCTCJkIloZVwkfCA8JJIJKoRrYmBRC5xI7GSeIx4mThGfEuSIemRX" +
+                        "EjRJCFpB+kQ6RzpLuklmUzWIjuSo8gC8g5yM/kC+RH5jQRFwkjCS4ItsUGiRqJDYkjiuSReUlPSSXK1Z" +
+                        "K5kheQJyeuSM1J4KS0pFymm1HqpGqmTUiNSc9IUaVNpf+lU6RLpI9JXpKdksDJaMm4ybJkCmYMyF2TGK" +
+                        "QhFneJCYVE2UxopFykTVAxVm+pFTaIWU7+jDlBnZWVkl8mGyWbL1sielh2lITQtmhcthVZKO04bpr1bo" +
+                        "rTEaQlnyfYlrUuGlszLLZVzlOPIFcm1yd2WeydPl3eTT5bfJd8p/1ABpaCnEKiQpbBf4aLCzFLqUtulr" +
+                        "KVFS48vvacIK+opBimuVTyo2K84p6Ss5KGUrlSldEFpRpmm7KicpFyufEZ5WoWiYq/CVSlXOavylC5Ld" +
+                        "6Kn0CvpvfRZVUVVT1Whar3qgOqCmrZaqFq+WpvaQ3WCOkM9Xr1cvUd9VkNFw08jT6NF454mXpOhmai5V" +
+                        "7NPc15LWytca6tWp9aUtpy2l3audov2Ax2yjoPOGp0GnVu6GF2GbrLuPt0berCehV6iXo3edX1Y31Kfq" +
+                        "79Pf9AAbWBtwDNoMBgxJBk6GWYathiOGdGMfI3yjTqNnhtrGEcZ7zLuM/5oYmGSYtJoct9UxtTbNN+02" +
+                        "/R3Mz0zllmN2S1zsrm7+QbzLvMXy/SXcZbtX3bHgmLhZ7HVosfig6WVJd+y1XLaSsMq1qrWaoRBZQQwS" +
+                        "hiXrdHWztYbrE9Zv7WxtBHYHLf5zdbQNtn2iO3Ucu3lnOWNy8ft1OyYdvV2o/Z0+1j7A/ajDqoOTIcGh" +
+                        "8eO6o5sxybHSSddpySno07PnU2c+c7tzvMuNi7rXM65Iq4erkWuA24ybqFu1W6P3NXcE9xb3Gc9LDzWe" +
+                        "pzzRHv6eO7yHPFS8mJ5NXvNelt5r/Pu9SH5BPtU+zz21fPl+3b7wX7efrv9HqzQXMFb0ekP/L38d/s/D" +
+                        "NAOWBPwYyAmMCCwJvBJkGlQXlBfMCU4JvhI8OsQ55DSkPuhOqHC0J4wybDosOaw+XDX8LLw0QjjiHUR1" +
+                        "yIVIrmRXVHYqLCopqi5lW4r96yciLaILoweXqW9KnvVldUKq1NWn46RjGHGnIhFx4bHHol9z/RnNjDn4" +
+                        "rziauNmWS6svaxnbEd2OXuaY8cp40zG28WXxU8l2CXsTphOdEisSJzhunCruS+SPJPqkuaT/ZMPJX9KC" +
+                        "U9pS8Wlxqae5Mnwknm9acpp2WmD6frphemja2zW7Fkzy/fhN2VAGasyugRU0c9Uv1BHuEU4lmmfWZP5J" +
+                        "iss60S2dDYvuz9HL2d7zmSue+63a1FrWWt78lTzNuWNrXNaV78eWh+3vmeD+oaCDRMbPTYe3kTYlLzpp" +
+                        "3yT/LL8V5vDN3cXKBVsLBjf4rGlpVCikF84stV2a9021DbutoHt5turtn8sYhddLTYprih+X8IqufqN6" +
+                        "TeV33zaEb9joNSydP9OzE7ezuFdDrsOl0mX5ZaN7/bb3VFOLy8qf7UnZs+VimUVdXsJe4V7Ryt9K7uqN" +
+                        "Kp2Vr2vTqy+XeNc01arWLu9dn4fe9/Qfsf9rXVKdcV17w5wD9yp96jvaNBqqDiIOZh58EljWGPft4xvm" +
+                        "5sUmoqbPhziHRo9HHS4t9mqufmI4pHSFrhF2DJ9NProje9cv+tqNWytb6O1FR8Dx4THnn4f+/3wcZ/jP" +
+                        "ScYJ1p/0Pyhtp3SXtQBdeR0zHYmdo52RXYNnvQ+2dNt293+o9GPh06pnqo5LXu69AzhTMGZT2dzz86dS" +
+                        "z83cz7h/HhPTM/9CxEXbvUG9g5c9Ll4+ZL7pQt9Tn1nL9tdPnXF5srJq4yrndcsr3X0W/S3/2TxU/uA5" +
+                        "UDHdavrXTesb3QPLh88M+QwdP6m681Lt7xuXbu94vbgcOjwnZHokdE77DtTd1PuvriXeW/h/sYH6AdFD" +
+                        "6UeVjxSfNTws+7PbaOWo6fHXMf6Hwc/vj/OGn/2S8Yv7ycKnpCfVEyqTDZPmU2dmnafvvF05dOJZ+nPF" +
+                        "mYKf5X+tfa5zvMffnP8rX82YnbiBf/Fp99LXsq/PPRq2aueuYC5R69TXy/MF72Rf3P4LeNt37vwd5MLW" +
+                        "e+x7ys/6H7o/ujz8cGn1E+f/gUDmPP8usTo0wAAAAlwSFlzAAAuIgAALiIBquLdkgAAJsNJREFUeF7tn" +
+                        "c+x9TSz9d8QCIExI8bfiKqbAAEwIARCYPDNCYEQCIEQCIEMLiFwe/nPeX18lt2tllqW7V5Vv6rnkS1Ze" +
+                        "2+5e1myff7z77//JkmSJEmS/IcWJkmSJEnyPmhhkiRJkiTvgxYmSZIkSfI+aGGSJEmSJO+DFiZJkiRJ8" +
+                        "j5oYZIkSZIk74MWJkmSJEnyPmhhkiRJkiTvgxZGkLqZvvvpXwc/LLVTbxAfAxo5RlKpTmK5WIMWRpC6m" +
+                        "XhA18iA/ybxMaCRYySV6iSWizVoYQSpm4kHdI0M+G8SHwMaOUZSqU5iuViDFkaQupl4QNfIgP8m8TGgk" +
+                        "WMkleoklos1aGEEqZuJB3SNDPhvEh8DGjlGUqlOYrlYgxZGkLqZeEDXyID/JvExoJFjJJXqJJaLNWhhB" +
+                        "KmbiQd0jQz4bxIfAxo5RlKpTmK5WIMWRpC6mXhA18iA/ybxMaCRYySV6iSWizVoYQSpm4kHdI0M+G8SH" +
+                        "wMaOUZSqU5iuViDFkaQupl4QNfIgP8m8TGgkWMkleoklos1aGEEqZuJB3SNDPhvEh8DGjlGUqlOYrlYg" +
+                        "xZGkLqZeEDXyID/JvExoJFjJJXqJJaLNWhhBKmbiQd0jQz4bxIfAxo5RlKpTmK5WIMWRpC6mXhA18iA/" +
+                        "ybxMaCRYySV6iSWizVoYQSpm4kHdI0M+G8SHwMaOUZSqU5iuViDFkaQupl4QNfIgP8m8TGgkWMkleokl" +
+                        "os1aGEEqZuJB3SNDPhvEh8DGjlGUqlOYrlYgxZGkLqZeEDXyID/JvExoJFjJJXqJJaLNWhhBKmbiQd0j" +
+                        "Qz4bxIfAxo5RlKpTmK5WIMWRpC6mXhA18iA/ybxMaCRYySV6iSWizVoYQSpm4kHdI0M+G8SHwMaOUZSq" +
+                        "U5iuViDFkaQupl4QNfIgP8m8TGgkWMkleoklos1aGEEqZuJB3SNDPhvEh8DGjlGUqlOYrlYgxZGkLqZe" +
+                        "EDXyID/JvExoJFjJJXqJJaLNWhhBKmbiQd0jQz4bxIfAxo5RlKpTmK5WIMWRpC6mXhA18iA/ybxMaCRY" +
+                        "ySV6iSWizVoYQTh+u6n76eA891Pvy78Ify54S+hX2D67qdvpuN899MvAuvPNlD+vZSt/CagDup/u7TYV" +
+                        "5/7dxXb7+R3Ad/Jz8L9E8vX8bH9rNuxCvbjA/tfOz6gz320gs+2/Sy1/Lz0ppv+9//9z/fCz8Kvwu/Cn" +
+                        "xv+Ef5dwL+327Av6qDu90tzt5d8lm+FH5bPBraf+S9h/T4A/r/dvtZB/W+WJm+p5TOs4+I3Yfs599/Df" +
+                        "mz8IWy/iybnNcvFGrQwgqZCIJyTAxLFPoBaiEkq3/30o4A+IYiz43r5R4CpQALpkwR4P0YDvz0M1PgmY" +
+                        "TYB65iNGh9ov19g5X3pza9Lb8IkARomAMEawXsb2FuANtH2bUyC9PUbAckPJudvgX0uL2gP7aL9oU2C9" +
+                        "O9HAcl/n/BbAeMAs/CL4Ir7LBdr0MIIqjXPBCABtAio7ZLIfLWGQI/AzI4VAZJh7BUSP+7I4PvH+Ljuy" +
+                        "plpHh9I2KzPUcwGIVr82L0JMQUIwgKSdeukdwaOhWOONYYXSb+QqJGkWN+jwPF+XLpwuaQvMIgwLdsZo" +
+                        "V7AfBSZJZaLNWhhBG7NVz+e2YAz6k3BHOwxfcna7wUSIaaR2ztqfry7gKR47ZXXPG5bzwiUguPHmQN+z" +
+                        "N40NQUScGEGEPRZUO4J+jCEOZB+IBH1NEcMHL/7UtEqOTam9CNmijzAkMA8qnGf5WINWhhBsWKDqt8Uz" +
+                        "EsXV5uBPfie2rppfpy7gRmcvlOQ84zWiOOj/RILP1ZvmpgCBNgl0LIgfCWm4B8hOS4S4dVmYA+ulrsZf" +
+                        "jkWxgWWCFhfrga/zel5zXKxBi2MwKw5qLaeGdjjC5Dzmj5rbxRwhdwmgPD27whmU9onRKZ51ob1YRSwv" +
+                        "NIuwfBj9KbaFEhgxZTwaMlvC/rWdeZLjjdqIlzpdS9J1P0CLflt6fIXsVysQQsjMGmeHWAnfmvKkgQC6" +
+                        "XzVydoaDRiq+gDC274zcUFkHh+jzQ4cgfHxJONY9btKQMXUOAu0IxI+fS7HwJXxHRIhwHR+yCyKtAtDc" +
+                        "MV9A15+X7r+SSwXa9DCCFT1Tbp2UzAH/OiZi9bg6rjOGPB27w49car01vEB8bZ74zYFEkjvZAhWwoyBt" +
+                        "D36jAkDBqapMZD27mYIVr7EN5aLNWhhBKfqfxVuMwX3DPgrdYGft/kE2hmD+4+PumDK2+2NyxRIAL2jI" +
+                        "VhpbgykTcwQ3DERgmbGAO0s7bHj3IFPY4PlYg1aGMGhcFLzkz0Sqym4y5LBEbjBzHey8Paewi/Lp6zTf" +
+                        "ZYMjqhbSuBt9qbYFEjgxPPlLKDeiWbGQNq6eyIEfy4fp0rSzog3m5YAY/fx1ArLxRq0MAIqJGd+okejm" +
+                        "4Lxbyq04jtZeFtPouy+kr2uMbMR+GdOeHu9KTIFCJhL4GQB9U7gMzS5+VDaGeERzBbU3l+CscHavRsf5" +
+                        "zTLxRq0MIIvmqdeox451DhPCPMTEKzeXSm/MubtPImaWZSrzGwUvsdZeVu9KTUFozxr3oK/lo/llrTxh" +
+                        "FmTLW6zL3WfYo7ANFvAcrEGLYzgi6690tJMwd2nhfdg/bjsRSi8nadx+CjPqa4zs1H47i/gbfXGbAokU" +
+                        "N75PoIj3EthUvfO9xEc8ffy8YoldZ/0XUznBcvFGrQwgk+aZwkQiNhJ3gIkdbD+YaE9xwky7rFIrN/iP" +
+                        "QKsPyvoL/od8d2UTRPzNjRwDwb7XLXgO4lKxKVmKWp84DNq3x+2Yz9Wv5byqVfejkbrMWK6MpQgGZUAc" +
+                        "bf++vcLzsA+EXf24zO5ZrykHvrF2qwFnxVX3fvvYAu2R83aFN9vIXVaz5jgs23/yNEZ6x9Pajk+plkkl" +
+                        "os1aGEEn9R2vR7JAskUf4yoLMAztUs+SOwIgN6pWSxh4HtqmQzt3w+vr1G3Tq9pNpPrH51ix/dQapZaj" +
+                        "g+MW9931n58lM8W8HY0YsfIgSRIIviy4OkBwR6zDsXJWOpg3Rp1W/4NgWJDJ3VamiQkMyQ21z0OUg9vT" +
+                        "kT9VkmxeLZA6tS+rKnqO1gl9fG7tBof37BcrEELI/ikNoEMiaHJjTYfmhMOO1YJCK64gvGtVzMhkLa5Q" +
+                        "rQnQF5fo1/Anw0CvmfWj1JsZqnNLAHGR9tHyuZx2+KcKksuvA2Nq0xBi4TT9O8RoK2lTXasEopnC2T/F" +
+                        "iYJ32nTsYz2lnbZ8Uoo6pfs7521wHff5mmmnaRdjI+a2ZQfWC7WoIURfKj+Jj4kx2Yn5ifVJ17Ub2cG9" +
+                        "qqfYbFfDfL6Gv0D/jyeat8VYEuG9cdp9xpqpnqTVHaFxdvQ6D5GJDjW3kuAJBXWb7S9HIMd20ppEqydJ" +
+                        "YCZCRnLaHdpnx3XStFNmKS+lfDxLMfwzhr8ynKxBi2M4EN1ic3/+JQmGA1+TCtxfdtqnjVAcmd9sGALH" +
+                        "ryuxiVXgXJczBrULCnoybDezPYaH7WzGfblLl5f4wpTUDMV2/yNeUw4xnIs1gcL5iQo+9aun7ed6ToQj" +
+                        "rM7binmmWRS10KXc1qO431U8jamAFdLLFhoNHk5xaHqzMofSyt9VLfMYesrr6txjSlYVXclfx5A5vV/V" +
+                        "s9CH0Owqs4Y2PvK62t0HSMSGJFsWcC0gKv3cEOwCscSaoyBaQZV9qu5Ci+/IbVCON7u+CWYni6S/bxJt" +
+                        "+1fpj2RHMuzjPAny8UatDCCD/kDd8ySwSr/0gHWcrsFjg/VJSm9v7yextWmoOaplvMA4h+31c+Su+Q33" +
+                        "/8sLeji9TV6m4Kaq80rZjXw3n3WFwumtW3Zz7t0EHthdiAcd9cPK6ZzT/bD8g2rr9H2nrYTybE8Ru42p" +
+                        "oAFCo34K3F+XAtdptK+qC4B6g6X19O41hRA/hmf4wBSt7R0zXdSNz5swY7X1ehtCrxXxX1ndzaSY3uvj" +
+                        "tU4Kft4EyCIvTA7EI6760cJap9lH+930nMWCd8B+lnC9ywXa9DCCD7EA4VGyN2dH0Kg4sfVcL8oo4n8N" +
+                        "5bpU4C8nsb1pgDyJ0N+kvun4y+5svqQfzbJdr7xuhq9TYH3Br5LEiCEY+/6YkWd5ZF9vIbjMpME4fi7/" +
+                        "lhRL4BkHyRQVldjjHh3IpaLNWhhBJP8yTf2y/cn11izomm+GmT90tCTFa+nMYop8CZD3n9/e9fMIq3yz" +
+                        "3A84r4TCdre+wmuNXMi6YP35sjTWR7Z7m232/o5E46/648V630FrK7GtfHfIJaLNWhhBJP8piB2msa//" +
+                        "nrZ1cSHvPdCaGJ1dEYxBd4nBfgMiv9+k/73muzluxfCNgPG62r0NAXeK8BrzZwIfdj1ycpp8pbtnpkT+" +
+                        "30mgUI/dv2yYDJ4pJ6FrjeiesRysQYtjGCS1xREKzJwRss/y3FuaHgdjTFMAeRbQuBTpL62Lr/anOSd5" +
+                        "bCI1dPpaQq8U+WXm33pg3eW43RpkOxv4dKlg1XSD88sh8nQyH7epz6wrDGsMWC5WIMWRjBpXFPAj3vOE" +
+                        "CeK9CNmSYbX0RjJFHiu7r8mcv8STddHtw7lf3xVv9mQ19PoaQo8r64d4qoYkr54EtXh0o9s886cDDFNj" +
+                        "n7s+mViqX4q2a/mMU3MYGCsYYljKIPAcrEGLYxg0oimwL/uOkbQh3j/NM6nSHkdjZFMgWcG5WtC8I7Zq" +
+                        "+8nWOUf3/pvyetp9DQFrme7l+qXS/riuTI+7L9su/UNdejHrl9W1P7LPrUvStoCk4CxB6OB2SqYGfR9Y" +
+                        "jlkF7FcrEELI5g0pimIudLuKd/09rmp4XU0RvpOfE8M7PWM8cH6p6FfHfJ6Gt2+FwnAHlMwjNlHX3Z9s" +
+                        "3A40yHbvMspQ1z9oh+7fllRx5zsU/OSqxowG7Q1EDAnzc4Rlos1aGEEk7wBNlL+oN/txRWqfFPlTzcF3" +
+                        "t/1cwD0vvdgJPnumdGTI6+n0dMUsCCsMZIpcF29LtW/SLa5TMFSfQix/hkwzdrJfjWvw44AhgFmAePAd" +
+                        "Z8Ly8UatDCCSWOagjZXlFfKZwrOHzvjdTSeYAo+fwbfMsQTxsdbTcGlj95tJX1xTZcv1b9ItnlMwRg3V" +
+                        "C9Cf3b9s2AyerKfd3miFzAJWIowz9ywXKxBCyOYNKYpeELQ99xhfr52yutojGMKIN5HjTQFM/rz3byex" +
+                        "uimYJgxjL7s+mZiqf5Fsq3pPQpXCP3Z9c+CefZH9vW0fwWYQVBnD1gu1qCFEUxKUxAj32dIU8BpYQqu+" +
+                        "XsHR/KZAj0Z8HoaaQqMQl92fbNClzal3JPw3mYK8DbJ2j8r3Qv08/TeH5aLNWhhBJPSFMQoTQEX76NGC" +
+                        "1MwVCCV/sR8Bl5PI02BUdIX7+uO6WeQ8jQFBsn+tX9aujeYNaBLCiwXa9DCCCalKYhRmgIu3keNNAUza" +
+                        "QoGEOmfhTQFnykyBZDUafmIYg9wv8EXY8BysQYtjGBSmoIYpSng4n3USFMwk6bgYklfcqZgJ/Rn1z8Lx" +
+                        "aYAknqYMbjLUgL48luxXKxBCyOYlKYgRmkKuHgfNVqYgryn4Jg0BUahL7u+WUlT8BmXKYCkLoyZ55hX8" +
+                        "emzslysQQsjmJSmIEbjPH0w1l8N433UaGEKRhsf+fSBndubgqX6F8m2fPrAKWkDywneP8Pdm48bTVku1" +
+                        "qCFEUwa0xQ84eU07a8Eo15400v+v5SYpmBG/y15PY00BUahL7u+mViqf5Fs87ynYKhZL+lP2HsKLJK2s" +
+                        "KQw2kuO9nzEdpaLNWhhBJPGNAW+Pj3/jYYxiaSX/L9rvtFwJk3BxZK+5BsNd2L9M9D875BIm3gtMgwC/" +
+                        "hCS5w9XRTPlJ5aLNWhhBJOeZQqGCR7Sl793fbMQYQrGmWrMv33wX/H+aTzhbx+wYKkxkinwJPH82wdf6" +
+                        "fKbynG+F2AU8D3jMUEsdVy15DAt/7FcrEELI5jkDbCR8v8VuXHWz3n/NM7777tPYZypRpge3sczWv6Vx" +
+                        "DFel/vuv5LIgqXGSKYAiYX18YxDYy7bmt642Fvox65fVkbpP25axGcAq3kAWI6AgWj5pMP0emqWizVoY" +
+                        "QSTRjQFEDumzu9L7WvlT1rnJ4ovqcb/Vla1munAcgLfV2OMpRSYE94/DT2Q8noa3QI0CZQWhkggkPTFM" +
+                        "y19+DdNZJs3qQ5xAYR+7PplYql+C0l/t8sStbMM37JcrEELI5g0rinwTL+PcVXsXfPGFeSZIpNJD/n+n" +
+                        "DQ3enxfjTGWUnwzPrZzjtXTSVNgkPTDO1V+akbJ/haGuABCP3b9snC4nHIHSf9dRmjhR5aLNWhhBJPGN" +
+                        "QV/fDmmDdefs2wqb981+e/e1x9li5a/7zyg+mYdwPVrsb6bDG1/GY/X1UhTYJD0A1eLrH8apzfVyXbP1" +
+                        "ecQfylR+uGZXh/nPien5DN4jcGvLBdr0MIIJo1rCnxT5VffV+Cf2radKLyuxvUBxHt1fJSw/O01v+u5S" +
+                        "P77Cc7/rPYqXlej270WJEhaGMUUeK6KwelTUbLd+zjdpU9byfG9Sx/XX6Q0kHwOjyFKU+CWt19XJ0D/0" +
+                        "oHtRPFfIV8XWGej5Fk6APzK3vskw9VLCNFml9fV6BakSZC0cLkpkD54lw7UqXLZx/sEwqVLCDj+rj9Wx" +
+                        "rjht1LyOTwvbfqT5WINWhjBpHFNgfeKG1yZAD33QgDbieJPKtclQ3+fj+8R8V9xg2vGR505sl0V+pYmu" +
+                        "t2LQ4KkhRFMgTdxqzM8so/3ihtcslyK4+76UYLaZ9kHJmx9KsDMUr2L5Hi48ZB9vjPSFFTJf1WMxNx/7" +
+                        "dif/ICtv97fa6b/0sqcvL2J8PwK1m/Arrkh1b/kYb8xa/CZJBIkLVxqCuT4NQnQdM7Jft5H32zLSo2F4" +
+                        "+76YcV07sl+SPKsvkY3kyTHSlPwiR7yT8WDvlNrdcm67MT2J1nU67cOOV8Ze65cV8776k+yoO+6pn+5A" +
+                        "9jHcsSsTEORIGnhMlMgx8YVa83b8UxJSvbzTsWDrmYfx9sdvwTTeSf74aVDrL5Gt7Eix8rlg0/0UN0UM" +
+                        "ehjDOY7672JGpTd/IbPxdux0McY1BsC/d6Q+Xtnda30CaZ1hgDY12D9j62C8POFBEkLl5gCOW6tITAbL" +
+                        "dnX+2TDSpcbaHGc3XFLMcceUtdCl5gvx3E/nspysQYtjGDSyKYA8k+HruDxwLilhLrZDIAkXda/+mSIY" +
+                        "8bd7DP3r8YQANuLhuqPA4MVOT5qlpRA2TPdsxlj7VjB+RY2BUuCpIXupkCOiSvV2vfnFyVq2b/27Xlhs" +
+                        "1/SNpKgZ7p8S9FsFKlvJfyiR47hXT5JU1CtuiufFSRBBOd2wX/+3moNC/A52/pkCND/dgF3ntmpmcXYY" +
+                        "ktM9VfhAOOj7ZXWPG5b/Eblb2H0v+NjC37H5uaABEkLPaeEcf9AzVT+ChJ8UbyR/b03M27BOw+ajmW0t" +
+                        "7TLjldCqUnyTM8DfPchFz3SLsxRzV9kzJcXNZH/hrI9CP4IdgjY5QZhvgLGzECr/gBf4G2TDFeQvPC5y" +
+                        "h32bATQlxaJaKXMKM2/K2unlP+OD4/mcwn3ObQcr55x2npswFDjs1WbahIkLYSaAmkfRgCJrybY7yk2c" +
+                        "1IHCad2tmAFSRxX9q7vDvWW+i3MACh+VFzqVM9MCLj/odrcShv4PmAWa3+ffM1xE7UNclsQ8HC1jKB3B" +
+                        "JJdixkBRt36V1tzsoJEhM+L5Mi+D4DEh30ijg/KTuLnjo/yWYJVcb8N2t2PDxhKxJGVw9+PBEkLCMbrH" +
+                        "6ppBdps/QdvVopnCVZJPfSNtVkLEiRMz/572ILttUsmRxTPXkid2vsstsDc4PdePyvMwsejjBu2fxRpH" +
+                        "SOsPQ+TMWK5WIMWRjDpDqYAigu8V4HkW+dgvb/d2PjWReOS4FX4ZglWxRklC4dmhgTKJ+K+gVXqtpwtG" +
+                        "AXXC+Wk3tO+iym2sVysQQsjmHQfU1B7c91otLnzve20/dUgsfsS4fMMUv2aaJt7Gjy82RRUP9opbbS8Q" +
+                        "h4B9/KP1G1xf8coTBeBLBdr0MIIJt3FFED1d/qPQru3CyKJPucquW7teJ7KZu3ejTaPVV1npN9qCnBV2" +
+                        "+TOd2nnKcnQvwQmkvo1L44aiY9zmuViDVoYwaQ7mQJoXsvkfboH/qvhI83BH9PN7Hh3odXMyd2XmXB13" +
+                        "258XLOM8FZT0Oyuf2kLU+dR6/u9aHLxI+3U3nA4Ah9LxSwXa9DCCCbdzxTUvhTnSpC4Y56hvXYNuZY2V" +
+                        "8bQ/cdHW8MI9TfSbzQFbR9pFUmbMAat7v7vDQxNk7GMdoS7fg/g0wUPy8UatDCCSXczBdA9A3+cIVh1T" +
+                        "2PQzhCsuuf4wAxS3PioeyV0KW8zBc0NwSppu8VLlHrTzBCskvbwPdzxpsMv8Y3lYg1aGMGkO5qCVfdZS" +
+                        "kCCqnvSwKr597zLUkLca4ZnY3CXmzAxPtrPEOw1m8YeY+MtpgBJKswQrJJj3GkpAY81hoxlafduxoBe8" +
+                        "LBcrEELI5h0Z1MAzTcfjpwEYVziA/5W8wuFRl5bx1Vxn7fUIUHxPoxC7z/MhPtPosfGG0wBknTszN9Oc" +
+                        "rzR19YPf/dWkmPcxRgczoCyXKxBCyOYdHdTAI2ZBJH44v6+gEVjGiZMY/c2ST0SYSn9jBHTPGuAPrC+1" +
+                        "fJ0UxCe/I4kx8YLdkabNcALfroZJDkWZk5avn2yJTAsp3Gf5WINWhjBpCeYglXzZ7k6+CPQhk8pmjVPo" +
+                        "+Nq+WpzgBmTPksoR2r39whqGG18RJiDp5oCPCZ47RheJP1o9fcIasDxLxvLcmwYpJZvHKwBZgBvQVQve" +
+                        "Fgu1qCFEUx6kilYNV8ZIgn1TIRYvx4n2O81mwPMHPRMikg2MCRDBNIPzWP+ivFx7czRmeZzptXfbXiSK" +
+                        "UDiwytx+85uGSX9wouOel81wxxdN8u1E/oiXDVzgPFhMgOrWC7WoIURTHqiKdhqvjpEsGudDBE8kVhwp" +
+                        "TVkwDjUvNwCg4BE1ToxYqYGRqDreqtbOT6+ajYI6/jwmIQ7mwJc8eHqE0bgHmNYJH3FlDoMAhJ26xkEL" +
+                        "FegXbQ/7FhG3wTMoER8B1vWv6HgGh8sF2vQwggm/Xe9tYy7ajZBCNRIXAja/PN9BsER+yNQov69grym2" +
+                        "STgc+EzAvYdMJBMsT8S620C6KlyfHzVPMt09r1EmwIkJQTiCNY/foOE94wxLJLPggSJK2iYG3w+JEr2+" +
+                        "fdgP+yP5DrMbIBH0v/1O1h/4+3nZONsBYaCfR9NxgfLxRq0MIJUKpXqKQmsLAhr3Do5pVJbsVysQQsjS" +
+                        "KVSqZ4iCd9CmoLUY8RysQYtjCCVSqV6iiR8C2kKUo8Ry8UatDCCVCqV6imS8C2kKUg9RiwXa9DCCFKpV" +
+                        "KqnSMK3kKYg9RixXKxBCyNIpVKpniIJ30KagtRjxHKxBi2MIJVKpXqKJHwLaQpSjxHLxRq0MIJUKpXqK" +
+                        "ZLwLaQpSD1GLBdr0MIIUqlUqqdIwreQpiD1GLFcrEELI3ibfv31//8q/Lvjvm9nTBVLfu8fdr//xLK5W" +
+                        "FL3z31bwmV/RW90kYRvIU1B6jFiuViDFkbwNiFY74I3SFPwIsnvnabgQpGEbyFNQeoxYrlYgxZG8DYhW" +
+                        "O+CN0hT8CLJ752m4EKRhG8hTUHqMWK5WIMWRvA2IVjvgjdIU/Aiye+dpuBCkYRvIU1B6jFiuViDFkbwN" +
+                        "iFY74I3SFPwIsnvnabgQpGEbyFNQeoxYrlYgxZG8DYhWO+CN0hT8CLJ793aFHwvoM0t3y6bUzuRhG8hT" +
+                        "UHqMWK5WIMWRvA2SbBOU/Byye/d1BSkykQSvoU0BanHiOViDVoYwdskwT9Nwcslv3eaggtFEr6FNAWpx" +
+                        "4jlYg1aGMHbJME/TcHLJb93moILRRK+hTQFqceI5WINWhjB2yTBP03ByyW/d5qCC0USvoU0BanHiOViD" +
+                        "VoYAZMESATN3wTcVf0PAuaOvwVswz4/LtVMkv1pQBaKT3rU2bUxsWymku3MFGgUmwap86Nw9h2i/HfhZ" +
+                        "+GbpVoTSXvfCr8Ifwh/Cftjr78f9jm9IU62fyOgj1pb+F6/X6pVC20tbaJtHOPouC3H4BmHYwDbdvsC1" +
+                        "9MHUm87bvZtApRj3BR9ZoukTYybs+8cvz/GgTpuzkQSvoU0BanHiOViDVoYwVZyoiMgsWCggTqmICX7P" +
+                        "doUyL5IoKXfIUwD+lVlDqQ+gjoSBjvGGUgCn4K8/B9mwNuWO4CjrnDVGDwj1BRgf4GZxzOmcbM04Za0A" +
+                        "QPGPoMGDEKxOSAJ30KagtRjxHKxBi2MYJWc3Lg6YSd+Cb8tzR1K9nmkKZB9kEQRJFl9K7gSc12BST0Yu" +
+                        "tKksgV1f17aQpKoaQv8MnWsQFIHhoq1VcLvS3OHkn2GMQWyH8YNm4EpAfVdhlLq1X7nH+PGKpLwLaQpS" +
+                        "D1GLBdr0MIIIJzUm5O8ltOrNdn+VFNQG9hXcMVbFOBlf0+SO8JzxXqE2RjIvjA1rA0Pp8eV7UOYAtmnh" +
+                        "SFYKTYGsn+3834rkvAtpClIPUYsF2vQwgggOaFbJQHw99TogWT740yBbPe0eYZqQlbJvkgsLX+/1ph+V" +
+                        "9nPs2RwxD9Ls1SyfRRT0GJ2bos6U7dK9sVsEGvDC8agaZaLJHwLaQpSjxHLxRq0MAI5kc+u0DAdjoSHf" +
+                        "RBIAf6NsrMrnMMbzmTbiKYAn2X9fIyzz4N1/H17W9D2/jvE/7WlBmsyZZ9nBYEa9wXgxrD12Lg6RDLy3" +
+                        "Pfgacsyy4K2WF1wNgbPvsPD7w/bdvt+1DnhbAwUmwLZriVltLn93JbPDEyJWfZjfV7B74nfFb/v+vnxu" +
+                        "+P3PzOg6tINRBK+hTQFqceI5WINWhiBnMhHSUW9k1z2OZp+PJy+lW0IMKzOlabAfGW+l9Q9utpD8Dz9T" +
+                        "LIdhuLIXP2x7HYo2edslgAB/HQ6WbYj0LO6e/AZa9o6HUuy/WgMqmMC++zqrBwmZdlWPG7OJHU9puDoJ" +
+                        "k6MB+37gqE4GjeWeyrODIm65CP7HP1eQF3CIAnfQpqC1GPEcrEGLYxATuKqJCn7sqvE4oAs3NUUsM+PR" +
+                        "K2aKkj2O1tX1hIxrh5ZPdMVGyT7auvKJVPSR22dtiHb2W/y17JZlexblJRl2wimgJk5lJnuC8B+y/5f2" +
+                        "lh2OZTsc2RkS+4BOTIGRTcdplJvFMvFGrQwglpJEGCB6RWmQOodLR2YEykk+x8ld+2mzaPgbkosq2T/o" +
+                        "6lkc5JaJfszg2NO8B5J+02M6bK5WFK3iSkRzEkZkv2PTJg208D6e3ov0F6y/5EpMRvSVOqtYrlYgxZG4" +
+                        "JWc/EiIR+ubbzEFR5/FNEuwldQpMleQbGfBXV122EvqHE39N2tr2dxU0u7ZexlGNgVH33fR46iyPxIza" +
+                        "+f0ap3sD07HGpPUYd99qAFMpZ4glos1aGEER5KTG+uOCF5Iokj+CHwrZzeWgbeYAjqFumwuktRjiUWbd" +
+                        "i+6Qj6S1Dn6TVq2Vfz+BamzHYNIQKFjcNlcLKnLfruz47NxU3Slvgr1du2A09+N7A885183A5hKPUksF" +
+                        "2vQwgi2khMaVx4IWOyqtYTigCw8xRR4gzubdTntF9kfmJ8XXyV1jq44Pb/J0ZKKqS3Zbx2DWtLXGNkUs" +
+                        "GUf7xgsPfal518qlbqJKZCTGVdltWZg5c2moFtbZH9Q/D1CpJ3ubck+GIO1ZmBlZFPA9r/UFCybiyT10" +
+                        "hSkUg6xXKxBCyOA5ERuaQhAmoJCSb1XmwLZjhmGS8fgsrlYUjdNQWVbqdSbxHKxBi2MAJITmQWWGs6CU" +
+                        "tX08laos2tjYtlMJdujE7nrRiupx27aepMp6DkGrzYFwy0fLJuLJPXSFKRSDrFcrEELI5CTGLMEX07sD" +
+                        "XjEDIFnBWvfSIZ4HAp1i4ISRPYHnrXw4hudZHu0KfAGWPY9nj7eRfYHtzMFsu3IKK4cjUH8/sVjULZdb" +
+                        "QrYuPHei8IeAU1TkEoNLJaLNWhhBHIS08QmoFx9Rl32KQqIkGwvfvyOSeqwq2vtby+wz+s1BTQoCr0eS" +
+                        "dzvD+5oCqi5E/D7Nh+Dsu1qU3D0eUvfCVH8SKJsS1OQSl0slos1aGEEchKzJBn2NjlItrM6xVdKUocl0" +
+                        "tNn62U7+7zqW+CYpN7RFW6RwZH9vS8vYnXuaArYb2IeD7JvE1MgFJs5SOq1On7R2wCx/67+yuHnkG1pC" +
+                        "lKpi8VysQYtjEBO4qorZ9nX85w0OyZo8ZrV0zZk+1EC9iZA9vlhVszP5cu+3tccszpPMQUlY7A0KTcxc" +
+                        "6uknscYM0OLsWSaLcB+y/77Nlx/IXLZXCSpl6YglXKI5WINWhiBnMRHyVW9apJ9jhKslpjP1pBVYyD7H" +
+                        "PUZnCZjbN/tv4Ig7bmv4ehVwwjYp0lVtqMvLKEAyx9EYvWeYgqAZQwe3ROjJWWWUEHRq4YhqeMxBWzpC" +
+                        "8AgWsbwkZHU7kNJU5BKXSyWizVoYQRyEh8ldrDe0IWTfwX7o+womQFLMD+rj4CNZIvp0fW4+DfKjoI5M" +
+                        "L13XfY7CqhgPfb2c59Nx54ZHIBjoS18b2t7+D97WdEWNSGTOqZ6TKSdbm1h227fLesY3H5/6xg8+w5P+" +
+                        "y7bj8wcgEFE0raOAY8pOPvMgJ17lnFzeu7JdnrcZXORpF6ztlKpN4nlYg1aGAEkJzKbyvRiWguW/bSnH" +
+                        "koxT9nLfjSYnXA6lS3bEaxZPS+mqXNSD9zOFECy/czslWL5S4EwcyXj/vA3wbbdvkBdipB9tARfimqKZ" +
+                        "Z80BanUxWK5WIMWRgDJiXx0w5IH8xS87NvyuKU3aR1N3zLUJC37nM0+lIBEZV1XZvXvagrOZqxKMS0By" +
+                        "H4l4y/CFOC+gFbjBu1YntRIU5BKXSyWizVoYQSr5GQ+m061UvxnU6VOC2Pg+hvuUs/6mS2mAAH+bEnEA" +
+                        "gK7uvSyald35ZamAJJ9WoyFojEo++OYlhmD5qYAkv1aGAOTIYBkvzQFqdTFYrlYgxZGsJWc0Lha80zjo" +
+                        "k7xTXqrpO7RC2g0UMecRJmkPgKbdmzVFKySfZFkSr9DJCUsQZgC+6pN/S23NQUQ9hO6jkGph6UEbeYox" +
+                        "BSswv5CyXIGmMbN0oRJsn+aglTqYrFcrEELI2CSExvmAFfRCHYsUCEAYxv2cZuBvaQtmAMER7TNEsN6X" +
+                        "Lz8pfhP8Z4J7S3tIjnsg7zZFKySOtp3iHIcCyaiyAysWtrZc2tTsEr2x1g4+/5Qhm3NxqC0g6t2/B7su" +
+                        "KGmYJXUw/HZGFxB+TRulipFknppClKpi8VysQYtTJIkSZLkfdDCJEmSJEneBy1MkiRJkuR90MIkSZIkS" +
+                        "d4HLUySJEmS5G38+5//A1asZxcxw2e9AAAAAElFTkSuQmCCCw==";
+                    this._resources = new DevExpress.XtraReports.Serialization.XRResourceManager(resourceString);
+                }
+                return this._resources;
+            }
+        }
+        private void InitializeComponent() {
+            this.detailBand1 = new DevExpress.XtraReports.UI.DetailBand();
+            this.ReportHeader = new DevExpress.XtraReports.UI.ReportHeaderBand();
+            this.PageFooter = new DevExpress.XtraReports.UI.PageFooterBand();
+            this.GroupFooter1 = new DevExpress.XtraReports.UI.GroupFooterBand();
+            this.GroupHeader1 = new DevExpress.XtraReports.UI.GroupHeaderBand();
+            this.topMarginBand1 = new DevExpress.XtraReports.UI.TopMarginBand();
+            this.bottomMarginBand1 = new DevExpress.XtraReports.UI.BottomMarginBand();
+            this.label4 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label8 = new DevExpress.XtraReports.UI.XRLabel();
+            this.panel1 = new DevExpress.XtraReports.UI.XRPanel();
+            this.pageInfo2 = new DevExpress.XtraReports.UI.XRPageInfo();
+            this.label12 = new DevExpress.XtraReports.UI.XRLabel();
+            this.pictureBox1 = new DevExpress.XtraReports.UI.XRPictureBox();
+            this.label2 = new DevExpress.XtraReports.UI.XRLabel();
+            this.pageInfo3 = new DevExpress.XtraReports.UI.XRPageInfo();
+            this.panel2 = new DevExpress.XtraReports.UI.XRPanel();
+            this.pictureBox2 = new DevExpress.XtraReports.UI.XRPictureBox();
+            this.pageInfo4 = new DevExpress.XtraReports.UI.XRPageInfo();
+            this.label13 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label14 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label1 = new DevExpress.XtraReports.UI.XRLabel();
+            this.panel4 = new DevExpress.XtraReports.UI.XRPanel();
+            this.label10 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label6 = new DevExpress.XtraReports.UI.XRLabel();
+            this.label7 = new DevExpress.XtraReports.UI.XRLabel();
+            this.ProductData = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.OddStyle = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.GroupHeader = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.ProductHeader = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.SupplierTitle = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.EvenStyle = new DevExpress.XtraReports.UI.XRControlStyle();
+            this.SupplierInfo = new DevExpress.XtraReports.UI.XRControlStyle();
+            ((System.ComponentModel.ISupportInitialize)(this)).BeginInit();
+            // 
+            // detailBand1
+            // 
+            this.detailBand1.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.label4,
+                        this.label8});
+            this.detailBand1.Dpi = 254F;
+            this.detailBand1.HeightF = 42F;
+            this.detailBand1.Name = "detailBand1";
+            this.detailBand1.SortFields.AddRange(new DevExpress.XtraReports.UI.GroupField[] {
+                        new DevExpress.XtraReports.UI.GroupField("Ürün", DevExpress.XtraReports.UI.XRColumnSortOrder.Ascending)});
+            // 
+            // ReportHeader
+            // 
+            this.ReportHeader.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.panel1});
+            this.ReportHeader.Dpi = 254F;
+            this.ReportHeader.HeightF = 315.0208F;
+            this.ReportHeader.Name = "ReportHeader";
+            this.ReportHeader.StylePriority.UseBorders = false;
+            // 
+            // PageFooter
+            // 
+            this.PageFooter.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.panel2,
+                        this.pictureBox2});
+            this.PageFooter.Dpi = 254F;
+            this.PageFooter.HeightF = 193.6458F;
+            this.PageFooter.Name = "PageFooter";
+            // 
+            // GroupFooter1
+            // 
+            this.GroupFooter1.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.label1});
+            this.GroupFooter1.Dpi = 254F;
+            this.GroupFooter1.HeightF = 61.04166F;
+            this.GroupFooter1.Name = "GroupFooter1";
+            // 
+            // GroupHeader1
+            // 
+            this.GroupHeader1.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.panel4});
+            this.GroupHeader1.Dpi = 254F;
+            this.GroupHeader1.GroupFields.AddRange(new DevExpress.XtraReports.UI.GroupField[] {
+                        new DevExpress.XtraReports.UI.GroupField("Menü", DevExpress.XtraReports.UI.XRColumnSortOrder.Ascending)});
+            this.GroupHeader1.HeightF = 106.25F;
+            this.GroupHeader1.Name = "GroupHeader1";
+            // 
+            // topMarginBand1
+            // 
+            this.topMarginBand1.Dpi = 254F;
+            this.topMarginBand1.HeightF = 99F;
+            this.topMarginBand1.Name = "topMarginBand1";
+            // 
+            // bottomMarginBand1
+            // 
+            this.bottomMarginBand1.Dpi = 254F;
+            this.bottomMarginBand1.HeightF = 99F;
+            this.bottomMarginBand1.Name = "bottomMarginBand1";
+            // 
+            // label4
+            // 
+            this.label4.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "Detail.Miktar", "{0:n}")});
+            this.label4.Dpi = 254F;
+            this.label4.Font = new System.Drawing.Font("Arial", 9.75F);
+            this.label4.LocationFloat = new DevExpress.Utils.PointFloat(936.2917F, 0F);
+            this.label4.Multiline = true;
+            this.label4.Name = "label4";
+            this.label4.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label4.SizeF = new System.Drawing.SizeF(243.4167F, 42F);
+            this.label4.StylePriority.UseFont = false;
+            this.label4.StylePriority.UseTextAlignment = false;
+            this.label4.Text = "BÜRÜT SATIŞ\r\n";
+            this.label4.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleLeft;
+            // 
+            // label8
+            // 
+            this.label8.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "Detail.Ürün", "{0}")});
+            this.label8.Dpi = 254F;
+            this.label8.Font = new System.Drawing.Font("Arial", 9.75F);
+            this.label8.LocationFloat = new DevExpress.Utils.PointFloat(126.6667F, 0F);
+            this.label8.Multiline = true;
+            this.label8.Name = "label8";
+            this.label8.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label8.SizeF = new System.Drawing.SizeF(809.625F, 42F);
+            this.label8.StylePriority.UseFont = false;
+            this.label8.Text = "BÜRÜT SATIŞ\r\n";
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.Empty;
+            this.panel1.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.pageInfo2,
+                        this.label12,
+                        this.pictureBox1,
+                        this.label2,
+                        this.pageInfo3});
+            this.panel1.Dpi = 254F;
+            this.panel1.LocationFloat = new DevExpress.Utils.PointFloat(21.00001F, 21.00001F);
+            this.panel1.Name = "panel1";
+            this.panel1.SizeF = new System.Drawing.SizeF(1863F, 283.4375F);
+            this.panel1.StylePriority.UseBackColor = false;
+            // 
+            // pageInfo2
+            // 
+            this.pageInfo2.Dpi = 254F;
+            this.pageInfo2.Font = new System.Drawing.Font("Arial", 9.75F);
+            this.pageInfo2.Format = "{0: dd MMMM yyyy HH:mm:ss}";
+            this.pageInfo2.LocationFloat = new DevExpress.Utils.PointFloat(21F, 148F);
+            this.pageInfo2.Name = "pageInfo2";
+            this.pageInfo2.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.pageInfo2.PageInfo = DevExpress.XtraPrinting.PageInfo.DateTime;
+            this.pageInfo2.SizeF = new System.Drawing.SizeF(550F, 63F);
+            this.pageInfo2.StylePriority.UseFont = false;
+            this.pageInfo2.StylePriority.UseTextAlignment = false;
+            this.pageInfo2.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopLeft;
+            // 
+            // label12
+            // 
+            this.label12.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(132)))), ((int)(((byte)(213)))));
+            this.label12.Dpi = 254F;
+            this.label12.Font = new System.Drawing.Font("Arial", 14F, System.Drawing.FontStyle.Bold);
+            this.label12.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label12.LocationFloat = new DevExpress.Utils.PointFloat(0F, 0F);
+            this.label12.Name = "label12";
+            this.label12.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label12.SizeF = new System.Drawing.SizeF(1863F, 106F);
+            this.label12.StyleName = "ProductHeader";
+            this.label12.StylePriority.UseBackColor = false;
+            this.label12.StylePriority.UseBorderColor = false;
+            this.label12.StylePriority.UseFont = false;
+            this.label12.StylePriority.UseForeColor = false;
+            this.label12.StylePriority.UseTextAlignment = false;
+            this.label12.Text = "KOMBO MENÜ SATIŞ ANALİZİ";
+            this.label12.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleLeft;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.Dpi = 254F;
+            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.LocationFloat = new DevExpress.Utils.PointFloat(1651F, 106F);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.SizeF = new System.Drawing.SizeF(169.3333F, 169.3333F);
+            this.pictureBox1.Sizing = DevExpress.XtraPrinting.ImageSizeMode.AutoSize;
+            // 
+            // label2
+            // 
+            this.label2.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "dtFilter.FilterValue")});
+            this.label2.Dpi = 254F;
+            this.label2.Font = new System.Drawing.Font("Arial", 9F);
+            this.label2.LocationFloat = new DevExpress.Utils.PointFloat(21.00001F, 211F);
+            this.label2.Name = "label2";
+            this.label2.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label2.SizeF = new System.Drawing.SizeF(1376F, 63F);
+            this.label2.StylePriority.UseFont = false;
+            this.label2.Text = "label2";
+            // 
+            // pageInfo3
+            // 
+            this.pageInfo3.Dpi = 254F;
+            this.pageInfo3.Font = new System.Drawing.Font("Arial", 9.75F);
+            this.pageInfo3.LocationFloat = new DevExpress.Utils.PointFloat(1058F, 148F);
+            this.pageInfo3.Name = "pageInfo3";
+            this.pageInfo3.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.pageInfo3.PageInfo = DevExpress.XtraPrinting.PageInfo.UserName;
+            this.pageInfo3.SizeF = new System.Drawing.SizeF(550F, 42F);
+            this.pageInfo3.StylePriority.UseFont = false;
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.Lavender;
+            this.panel2.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.pageInfo4,
+                        this.label13,
+                        this.label14});
+            this.panel2.Dpi = 254F;
+            this.panel2.LocationFloat = new DevExpress.Utils.PointFloat(25F, 129.6458F);
+            this.panel2.Name = "panel2";
+            this.panel2.SizeF = new System.Drawing.SizeF(1863F, 64F);
+            this.panel2.StylePriority.UseBackColor = false;
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Dpi = 254F;
+            this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
+            this.pictureBox2.LocationFloat = new DevExpress.Utils.PointFloat(21.00001F, 0F);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.SizeF = new System.Drawing.SizeF(436.5625F, 129.6458F);
+            this.pictureBox2.Sizing = DevExpress.XtraPrinting.ImageSizeMode.AutoSize;
+            // 
+            // pageInfo4
+            // 
+            this.pageInfo4.Dpi = 254F;
+            this.pageInfo4.LocationFloat = new DevExpress.Utils.PointFloat(1757F, 21F);
+            this.pageInfo4.Name = "pageInfo4";
+            this.pageInfo4.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.pageInfo4.SizeF = new System.Drawing.SizeF(85F, 42F);
+            // 
+            // label13
+            // 
+            this.label13.Dpi = 254F;
+            this.label13.LocationFloat = new DevExpress.Utils.PointFloat(1609F, 21F);
+            this.label13.Name = "label13";
+            this.label13.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label13.SizeF = new System.Drawing.SizeF(127F, 42F);
+            this.label13.StylePriority.UseTextAlignment = false;
+            this.label13.Text = "Sayfa";
+            this.label13.TextAlignment = DevExpress.XtraPrinting.TextAlignment.TopRight;
+            // 
+            // label14
+            // 
+            this.label14.Dpi = 254F;
+            this.label14.Font = new System.Drawing.Font("Tahoma", 9.75F);
+            this.label14.LocationFloat = new DevExpress.Utils.PointFloat(17.00002F, 21F);
+            this.label14.Name = "label14";
+            this.label14.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label14.SizeF = new System.Drawing.SizeF(804F, 42F);
+            this.label14.StylePriority.UseFont = false;
+            this.label14.Text = "robotPOS Infinia Ver. 2011.08";
+            // 
+            // label1
+            // 
+            this.label1.Dpi = 254F;
+            this.label1.LocationFloat = new DevExpress.Utils.PointFloat(67.00003F, 2.62161F);
+            this.label1.Name = "label1";
+            this.label1.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label1.SizeF = new System.Drawing.SizeF(254F, 58.42F);
+            this.label1.Text = " ";
+            // 
+            // panel4
+            // 
+            this.panel4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(100)))), ((int)(((byte)(100)))));
+            this.panel4.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
+                        this.label10,
+                        this.label6,
+                        this.label7});
+            this.panel4.Dpi = 254F;
+            this.panel4.LocationFloat = new DevExpress.Utils.PointFloat(42.00002F, 13.3125F);
+            this.panel4.Name = "panel4";
+            this.panel4.SizeF = new System.Drawing.SizeF(1820F, 85F);
+            this.panel4.StylePriority.UseBackColor = false;
+            // 
+            // label10
+            // 
+            this.label10.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "Detail.Menü Tutar", "{0:n2} TL")});
+            this.label10.Dpi = 254F;
+            this.label10.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
+            this.label10.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label10.LocationFloat = new DevExpress.Utils.PointFloat(1366.708F, 3.937502F);
+            this.label10.Name = "label10";
+            this.label10.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label10.SizeF = new System.Drawing.SizeF(428.2916F, 64F);
+            this.label10.StylePriority.UseFont = false;
+            this.label10.StylePriority.UseForeColor = false;
+            this.label10.StylePriority.UseTextAlignment = false;
+            this.label10.Text = "YÜZDE";
+            this.label10.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleRight;
+            // 
+            // label6
+            // 
+            this.label6.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "Detail.Menü")});
+            this.label6.Dpi = 254F;
+            this.label6.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
+            this.label6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label6.LocationFloat = new DevExpress.Utils.PointFloat(25.00001F, 11.68751F);
+            this.label6.Name = "label6";
+            this.label6.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label6.SizeF = new System.Drawing.SizeF(759.5209F, 64F);
+            this.label6.StylePriority.UseFont = false;
+            this.label6.StylePriority.UseForeColor = false;
+            this.label6.StylePriority.UseTextAlignment = false;
+            this.label6.Text = "ADET";
+            this.label6.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleLeft;
+            // 
+            // label7
+            // 
+            this.label7.DataBindings.AddRange(new DevExpress.XtraReports.UI.XRBinding[] {
+                        new DevExpress.XtraReports.UI.XRBinding("Text", null, "Detail.Menü Miktar", "{0:n} adet")});
+            this.label7.Dpi = 254F;
+            this.label7.Font = new System.Drawing.Font("Arial", 9.75F, System.Drawing.FontStyle.Bold);
+            this.label7.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.label7.LocationFloat = new DevExpress.Utils.PointFloat(894.2917F, 11.68751F);
+            this.label7.Name = "label7";
+            this.label7.Padding = new DevExpress.XtraPrinting.PaddingInfo(5, 5, 0, 0, 254F);
+            this.label7.SizeF = new System.Drawing.SizeF(391.7502F, 64F);
+            this.label7.StylePriority.UseFont = false;
+            this.label7.StylePriority.UseForeColor = false;
+            this.label7.StylePriority.UseTextAlignment = false;
+            this.label7.Text = "TUTAR";
+            this.label7.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleLeft;
+            // 
+            // ProductData
+            // 
+            this.ProductData.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(196)))), ((int)(((byte)(220)))), ((int)(((byte)(255)))));
+            this.ProductData.BorderColor = System.Drawing.Color.White;
+            this.ProductData.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
+                        | DevExpress.XtraPrinting.BorderSide.Right) 
+                        | DevExpress.XtraPrinting.BorderSide.Bottom)));
+            this.ProductData.BorderWidth = 1;
+            this.ProductData.Font = new System.Drawing.Font("Tahoma", 8.25F);
+            this.ProductData.ForeColor = System.Drawing.Color.Black;
+            this.ProductData.Name = "ProductData";
+            // 
+            // OddStyle
+            // 
+            this.OddStyle.BackColor = System.Drawing.Color.Transparent;
+            this.OddStyle.BorderColor = System.Drawing.Color.Transparent;
+            this.OddStyle.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.OddStyle.BorderWidth = 1;
+            this.OddStyle.Font = new System.Drawing.Font("Tahoma", 8.25F);
+            this.OddStyle.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.OddStyle.Name = "OddStyle";
+            // 
+            // GroupHeader
+            // 
+            this.GroupHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(243)))), ((int)(((byte)(243)))));
+            this.GroupHeader.BorderColor = System.Drawing.Color.White;
+            this.GroupHeader.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
+                        | DevExpress.XtraPrinting.BorderSide.Right) 
+                        | DevExpress.XtraPrinting.BorderSide.Bottom)));
+            this.GroupHeader.BorderWidth = 1;
+            this.GroupHeader.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.GroupHeader.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(139)))), ((int)(((byte)(139)))));
+            this.GroupHeader.Name = "GroupHeader";
+            // 
+            // ProductHeader
+            // 
+            this.ProductHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(132)))), ((int)(((byte)(213)))));
+            this.ProductHeader.BorderColor = System.Drawing.Color.White;
+            this.ProductHeader.Borders = ((DevExpress.XtraPrinting.BorderSide)((((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top) 
+                        | DevExpress.XtraPrinting.BorderSide.Right) 
+                        | DevExpress.XtraPrinting.BorderSide.Bottom)));
+            this.ProductHeader.BorderWidth = 1;
+            this.ProductHeader.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.ProductHeader.ForeColor = System.Drawing.Color.White;
+            this.ProductHeader.Name = "ProductHeader";
+            // 
+            // SupplierTitle
+            // 
+            this.SupplierTitle.BackColor = System.Drawing.Color.Transparent;
+            this.SupplierTitle.BorderColor = System.Drawing.Color.Empty;
+            this.SupplierTitle.Borders = DevExpress.XtraPrinting.BorderSide.None;
+            this.SupplierTitle.BorderWidth = 1;
+            this.SupplierTitle.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold);
+            this.SupplierTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(243)))), ((int)(((byte)(120)))), ((int)(((byte)(0)))));
+            this.SupplierTitle.Name = "SupplierTitle";
+            // 
+            // EvenStyle
+            // 
+            this.EvenStyle.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(237)))), ((int)(((byte)(196)))));
+            this.EvenStyle.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(232)))), ((int)(((byte)(205)))), ((int)(((byte)(162)))));
+            this.EvenStyle.Borders = ((DevExpress.XtraPrinting.BorderSide)((DevExpress.XtraPrinting.BorderSide.Left | DevExpress.XtraPrinting.BorderSide.Top)));
+            this.EvenStyle.BorderWidth = 1;
+            this.EvenStyle.Font = new System.Drawing.Font("Tahoma", 8.25F);
+            this.EvenStyle.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.EvenStyle.Name = "EvenStyle";
+            // 
+            // SupplierInfo
+            // 
+            this.SupplierInfo.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(84)))), ((int)(((byte)(132)))), ((int)(((byte)(213)))));
+            this.SupplierInfo.BorderColor = System.Drawing.Color.White;
+            this.SupplierInfo.BorderWidth = 1;
+            this.SupplierInfo.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold);
+            this.SupplierInfo.ForeColor = System.Drawing.Color.White;
+            this.SupplierInfo.Name = "SupplierInfo";
+            this.SupplierInfo.Padding = new DevExpress.XtraPrinting.PaddingInfo(7, 0, 0, 0, 100F);
+            // 
+            // repCurrentList
+            // 
+            this.Bands.AddRange(new DevExpress.XtraReports.UI.Band[] {
+                        this.detailBand1,
+                        this.ReportHeader,
+                        this.PageFooter,
+                        this.GroupFooter1,
+                        this.GroupHeader1,
+                        this.topMarginBand1,
+                        this.bottomMarginBand1});
+            this.DesignerOptions.ShowExportWarnings = false;
+            this.Dpi = 254F;
+            this.ExportOptions.Html.CharacterSet = "UTF-8";
+            this.ExportOptions.Html.Title = "POS Finans";
+            this.ExportOptions.Pdf.DocumentOptions.Application = "POS Finans";
+            this.ExportOptions.Pdf.DocumentOptions.Author = "RobotPOS";
+            this.ExportOptions.Pdf.ImageQuality = DevExpress.XtraPrinting.PdfJpegImageQuality.High;
+            this.ExportOptions.Pdf.NeverEmbeddedFonts = "Verdana;Tahoma;Arial";
+            this.ExportOptions.PrintPreview.ShowOptionsBeforeExport = false;
+            this.ExportOptions.Rtf.ExportMode = DevExpress.XtraPrinting.RtfExportMode.SingleFile;
+            this.ExportOptions.Xls.SheetName = "Veriler";
+            this.ExportOptions.Xlsx.SheetName = "Veriler";
+            this.Font = new System.Drawing.Font("Tahoma", 9.75F);
+            this.Margins = new System.Drawing.Printing.Margins(99, 99, 99, 99);
+            this.Name = "repCurrentList";
+            this.PageHeight = 2969;
+            this.PageWidth = 2101;
+            this.PaperKind = System.Drawing.Printing.PaperKind.A4;
+            this.ReportUnit = DevExpress.XtraReports.UI.ReportUnit.TenthsOfAMillimeter;
+            this.StyleSheet.AddRange(new DevExpress.XtraReports.UI.XRControlStyle[] {
+                        this.ProductData,
+                        this.OddStyle,
+                        this.GroupHeader,
+                        this.ProductHeader,
+                        this.SupplierTitle,
+                        this.EvenStyle,
+                        this.SupplierInfo});
+            this.TextAlignment = DevExpress.XtraPrinting.TextAlignment.MiddleLeft;
+            this.Version = "11.1";
+            ((System.ComponentModel.ISupportInitialize)(this)).EndInit();
+        }
+    }
+}

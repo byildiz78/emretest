@@ -1,0 +1,23 @@
+﻿UPDATE GlobalMenuItems
+SET MenuItemCost = round((isnull(posManafactureFormula.TaxedNetCost,0)),3)
+FROM posManafactureFormulaAssign INNER JOIN
+ posProducts ON posManafactureFormulaAssign.ProductID = posProducts.ProductID INNER JOIN
+ GlobalMenuItems ON posProducts.ProductKey = GlobalMenuItems.MenuItemGlobalKey INNER JOIN
+ posManafactureFormula ON posManafactureFormulaAssign.FormulaID = posManafactureFormula.FormulaID;
+
+
+WITH fdSum AS (
+SELECT fd.FormulaID,SUM(isnull(fd.Amount,0.0)*isnull(pp.OutgoingPrice,0.0)) AS total FROM posManafactureFormulaDetail AS fd 
+INNER JOIN posProductPrices AS pp ON pp.ProductID=fd.ProductID 
+GROUP BY fd.FormulaID
+)
+SELECT b.BranchName, t.MenuItemText, t.MenuItemGroupText, SUM(t.Quantity) AS SatilanMiktar, ROUND(SUM(t.ExtendedPrice*100/(100+p.TaxPercent1)), 2) AS SatisTutari, 
+ ROUND((t.MenuItemUnitPrice*100/(100+p.TaxPercent1)),2) AS [Birim Fiyat], ROUND(SUM(isnull(t.Quantity,0)) * isnull(fdSum.total,0), 2) AS ReceteMaliyet
+FROM OrderTransactions as t 
+LEFT OUTER JOIN efr_Branchs AS b WITH (NOLOCK) ON b.BranchID = t.BranchID  
+LEFT OUTER JOIN GlobalMenuItems AS gm ON gm.BranchID=t.BranchID AND gm.MenuItemKey=t.MenuItemKey
+LEFT OUTER JOIN posProducts AS p ON p.ProductKey = gm.MenuItemGlobalKey
+LEFT OUTER JOIN posManafactureFormulaAssign AS a ON a.BranchID = t.BranchID AND a.ProductID=p.ProductID
+LEFT OUTER JOIN fdSum ON fdSum.FormulaID = a.FormulaID
+WHERE t.OrderDateTime>@date1 AND t.OrderDateTime<@date2 AND t.LineDeleted=0 and t.@BranchID
+GROUP BY b.BranchName,t.MenuItemText,fdSum.total,t.MenuItemGroupText,t.MenuItemUnitPrice,p.TaxPercent1

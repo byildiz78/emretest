@@ -1,0 +1,21 @@
+
+
+
+
+SELECT efr_Branchs.BranchName             AS Şube,
+       SUM(guestnumber)                   AS [Toplam Konuk],
+       COUNT(Orderkey)                    AS [Toplam Adisyon Sayısı],
+       SUM(amountdue) [Toplam Ciro],
+    ROUND(   SUM(amountdue) / SUM(guestnumber) ,2) AS [Kişi Başı Ort.],
+    ROUND(   SUM(amountdue) / COUNT(Orderkey) ,2)  AS [Adisyon Ort.]
+FROM   OrderHeaders oh
+       INNER JOIN efr_Branchs
+            ON  efr_Branchs.BranchID = oh.BranchID
+WHERE  oh.LineDeleted = 0
+       AND oh.OrderDateTime >= @date1
+       AND oh.OrderDateTime <=@date2
+       AND oh.@BranchID
+GROUP BY
+       efr_Branchs.BranchName
+       
+       

@@ -1,0 +1,50 @@
+select * from (
+select 
+u.UserName AS [Kullanıcı],
+u.PhoneNumber as [Telefon Numarası],
+b.BranchName AS [Şube],
+case u.SmsRequired
+WHEN 1 THEN 'SMS GEREKTİRİR'
+WHEN 0 THEN 'SMS GEREKTİRMEZ'
+ELSE 'BILINMIYOR' END AS 'SMS ZORUNLULUĞU' ,
+CASE u.Category
+WHEN '1' THEN 'TEKLİ ŞUBE YETKİLİ'
+WHEN '2' THEN 'ÇOKLU ŞUBE YETKİLİ'
+WHEN '3' THEN 'BÖLGE SORUMLUSU'
+WHEN '4' THEN 'OPERASYON/YÖNETİCİ'
+WHEN '5' THEN 'SÜPERADMİN'
+ELSE 'TANIMSIZ'
+END as [Kullanıcı Yetkisi],
+u.Isactive as [Aktif/Pasif]
+from
+(SELECT cast('<x>'+replace(u.UserBranchs,',','</x><x>')+'</x>' as xml) as thexml,u.UserID
+ FROM efr_Users AS u 
+ WHERE u.UserID<>20
+)q1 
+CROSS APPLY
+(SELECT x.value('.','varchar(100)') as value FROM thexml.nodes('x') as f(x))q2
+INNER JOIN efr_Users AS u ON u.UserID = q1.UserID
+INNER JOIN efr_Branchs AS b ON b.BranchID=q2.value
+where u.UserBranchs<>'0'
+
+UNION ALL
+
+select 
+UserName AS [Kullanıcı],
+u.PhoneNumber as [Telefon Numarası],
+'Tüm Şubeler' AS [Şube],
+case u.SmsRequired
+WHEN 1 THEN 'SMS GEREKTİRİR'
+WHEN 0 THEN 'SMS GEREKTİRMEZ'
+ELSE 'BILINMIYOR' END AS 'SMS ZORUNLULUĞU' ,
+CASE u.Category
+WHEN '1' THEN 'TEKLİ ŞUBE YETKİLİ'
+WHEN '2' THEN 'ÇOKLU ŞUBE YETKİLİ'
+WHEN '3' THEN 'BÖLGE SORUMLUSU'
+WHEN '4' THEN 'OPERASYON/YÖNETİCİ'
+WHEN '5' THEN 'SÜPERADMİN'
+ELSE 'TANIMSIZ'
+END as [Kullanıcı Yetkisi],
+u.Isactive as [Aktif/Pasif]
+from efr_Users u
+where u.UserBranchs='0') AS TABLO ORDER BY [Kullanıcı],[Şube]

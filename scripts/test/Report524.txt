@@ -1,0 +1,10 @@
+DECLARE @datefirst DATETIME;
+set @datefirst=(SELECT DATEADD(m, DATEDIFF(m, 0, GETDATE()), 0));
+
+
+select 
+(sum(amountdue)/day(GETDATE()))*DAY(DATEADD(d, -DAY(DATEADD(m,1,GETDATE())),DATEADD(m,1,GETDATE()))) as reportValue
+from OrderHeaders h
+where OrderDateTime between dateadd(HOUR,6,@datefirst) and GETDATE()
+and LineDeleted=0
+and h.@BranchID

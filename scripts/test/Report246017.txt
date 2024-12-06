@@ -1,0 +1,63 @@
+﻿IF (SELECT isnull((SELECT top 1 isnull(ParamValue,GETDATE()) FROM Params  WHERE ParamName='report246007'),'1/1/2014'))<DATEADD(minute,-10,GETDATE())
+BEGIN
+	DELETE FROM Params WHERE ParamName='report246007';
+	INSERT INTO Params(ParamName,ParamValue) VALUES('report246007',getdate());
+	UPDATE posManafactureFormulaDetail
+	SET TaxedNetCost = isnull(NetCost,0)*(100+isnull(posProducts.TaxPercent1,0))/100
+	FROM posManafactureFormulaDetail INNER JOIN
+	 posProducts ON posManafactureFormulaDetail.ProductID = posProducts.ProductID
+	UPDATE posManafactureFormula SET TaxedNetCost = r.sumValue
+	FROM posManafactureFormula INNER JOIN(
+	SELECT d.FormulaID,SUM(isnull(d.TaxedNetCost,0)) AS sumValue FROM posManafactureFormulaDetail AS d GROUP BY d.FormulaID
+	) AS r ON r.FormulaID = posManafactureFormula.FormulaID;
+	UPDATE GlobalMenuItems
+	SET MenuItemCost = round((isnull(posManafactureFormula.TaxedNetCost,0)),3)
+	FROM posManafactureFormulaAssign INNER JOIN
+	 posProducts ON posManafactureFormulaAssign.ProductID = posProducts.ProductID INNER JOIN
+	 GlobalMenuItems ON posProducts.ProductKey = GlobalMenuItems.MenuItemGlobalKey INNER JOIN
+	 posManafactureFormula ON posManafactureFormulaAssign.FormulaID = posManafactureFormula.FormulaID;
+	UPDATE OrderTransactions
+	SET MenuItemCost =isnull(GlobalMenuItems.MenuItemCost,0.0)
+	FROM OrderTransactions INNER JOIN
+	 GlobalMenuItems ON OrderTransactions.BranchID = GlobalMenuItems.BranchID
+	 AND OrderTransactions.MenuItemKey = GlobalMenuItems.MenuItemKey
+	 AND isnull(GlobalMenuItems.MenuItemCost,0.0)>0
+	WHERE (OrderTransactions.OrderDateTime > DATEADD(DAY, - 1, GETDATE())) AND (ISNULL(OrderTransactions.MenuItemCost, 0) = 0) AND 
+	 (LEN(ISNULL(OrderTransactions.CustomField1, 'xxxxxxx')) > 5) AND 
+	OrderTransactions.@BranchID;
+	UPDATE OrderTransactions
+	SET MenuItemCost=r.sumValue
+	FROM OrderTransactions
+	INNER JOIN (
+	 SELECT SUM(isnull(t.MenuItemCost,0.0)) AS sumValue,t.OrderKey,substring(t.CustomField1,1,5) AS customValue
+	 FROM OrderTransactions AS t WITH(NOLOCK)
+	 where t.OrderDateTime>DATEADD(DAY,-1,GETDATE()) AND len(ISNULL(t.CustomField1,''))>5
+	 GROUP BY t.OrderKey,substring(t.CustomField1,1,5)
+	) AS r ON r.OrderKey = OrderTransactions.OrderKey AND r.customValue=OrderTransactions.CustomField1
+	where OrderDateTime>DATEADD(DAY,-1,GETDATE()) AND ISNULL(MenuItemCost,0)=0 AND len(ISNULL(CustomField1,'xxxxxxx'))<6 AND 
+	OrderTransactions.@BranchID; 
+END;
+
+WITH fdSum AS (
+SELECT distinct fd.FormulaID,fd.FormulaCost AS total 
+FROM posManafactureFormula AS fd )
+
+SELECT b.BranchName AS [Şube], t.MenuItemText AS [Menü], t.MenuItemGroupText AS [Menü Grubu], SUM(t.Quantity) AS [Satılan Miktar], ROUND(SUM(t.ExtendedPrice*100/(100+isnull(p.TaxPercent1,8))), 2) AS [Satış Tutarı], 
+ ROUND((t.MenuItemUnitPrice*100/(100+p.TaxPercent1)),2) AS [Birim Fiyat], ROUND(SUM(isnull(t.Quantity,0)) * isnull(gm.MenuItemCost,0), 2) AS [Reçete Maliyet]
+FROM OrderTransactions as t WITH(NOLOCK)
+LEFT OUTER JOIN efr_Branchs AS b WITH (NOLOCK) ON b.BranchID = t.BranchID  
+LEFT OUTER JOIN GlobalMenuItems AS gm ON gm.BranchID=t.BranchID AND gm.MenuItemKey=t.MenuItemKey 
+LEFT OUTER JOIN posProducts AS p ON p.ProductKey = gm.MenuItemGlobalKey AND p.ProductName=gm.MenuItemText 
+LEFT OUTER JOIN posManafactureFormulaAssign AS a ON a.BranchID = t.BranchID AND a.ProductID=p.ProductID
+LEFT OUTER JOIN fdSum ON fdSum.FormulaID = a.FormulaID
+WHERE t.OrderDateTime>@date1 AND t.OrderDateTime<@date2 AND t.LineDeleted=0 and t.@BranchID
+AND t.CustomField1 IS NULL
+GROUP BY b.BranchName,t.MenuItemText,fdSum.total,t.MenuItemGroupText,t.MenuItemUnitPrice,p.TaxPercent1,gm.MenuItemCost
+UNION ALL
+SELECT b.BranchName, t.MenuItemText, t.MenuItemGroupText, SUM(t.Quantity) AS SatilanMiktar, ROUND(SUM(t.ExtendedPrice*100/(100+isnull(t.TaxPercent,8))), 2) AS SatisTutari, 
+ ROUND((t.MenuItemUnitPrice*100/(100+t.TaxPercent)),2) AS [Birim Fiyat], ROUND(SUM(isnull(t.Quantity,0)) * isnull(t.MenuItemCost,0), 2) AS ReceteMaliyet
+FROM OrderTransactions as t WITH(NOLOCK)
+LEFT OUTER JOIN efr_Branchs AS b WITH (NOLOCK) ON b.BranchID = t.BranchID  
+WHERE t.OrderDateTime>@date1 AND t.OrderDateTime<@date2 AND t.LineDeleted=0 and t.@BranchID
+AND len(isnull(t.CustomField1,'xxxxxx'))<6
+GROUP BY b.BranchName,t.MenuItemText,t.MenuItemGroupText,t.MenuItemUnitPrice,t.TaxPercent,t.MenuItemCost

@@ -1,0 +1,72 @@
+$Headers|
+SELECT
+	H.ControlID,
+	H.ControlDate,
+	H.BranchID,
+	H.BranchName,
+	H.EmployeeName,
+	H.AddDateTime,
+	H.CustomField1,
+	H.CustomField2,
+	H.CustomField3,
+	H.CustomField4,
+	H.CustomField5,
+	H.CustomField6,
+	H.CustomField7,
+	H.CustomField8,
+	H.CustomField9,
+	H.CustomField10,
+	H.FormNotes,
+	(	SELECT TOP 1 'http://213.159.0.91/tavukdunyasi/TavukDunyasiYeni/'+fS.FilePath AS [text()] FROM webBranchControlFiles fS WHERE fS.ControlID = H.ControlID AND fS.DetailID=0 FOR XML PATH('') ) AS MainImage
+
+FROM
+	webBranchControlHeader H 
+WHERE
+	H.ControlDate BETWEEN @date1 AND @date2 
+	AND H.@BranchID
+
+$Details|
+SELECT
+
+	d.AutoID,
+	d.ControlID,
+	d.GroupName,
+	d.Question,
+	isnull( d.Yes, 0 ) AS [Yes],
+	isnull( d.No, 0 ) AS [No],
+	d.Notes,
+	d.Score,
+	isnull( l.QuesitionID, 0 ) AS QuesitionID,
+	(CASE WHEN ( ISNULL( d.Yes, 0 ) = 0 AND ISNULL( d.No, 0 ) = 0 ) THEN CAST ( 1 AS BIT ) ELSE CAST ( 0 AS BIT ) END ) AS dd,
+	ISNULL((SELECT 'http://213.159.0.91/tavukdunyasi/TavukDunyasiYeni/'+fS.FilePath AS [text()] FROM webBranchControlFiles fS WHERE fS.ControlID = d.ControlID AND fS.DetailID=d.AutoID ORDER BY fS.AutoID OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY FOR XML PATH('')),'') AS QuestionImage1,
+	ISNULL((SELECT 'http://213.159.0.91/tavukdunyasi/TavukDunyasiYeni/'+fS.FilePath AS [text()] FROM webBranchControlFiles fS WHERE fS.ControlID = d.ControlID AND fS.DetailID=d.AutoID ORDER BY fS.AutoID OFFSET 1 ROWS FETCH NEXT 1 ROWS ONLY FOR XML PATH('')),'') AS QuestionImage2,
+	ISNULL((SELECT 'http://213.159.0.91/tavukdunyasi/TavukDunyasiYeni/'+fS.FilePath AS [text()] FROM webBranchControlFiles fS WHERE fS.ControlID = d.ControlID AND fS.DetailID=d.AutoID ORDER BY fS.AutoID OFFSET 2 ROWS FETCH NEXT 1 ROWS ONLY FOR XML PATH('')),'') AS QuestionImage3,
+	ISNULL((SELECT 'http://213.159.0.91/tavukdunyasi/TavukDunyasiYeni/'+fS.FilePath AS [text()] FROM webBranchControlFiles fS WHERE fS.ControlID = d.ControlID AND fS.DetailID=d.AutoID ORDER BY fS.AutoID OFFSET 3 ROWS FETCH NEXT 1 ROWS ONLY FOR XML PATH('')),'') AS QuestionImage4,
+	ISNULL((SELECT 'http://213.159.0.91/tavukdunyasi/TavukDunyasiYeni/'+fS.FilePath AS [text()] FROM webBranchControlFiles fS WHERE fS.ControlID = d.ControlID AND fS.DetailID=d.AutoID ORDER BY fS.AutoID OFFSET 4 ROWS FETCH NEXT 1 ROWS ONLY FOR XML PATH('')),'') AS QuestionImage5
+
+FROM
+	webBranchControlDetail AS d
+	INNER JOIN webBranchControlHeader AS h ON d.ControlID = h.ControlID
+	LEFT JOIN webBranchControlList AS l ON l.FormID = h.FormID 
+	AND l.Question= d.Question 
+WHERE
+	H.ControlDate BETWEEN @date1 AND @date2 
+	AND H.@BranchID
+
+$Scores|
+SELECT
+
+	s.AutoID,
+	s.ControlID,
+	s.AutoID AS ScoreID, 
+	s.Name1 AS ScoreName1, 
+	s.Value1 AS ScoreValue1, 
+	s.Name2 AS ScoreName2, 
+	s.Value2 AS ScoreValue2	
+
+FROM
+	webBranchControlScore AS s
+	INNER JOIN webBranchControlHeader AS h ON h.ControlID = s.ControlID
+WHERE
+	H.ControlDate BETWEEN @date1 AND @date2 
+	AND H.@BranchID

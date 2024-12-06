@@ -1,0 +1,24 @@
+SET NOCOUNT ON;
+IF OBJECT_ID('tempdb..#tempTable') IS NOT NULL BEGIN DROP TABLE #tempTable; END;
+create table #tempTable (UserName NVARCHAR(150),BranchName NVARCHAR(150),UserID INT);
+WITH sonuc AS (
+SELECT cast(Split.a.value('.', 'VARCHAR(max)') AS INT) AS BranchID,a.UserID
+ FROM (SELECT UserID,CAST ('<M>' + REPLACE(UserBranchs, ',', '</M><M>') + '</M>' AS XML) AS Data FROM efr_Users WHERE UserName NOT LIKE '%robot%'
+ ) AS A CROSS APPLY Data.nodes ('/M') AS Split(a))
+ INSERT INTO #tempTable(UserName, BranchName,UserID)
+SELECT u.UserName,b.BranchName,u.UserID FROM efr_Users AS u
+INNER JOIN sonuc AS s ON s.UserID=u.UserID
+INNER JOIN efr_Branchs AS b ON b.BranchID=s.BranchID;
+
+ SELECT sonuc.UserID AS ID, sonuc.UserName AS [Kullanıcı Adı],COUNT(cx.BranchName) AS [Şube Sayısı],Left(sonuc.Subeler,Len(sonuc.Subeler)-1) As [Şube Listesi]
+From ( Select distinct ST2.UserName,st2.UserID,(
+ Select ST1.BranchName + ',' AS [text()]
+ From dbo.#tempTable ST1
+ Where ST1.UserName = ST2.UserName
+ ORDER BY ST1.UserName
+ For XML PATH ('') ) [Subeler]
+ From dbo.#tempTable ST2 ) sonuc
+ INNER JOIN dbo.#tempTable AS cx ON cx.UserID = sonuc.UserID
+ GROUP BY sonuc.UserID,sonuc.UserName,Left(sonuc.Subeler,Len(sonuc.Subeler)-1)
+ ORDER BY sonuc.UserName;
+ IF OBJECT_ID('tempdb..#tempTable') IS NOT NULL BEGIN DROP TABLE #tempTable; END;

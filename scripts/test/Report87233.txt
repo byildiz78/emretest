@@ -1,0 +1,37 @@
+SELECT
+	OH.OrderDateTime as [Tarih],
+	b.BranchID,
+	b.BranchName as [Şube],
+	OH.OrderKey,
+	OH.OrderID AS [Çek No],
+	OH.DiscountOrderAmount as [Çek İndirimi],
+	OH.DiscountCashAmount as [Nakit İndirimi],
+	OH.DiscountLineAmount as [Ürün İndirimi],
+	OH.DiscountTotalAmount as [Toplam İndirim],
+	OH.AmountDue [Çek Tutarı],
+	ROUND(ISNULL(SUM(OT.ExtendedPrice), 0),2) AS [Ürün Toplamı]
+FROM
+	OrderHeaders OH WITH (NOLOCK)
+LEFT JOIN OrderTransactions OT ON OT.OrderKey = OH.OrderKey AND OT.BranchID = OH.BranchID AND OT.LineDeleted = 0
+inner join efr_Branchs b on oh.BranchID=b.branchID
+
+WHERE
+	OH.OrderDateTime >=@date1
+AND OH.OrderDateTime <=@date2
+AND OH.LineDeleted = 0
+AND OH.OrderStatus = 2
+AND b.@BranchID
+GROUP BY
+OH.OrderID,
+	OH.OrderDateTime,
+	b.BranchID,
+	OH.OrderKey,
+	OH.SubTotal,
+	OH.DiscountOrderAmount,
+	OH.DiscountCashAmount,
+	OH.DiscountTotalAmount,
+	OH.DiscountLineAmount,
+	OH.AmountDue,
+	b.BranchName
+HAVING
+	ABS(OH.AmountDue + OH.DiscountTotalAmount - ISNULL(SUM(OT.ExtendedPrice), 0) - OH.DiscountLineAmount) > 0.01

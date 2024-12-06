@@ -1,0 +1,9 @@
+﻿
+SELECT     efr_Users.UserName as [Kullanıcı Adı], CONVERT(CHAR(24),eul.LogDate,120) as [Giriş Tarihi], 
+CONVERT(CHAR(24),eul.LogOutDate,120) AS [Çıkış Tarihi], eul.IpAddress, eul.LoginStatistics as [Tarayıcı]
+FROM         efr_UserLog AS eul INNER JOIN
+                      efr_Users ON eul.UserID = efr_Users.UserID
+                      
+WHERE eul.LogDate>=@ilkTarih AND eul.LogDate<=@sontarih
+
+

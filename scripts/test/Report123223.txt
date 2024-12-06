@@ -1,0 +1,20 @@
+
+
+SELECT 
+efr_Branchs.BranchName            AS Şube,
+OrderTransactions.OrderDateTime                     AS Tarih,
+       
+       OrderTransactions.OrderID                           AS [Çek No],
+       OrderTransactions.MenuItemText                      AS Ürün,
+       OrderTransactions.Quantity                          AS Miktar,
+       ISNULL(OrderTransactions.CustomField1, 'Ana Ürün')  AS Promosyon,
+       OrderTransactions.MenuItemUnitPrice                 AS [Birim Fiyat],
+       OrderTransactions.ExtendedPrice / OrderTransactions.Quantity          AS [Satılan Fiyat]
+FROM   OrderTransactions WITH (NOLOCK)
+       INNER JOIN efr_Branchs
+            ON  efr_Branchs.BranchID = OrderTransactions.BranchID
+WHERE  OrderTransactions.CustomField1 like 'prm%'
+       AND OrderTransactions.OrderDateTime >= @date1
+       AND OrderTransactions.OrderDateTime <= @date2
+       AND OrderTransactions.LineDeleted = 0
+       AND OrderTransactions.@BranchID

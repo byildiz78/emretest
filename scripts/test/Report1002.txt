@@ -1,0 +1,83 @@
+﻿
+SELECT 'Cari Hesap Tahsilat'as Tipi, sum(OnAccountPayments.AmountPaid) as Tutar
+FROM OnAccountPayments WHERE 
+OnAccountPayments.PaymentDateTime <=@sonTarih And OnAccountPayments.PaymentDateTime >=@ilkTarih And OnAccountPayments.@BranchID
+
+UNION ALL
+
+SELECT 'Cari Hesap Satış'as Tipi, sum(OnAccountCharges.AmountCharged) as Tutar
+FROM OnAccountCharges
+WHERE OnAccountCharges.ChargeDateTime <=@sonTarih And OnAccountCharges.ChargeDateTime >=@ilkTarih And OnAccountCharges.@BranchID
+
+UNION ALL
+
+
+
+Select 'Ek Fiyat Kullanımı' as Tipi,
+ Sum(OrderHeaders.SurchargeAmount) As Tutar
+From
+ OrderHeaders WHERE OrderHeaders.OrderDateTime <=@sonTarih And OrderHeaders.OrderDateTime >=@ilkTarih And OrderHeaders.@BranchID
+
+UNION ALL
+Select 'Çek İndirimleri' as Tipi,
+ Sum(OrderHeaders.DiscountAmountUsed) As Tutar
+From
+ OrderHeaders WHERE OrderHeaders.OrderDateTime <=@sonTarih And OrderHeaders.OrderDateTime >=@ilkTarih And OrderHeaders.@BranchID
+
+UNION ALL
+
+Select 'Nakit İndirimler' as Tipi,
+ Sum(OrderHeaders.CashDiscountAmount) As Tutar
+From
+ OrderHeaders WHERE OrderHeaders.OrderDateTime <=@sonTarih And OrderHeaders.OrderDateTime >=@ilkTarih And OrderHeaders.@BranchID
+ 
+UNION ALL
+
+SELECT 'Ürün İndirimleri' as Tipi,
+ SUM(OrderTransactions.DiscountAmountUsed)
+From
+ OrderTransactions where OrderTransactions.OrderDateTime >= @ilkTarih
+ AND OrderTransactions.OrderDateTime <= @sonTarih
+ AND OrderTransactions.@BranchID AND OrderTransactions.transactionstatus='1'
+
+UNION ALL
+
+SELECT 'İptal Tutarı' AS Tipi,
+ ROUND(SUM(OrderVoidLogs.VoidAmount), 2) AS Tutar
+FROM OrderVoidLogs
+WHERE OrderVoidLogs.VoidDateTime >= @ilkTarih
+ AND OrderVoidLogs.VoidDateTime <= @sonTarih And OrderVoidLogs.@BranchID
+
+
+UNION ALL
+
+
+SELECT 'Toplam Kasa' AS Tipi,
+ Round (SUM(OrderPayments.AmountPaid),2) AS Tutar
+FROM OrderPayments
+WHERE OrderPayments.PaymentDateTime >= @ilkTarih
+ AND OrderPayments.PaymentDateTime <= @sonTarih And OrderPayments.@BranchID
+
+
+UNION ALL
+
+SELECT 'Açık Çekler' AS Tipi,
+ SUM(OrderHeaders.AmountDue) AS Toplam
+FROM OrderHeaders
+WHERE OrderHeaders.OrderStatus = '1'
+ AND OrderHeaders.OrderDateTime >= @ilkTarih
+ AND OrderHeaders.OrderDateTime <= @sonTarih And OrderHeaders.@BranchID
+
+
+UNION ALL
+SELECT 'Satış Tutarı' AS Tipi, SUM(Orderheaders.AmountDue) AS Tutar 
+FROM Orderheaders INNER JOIN
+ efr_Branchs ON orderheaders.BranchID = efr_Branchs.BranchID
+ WHERE orderheaders.orderdatetime >= @ilkTarih
+ AND orderheaders.orderdatetime <= @sonTarih
+ AND orderheaders.@BranchID AND orderheaders.OrderStatus<>'3'
+
+
+
+
+GROUP BY efr_Branchs.BranchName

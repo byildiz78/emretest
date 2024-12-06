@@ -1,0 +1,29 @@
+SELECT 
+b.BranchName as Şube,
+CONVERT(varchar,ot.OrderDateTime, 103) as Tarih,
+CASE WHEN oh.OrderType=1 THEN 'Masa Satış'
+WHEN oh.OrderType=2 THEN 'İsme Çek'
+WHEN oh.OrderType=3 THEN 'Kasa Satış'
+WHEN oh.Ordertype=4 THEN 'Tezgah Satış'
+WHEN oh.OrderTypeSourceExternalNo LIKE '%Sepet%' THEN 'Yemek Sepeti'
+WHEN oh.OrderTypeSourceExternalNo LIKE '%trendyol%' THEN 'Trendyol'
+WHEN oh.OrderTypeSourceExternalNo LIKE '%QR%' THEN 'QR Menu'
+WHEN oh.OrderTypeSourceExternalNo LIKE '%web%' AND OrderSource=3 THEN 'Web Sipariş'
+WHEN oh.OrderTypeSourceExternalNo LIKE '%web%' AND OrderSource=4 THEN 'ÇM Sipariş'
+WHEN oh.OrderTypeSourceExternalNo LIKE '%Getir%' THEN 'Getir'
+WHEN oh.OrderTypeSourceExternalNo LIKE '%Migros%' THEN 'Migros'
+WHEN oh.Ordertype=5  THEN 'Paket Servis'
+ELSE 'Satış' END 
+AS Tipi,
+ot.MenuItemText as [Ürün Adı],
+sum(ot.quantity)  as [Satış miktarı],
+ROUND(SUM(ot.ExtendedPrice * isnull(nullif(oh.AmountDue,0),1) / isnull(nullif(oh.SubTotal,0),1) ), 2) as [Toplam satış tutarı]
+FROM OrderTransactions as ot
+LEFT JOIN OrderHeaders as oh on oh.OrderKey=ot.OrderKey
+LEFT JOIN efr_Branchs b on b.BranchID=ot.BranchID
+LEFT JOIN posProducts p on p.ProductKey=ot.MenuItemKey
+WHERE oh.OrderDateTime between @date1 and @date2
+and oh.@BranchID
+AND oh.LineDeleted=0
+AND ot.LineDeleted=0
+GROUP BY b.BranchName,ot.MenuItemText,oh.OrderType,oh.OrderTypeSourceExternalNo,CONVERT(varchar,ot.OrderDateTime, 103),OrderSource

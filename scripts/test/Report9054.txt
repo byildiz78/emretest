@@ -1,0 +1,27 @@
+SELECT 
+efr_Branchs.BranchName AS [ŞUBE ADI],
+ ef.FirstName AS [KURYE ADI], 
+ef.LastName AS SOYADI,
+OrderHeaders.CustomerName AS [MÜŞTERİ ADI],
+CustomerFiles.Neighborhood AS ADRES,
+CustomerFiles.Buildings AS ADRES2,
+CustomerFiles.AddressNotes AS ADRES3,
+ OrderHeaders.OrderID AS [ÇEK NO],
+ convert(varchar,OrderHeaders.OrderDateTime,23) AS TARİH,
+  convert(varchar,OrderHeaders.OrderDateTime,8) AS SAAT,
+ OrderHeaders.AmountDue AS TUTAR,
+ OrderHeaders.OrderPhone AS TELEFON,
+ CONVERT(VARCHAR(8), OrderHeaders.OrderDateTime, 108) AS [SİP.SAATİ],
+ CONVERT(VARCHAR(8), OrderHeaders.DriverDepartureTime, 108) AS [ÇIKIŞ SAATİ],
+ CONVERT(VARCHAR(8), OrderHeaders.DriverArrivalTime, 108) AS [VARIŞ SAATİ],
+ CASE WHEN isnull(OrderHeaders.OrderTypeSourceExternalNo,'') LIKE '%yemek%' THEN 'YEMEK SEPETİ' ELSE 'EVE SERVİS' END AS 'TİPİ'
+
+
+FROM OrderHeaders WITH(NOLOCK)
+INNER JOIN efr_Branchs ON OrderHeaders.BranchID = efr_Branchs.BranchID
+LEFT OUTER JOIN CustomerFiles ON OrderHeaders.BranchID = CustomerFiles.BranchID AND OrderHeaders.CustomerKey = CustomerFiles.CustomerKey
+LEFT OUTER JOIN EmployeeFiles ef ON OrderHeaders.DriverEmployeeID = ef.EmployeeID AND ef.BranchID=OrderHeaders.BranchID
+WHERE OrderHeaders.OrderType = 5 AND OrderHeaders.LineDeleted = 0 
+AND OrderHeaders.OrderDateTime between @date1 and @date2 
+AND OrderHeaders.@BranchID
+Order By OrderHeaders.OrderID

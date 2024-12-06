@@ -1,0 +1,8 @@
+select 
+ROUND(SUM(t.ExtendedPrice * isnull(nullif(h.AmountDue,0),1) / isnull(nullif(h.SubTotal,0),1) ), 2) as reVal 
+from OrderTransactions t
+inner join OrderHeaders h on h.OrderKey=t.OrderKey 
+where t.OrderDateTime between @date1 and @date2
+and t.LineDeleted=0
+and h.@BranchID
+and h.LineDeleted=0

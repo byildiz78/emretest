@@ -1,0 +1,75 @@
+SELECT 
+	b.BranchName AS [Şube],
+	tablo.tarih as Tarih,
+        isnull(b.Paket_Tipi,'') AS [Paket Türü],
+	b.CustomField12 AS [Bölge],
+	ROUND(SUM(tablo.ToplamCiro),2) AS [Satış],
+	ROUND(SUM(tablo.YanUrunTutar),2) AS [Yan Ürün Tutar],
+	ROUND((isnull((SUM(tablo.YanUrunTutar)/nullif(SUM(tablo.ToplamCiro),0)),0)*100),3) AS [Yan Ürün Yüzde],
+	SUM(tablo.IcecekTutar) AS [İçecek Tutar],
+	SUM(tablo.IcecekSayisi) AS [İçecek Sayısı],
+	ROUND((isnull((SUM(tablo.IcecekSayisi)/nullif(SUM(tablo.TabakSayisi),0)),0)*100),3) AS [İçecek Tabak Yüzde],
+	SUM(tablo.TabakSayisi) AS [Tabak Sayisi],
+	ROUND(isnull(SUM(tablo.ToplamCiro)/nullif(SUM(tablo.TabakSayisi),0),0),2) AS [Ortalama Tabak Tutarı],
+	ROUND(SUM(tablo.paketciro),2) AS [Şeften İste Ciro],
+	ROUND((sum(tablo.paketciro)/(case when SUM(tablo.ToplamCiro)=0 then 1 else SUM(tablo.ToplamCiro)end) *100),2) as [Şeften İste Ciro %],
+	sum(tablo.PaketTabakSayisi) As [Şeften İste Tabak],
+	round((sum(tablo.PaketTabakSayisi)/(case when sum(tablo.TabakSayisi)=0 then 1 else sum(tablo.TabakSayisi) end) *100),2) as [Şeften İste Tabak %],
+	sum(tablo.TDPSSAdisyon) as [Şeften İste Adisyon Sayısı],
+	round(sum(tablo.paketciro)/(case when sum(tablo.TDPSSAdisyon)=0 then 1 else sum(tablo.TDPSSAdisyon) end),2) as [Sepet Ortalaması]
+	
+
+ FROM 
+ (
+	select 
+	h.BranchID,
+	h.OrderDateTime as tarih,
+	0.0 as ToplamCiro,
+	0.0 as YanUrunTutar,
+	0.0 AS IcecekTutar,
+	0 AS IcecekSayisi,
+	0.0 as paketciro,
+	0.0 as PaketTabakSayisi,
+	0.0 as TabakSayisi,
+	count(1) as TDPSSAdisyon
+	from OrderHeaders h
+	where h.OrderDateTime>@date1 
+	AND h.OrderDateTime<@date2
+	and h.LineDeleted=0
+	and h.OrderType = 5
+	AND h.@BranchID
+	group by h.BranchID,h.OrderDateTime
+
+ union all
+	
+	SELECT 
+		h.BranchID,
+		h.OrderDateTime as tarih,
+		SUM(T.ExtendedPrice * isnull(nullif(H.AmountDue,0),0) / isnull(nullif(H.SubTotal,0),1)) AS ToplamCiro,
+		SUM(CASE WHEN ISNULL(p.CustomField12,'')='YAN ÜRÜNLER' THEN (isnull(nullif(t.ExtendedPrice,0),t.Quantity*t.MenuItemUnitPrice) *ISNULL(((h.AmountDue/nullif(isnull(nullif(h.SubTotal,0),h.AmountDue),0))),1)) ELSE 0 END) AS YanUrunTutar,
+		SUM(CASE WHEN isnull(p.CustomField12,'')='İÇECEKLER' THEN t.ExtendedPrice ELSE 0 END) AS IcecekTutar,
+		SUM(CASE WHEN ISNULL(p.CustomField12,'')='İÇECEKLER' THEN t.Quantity ELSE 0 END) AS IcecekSayisi,
+		case when h.OrderType=5 then round(SUM(isnull(nullif(t.ExtendedPrice,0),t.Quantity*m1.DefaultUnitPrice)),2) else 0 end as paketciro,
+		case when p.CustomField12='TABAKLAR' and h.OrderType=5 then round((isnull((nullif(SUM(t.Quantity),0)),0.0)),0) else 0 end AS PaketTabakSayisi,
+		case when p.CustomField12='TABAKLAR'  then round((isnull((nullif(SUM(t.Quantity),0)),0.0)),0) else 0 end AS TabakSayisi,
+		0.0 as TDPSSAdisyon
+		
+		
+		
+	FROM 
+		OrderHeaders AS h WITH (NOLOCK)
+		INNER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey AND t.LineDeleted=0
+		INNER JOIN posProducts AS p ON p.ProductKey=t.MenuItemKey
+		INNER JOIN NewGlobalMenuItems m1 ON m1.MenuItemKey = t.MenuItemKey
+	WHERE 
+		h.OrderDateTime>@date1 AND h.OrderDateTime<@date2
+		AND h.LineDeleted=0
+		AND h.@BranchID
+	GROUP BY 
+		h.BranchID,h.OrderType,p.CustomField12,h.OrderDateTime
+) AS tablo
+INNER JOIN efr_Branchs AS b ON b.BranchID = tablo.BranchID
+GROUP BY 
+	b.CustomField12, b.BranchName,b.BranchName,b.Paket_Tipi,tablo.tarih
+ORDER BY 
+	ROUND((isnull((SUM(tablo.YanUrunTutar)/nullif(SUM(tablo.ToplamCiro),0)),0)*100),3) DESC

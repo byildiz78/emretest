@@ -1,0 +1,11 @@
+﻿DECLARE @startDate DATETIME;set @startDate=GETDATE();
+IF DATEPART(hour,@startDate)<6
+ set @startDate=DATEADD(dd, -1, DATEDIFF(dd, 0, @startDate))
+ELSE
+set @startDate=DATEADD(dd, 0, DATEDIFF(dd, 0, @startDate))
+SELECT SUM(Orderheaders.AmountDue) AS Tutar, efr_Branchs.BranchName AS [Şube Adı]
+FROM Orderheaders INNER JOIN
+ efr_Branchs ON orderheaders.BranchID = efr_Branchs.BranchID
+ WHERE orderheaders.orderdatetime >= @startDate
+ AND orderheaders.@BranchID and OrderHeaders.OrderStatus<>'3'
+GROUP BY efr_Branchs.BranchName

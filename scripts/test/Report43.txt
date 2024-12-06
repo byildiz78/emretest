@@ -1,0 +1,6 @@
+﻿SELECT efr_Branchs.BranchID AS ŞubeID,
+efr_Branchs.BranchName AS [Şube Adı],
+(isnull(convert(nvarchar(20),efr_Branchs.StartDateTime,105),'-')+' '+convert(nvarchar(20),efr_Branchs.StartDateTime,108)) AS [Açılış Zamanı],
+isnull(efr_Branchs.VerisonInfo,'-eski-') [Versiyonu]
+FROM   efr_Branchs
+WHERE  efr_Branchs.@BranchID

@@ -1,0 +1,37 @@
+SELECT 
+	b.BranchName AS [Şube],
+        CONVERT(VARCHAR, h.OrderDateTime ,113) AS [AÇILIŞ TARIHI],
+	h.OrderID AS [Çek No],
+	t.AccountingCode AS [Stok Kodu],
+	t.MenuItemText AS [Ürün Adı],
+	t.MenuItemGroupText AS [Grubu], 
+	t.MenumItemCategoryText AS [Kategori],
+	ABS(ROUND(SUM(t.Quantity), 3)) AS Adet,
+	ABS(SUM(t.ExtendedPrice)) AS Tutar, 
+	ABS(SUM(t.ExtendedPrice) * 100 / (100 + ISNULL(t.TaxPercent,8))) AS [KDV Hariç Tutar],
+	t.MenuItemUnitPrice AS [Birim Fiyat],
+	p.PaymentMethodName[Ödeme Tipi]
+FROM OrderTransactions  AS t WITH(NOLOCK)
+INNER JOIN efr_Branchs AS b ON b.BranchID = t.BranchID
+INNER JOIN OrderHeaders h ON h.OrderKey = t.OrderKey
+INNER JOIN dbo.OrderPayments p ON h.OrderKey=p.OrderKey
+WHERE 
+	t.OrderDateTime BETWEEN @date1 AND @date2
+	AND h.LineDeleted = 0 
+	AND t.LineDeleted = 0 
+	AND t.@BranchID
+	AND h.MainOrderID=-1
+GROUP BY 
+	b.BranchName,
+        h.OrderDateTime,
+	t.AccountingCode,
+	t.MenuItemKey, 
+	t.MenuItemText, 
+	t.MenuItemGroupText, 
+	t.MenumItemCategoryText,
+	t.TaxPercent,
+	t.MenuItemUnitPrice,
+         h.OrderID,
+	p.PaymentMethodName
+ORDER BY 
+	h.OrderID, t.MenuItemText

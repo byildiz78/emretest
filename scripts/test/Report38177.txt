@@ -1,0 +1,83 @@
+﻿/************************************************************
+ * Code formatted by SoftTree SQL Assistant © v6.3.153
+ * Time: 25.6.2015 12:56:31
+ ************************************************************/
+
+SELECT ISNULL(b.BranchName, '')         AS Şube,
+ 
+       ISNULL(pc.PickValue, '')         AS [Kategori],
+       ISNULL(pg.PickValue, '')         AS Grubu,
+       r.StokKodu,
+       r.StokAdi,
+       r.Tuketim                        AS [Toplam Tüketim],
+       u.UnitName                       AS Birim
+FROM   (
+           SELECT rs.BranchID,
+                  SUM(rs.Tuketim)  AS Tuketim,
+                  rs.StokId,
+                  rs.StokAdi,
+                  rs.StokKodu
+           FROM   (
+                      SELECT r.BranchID,
+                             SUM(r.miktar * ISNULL(fd.Amount, 1)) AS Tuketim,
+                             ISNULL(fd.ProductID, p.ProductID) AS StokId,
+                             ISNULL(fp.ProductName, p.ProductName) AS StokAdi,
+                             ISNULL(fp.ProductCode, p.ProductCode) AS StokKodu
+                      FROM   (
+                                 SELECT h.BranchID,
+                                        t.MenuItemKey,
+                                        SUM(t.Quantity) AS miktar
+                                 FROM   OrderHeaders AS h WITH (NOLOCK)
+                                        INNER JOIN OrderTransactions AS t
+                                             ON  h.BranchID = t.BranchID
+                                             AND h.OrderKey = t.OrderKey
+                                             AND t.LineDeleted = 0
+                                 WHERE  h.@BranchID 
+                                        AND h.LineDeleted = 0
+                                        AND  h.OrderDateTime>= @date1
+                                        AND  h.OrderDateTime<= @date2
+                                 GROUP BY
+                                        h.BranchID,
+                                        t.MenuItemKey
+                             ) AS r
+                             INNER JOIN GlobalMenuItems AS m
+                                  ON  m.BranchID = r.BranchID
+                                  AND m.MenuItemKey = r.MenuItemKey
+                             INNER JOIN posProducts AS p
+                                  ON  p.ProductKey = m.MenuItemGlobalKey
+                             LEFT OUTER JOIN posManafactureFormulaAssign AS fa
+                                  ON  fa.ProductID = p.ProductID
+                                  AND fa.BranchID = r.BranchID
+                             LEFT OUTER JOIN posManafactureFormulaDetail AS fd
+                                  ON  fd.FormulaID = fa.FormulaID
+                             LEFT OUTER JOIN posManafactureFormula AS f
+                                  ON  f.FormulaID = fd.FormulaID
+                             LEFT OUTER JOIN posProducts AS fp
+                                  ON  fp.ProductID = fd.ProductID
+                      GROUP BY
+                             r.BranchID,
+                             fd.ProductID,
+                             fp.ProductName,
+                             p.ProductID,
+                             p.ProductName,
+                             fp.ProductCode,
+                             p.ProductCode
+                  )                AS rs
+           GROUP BY
+                  rs.BranchID,
+                  rs.StokId,
+                  rs.StokAdi,
+                  rs.StokKodu
+       )                                AS r
+       LEFT OUTER JOIN posProducts      AS p
+            ON  p.ProductID = r.StokId
+       LEFT OUTER JOIN posProductUnits  AS u
+            ON  u.UnitID = p.UnitID
+       LEFT OUTER JOIN posPickList      AS pc
+            ON  pc.ListID = p.CategoryID
+       LEFT OUTER JOIN posPickList      AS pg
+            ON  pg.ListID = p.GroupID
+       LEFT OUTER JOIN posPickList      AS mc
+            ON  mc.ListID = p.MainCategoryID
+       LEFT OUTER JOIN efr_Branchs      AS b
+            ON  b.BranchID = r.BranchID

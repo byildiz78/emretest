@@ -1,0 +1,51 @@
+﻿Detail|SELECT OrderTransactions.MenuItemText,
+       1 as MenuItemGroupText,
+       SUM(OrderTransactions.Quantity) AS Miktar,
+       SUM(OrderTransactions.ExtendedPrice) AS ExtendedPrice,
+       OrderTransactions.MenuItemUnitPrice,
+       OrderTransactions.TaxPercent,
+       SUM(OrderTransactions.DiscountLineAmount) AS DiscountLineAmount,
+       SUM(OrderTransactions.DiscountCashAmount) AS DiscountCashAmount,
+       SUM(OrderTransactions.DiscountTotalAmount) AS DiscountTotalAmount,
+       MenuItems.MenuItemID,
+       MenuItems.AccountingCode
+FROM   OrderTransactions
+       LEFT OUTER JOIN MenuItems
+            ON  OrderTransactions.MenuItemKey = MenuItems.MenuItemKey
+       RIGHT OUTER JOIN OrderHeaders
+            ON  OrderTransactions.OrderKey = OrderHeaders.OrderKey
+WHERE  (OrderHeaders.LineDeleted = 0)
+       AND (OrderTransactions.LineDeleted = 0)
+       AND (OrderHeaders.OrderDateTime >= @date1)
+       AND (OrderHeaders.OrderDateTime <= @date2)
+and OrderTransactions.@BranchID
+and orderheaders.@BranchID
+GROUP BY
+       OrderTransactions.MenuItemText,
+       OrderTransactions.MenuItemGroupText,
+       OrderTransactions.MenuItemUnitPrice,
+       OrderTransactions.TaxPercent,
+       MenuItems.MenuItemID,
+       MenuItems.AccountingCode
+ORDER BY
+       OrderTransactions.MenuItemGroupText,
+       OrderTransactions.MenuItemText
+
+$INDIRIMLER|   SELECT (SUM(h.amountdue) + SUM(h.discountTotalAmount-h.DiscountLineAmount)) AS [Brüt Satışlar],
+       SUM(h.DiscountLineAmount) AS [Ürün İndirimleri],
+       SUM(h.DiscountCashAmount) AS [Nakit İndirimler],
+       SUM(h.DiscountOrderAmount) AS [Çek İndirimler],
+       SUM(h.DiscountTotalAmount) AS [Toplam Indirimler],
+       SUM(h.amountdue) AS [Net Satışlar],
+       COUNT(h.OrderKey) AS [Toplam Çek Sayısı],
+       SUM(h.GuestNumber) AS [Toplam Konuk],
+       SUM(h.amountdue) / ISNULL(SUM(h.GuestNumber), 1) AS [Kişi Başı Ortalama],
+       SUM(h.amountdue) / ISNULL(COUNT(h.orderkey), 1) AS [Çek Ortalama],
+       SUM(h.amountdue)/1.08 AS [Net Satışlar KDV HARİÇ]
+       
+       
+FROM   OrderHeaders h
+WHERE  h.LineDeleted = 0
+       AND h.OrderDateTime >= @date1
+       AND h.OrderDateTime <= @date2
+and h.@BranchID

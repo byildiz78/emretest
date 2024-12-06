@@ -1,12 +1,16 @@
+import { formatDateTimeYMDHIS } from '@/lib/utils';
 import { Dataset } from '@/pages/api/dataset';
 import { ChatBot } from '@/types/tables';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { OpenAI } from 'openai';
 import { ChatCompletionMessageParam } from 'openai/resources/chat/completions.mjs';
 
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
+const DEEPSEEK_API_URL = process.env.DEEPSEEK_API_URL;
+
 const client = new OpenAI({
-    apiKey: process.env.DEEPSEEK_API_KEY,
-    baseURL: process.env.DEEPSEEK_API_URL
+    apiKey: DEEPSEEK_API_KEY,
+    baseURL: DEEPSEEK_API_URL
 });
 
 export default async function handler(
@@ -33,6 +37,7 @@ export default async function handler(
             },
             req
         });
+        console.log(config)
 
         const chatbotConfig = config[0];
 
@@ -46,11 +51,13 @@ export default async function handler(
 
         // Parse query parameters
         const parameters = {
-            date1: date1Obj.toISOString() || '2024-01-01T00:00:00',
-            date2: date2Obj.toISOString() || new Date().toISOString(),
+            date1: formatDateTimeYMDHIS(date1Obj),
+            date2: formatDateTimeYMDHIS(date2Obj),
             BranchID: branches,
             ...(chatbotConfig.ChatbotQueryParams ? JSON.parse(chatbotConfig.ChatbotQueryParams) : {})
         };
+
+        console.log(parameters)
         // Execute the analysis query
         const queryResult = await instance.executeQuery<any[]>({
             query: chatbotConfig.ChatbotQuery,
@@ -69,8 +76,8 @@ export default async function handler(
         });
 
         // Create the system message
-        const firstMessage: ChatCompletionMessageParam = 
-            chatbotConfig.ChatbotRole === 'function' 
+        const firstMessage: ChatCompletionMessageParam =
+            chatbotConfig.ChatbotRole === 'function'
                 ? {
                     role: 'function',
                     name: 'data_analyzer',
@@ -82,53 +89,83 @@ export default async function handler(
                 };
 
         try {
-            // Prepare the complete data summary
-            const dataSummary = {
-                totalRecords: queryResult.length,
-                data: queryResult
-            };
 
-            // Send a single request with all data
-            const messages: ChatCompletionMessageParam[] = [
-                firstMessage,
-                {
-                    role: 'user',
-                    content: `${JSON.stringify(dataSummary, null, 2)}`
-                }
-            ];
+            if (queryResult.length) {
+                // Prepare the complete data summary
+                const dataSummary = {
+                    totalRecords: queryResult.length,
+                    data: queryResult
+                };
 
-            // Get streaming response from AI
-            const response = await client.chat.completions.create({
-                model: 'deepseek-chat',
-                messages: messages,
-                stream: true,
-                temperature: 0.7,
-                max_tokens: 2000
-            });
-
-            let firstMessageSent = false;
-            // Stream the response immediately
-            for await (const part of response) {
-                const content = part.choices[0]?.delta?.content || '';
-                if (content) {
-                    // Send both content and raw data in the first message
-                    if (!firstMessageSent) {
-                        res.write(`data: ${JSON.stringify({ 
-                            content,
-                            rawData: queryResult 
-                        })}\n\n`);
-                        firstMessageSent = true;
-                    } else {
-                        res.write(`data: ${JSON.stringify({ content })}\n\n`);
+                // Send a single request with all data
+                const messages: ChatCompletionMessageParam[] = [
+                    firstMessage,
+                    {
+                        role: 'user',
+                        content: `${JSON.stringify(dataSummary, null, 2)}`
                     }
-                    
+                ];
+
+                // Get streaming response from AI
+                const response = await client.chat.completions.create({
+                    model: 'deepseek-chat',
+                    messages: messages,
+                    stream: true,
+                    temperature: 0.7,
+                    max_tokens: 2000
+                });
+
+                let firstMessageSent = false;
+                // Stream the response immediately
+                for await (const part of response) {
+                    const content = part.choices[0]?.delta?.content || '';
+                    if (content) {
+                        // Send both content and raw data in the first message
+                        if (!firstMessageSent) {
+                            res.write(`data: ${JSON.stringify({
+                                content,
+                                rawData: queryResult
+                            })}\n\n`);
+                            firstMessageSent = true;
+                        } else {
+                            res.write(`data: ${JSON.stringify({ content })}\n\n`);
+                        }
+                        // Ensure the content is sent immediately
+                        if (res.flush) res.flush();
+                    }
                 }
+
+                // After all AI messages, fetch and send balance
+                try {
+                    const balanceResponse = await fetch(`${DEEPSEEK_API_URL}/user/balance`, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+                        }
+                    });
+
+                    const balanceData = await balanceResponse.json();
+
+                    // Send balance data as a final message
+                    res.write(`data: ${JSON.stringify({
+                        balance: balanceData
+                    })}\n\n`);
+
+                    if (res.flush) res.flush();
+                } catch (balanceError) {
+                    console.error('Error fetching balance:', balanceError);
+                }
+
+            } else {
+                res.write(`data: ${JSON.stringify({
+                    content: 'Seçmiş Olduğunuz Filtrelere Ait Veri Bulunamadı.'
+                })}\n\n`);
             }
 
         } catch (error) {
             console.error('AI processing error:', error);
-            res.write(`data: ${JSON.stringify({ 
-                content: 'Sorry, there was an error processing your request.' 
+            res.write(`data: ${JSON.stringify({
+                content: 'Sorry, there was an error processing your request.'
             })}\n\n`);
         }
 
@@ -136,8 +173,8 @@ export default async function handler(
     } catch (error) {
         console.error('Handler error:', error);
         if (!res.headersSent) {
-            res.status(500).json({ 
-                error: error instanceof Error ? error.message : 'An unexpected error occurred' 
+            res.status(500).json({
+                error: error instanceof Error ? error.message : 'An unexpected error occurred'
             });
         }
     }

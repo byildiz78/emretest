@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import * as LucideIcons from "lucide-react";
 import { useEffect, useState } from "react";
-import { useFilterStore } from "@/stores/filters-store";
 import { Loader2 } from "lucide-react";
 
 interface WebWidget {
@@ -22,8 +21,16 @@ interface WidgetData {
   value: any;
 }
 
-export default function BranchStats() {
-  const { selectedFilter } = useFilterStore();
+interface BranchStatsProps {
+  selectedBranch: {
+    BranchID: number;
+    BranchName: string;
+  };
+  startDate?: Date;
+  endDate?: Date;
+}
+
+export default function BranchStats({ selectedBranch, startDate, endDate }: BranchStatsProps) {
   const [widgetStates, setWidgetStates] = useState<WidgetData[]>([]);
 
   useEffect(() => {
@@ -32,7 +39,6 @@ export default function BranchStats() {
         const response = await fetch('/api/branchdetailwidgets');
         const data: WebWidget[] = await response.json();
         
-        // Her widget için başlangıç durumu oluştur
         const initialStates: WidgetData[] = data.map(widget => ({
           widget,
           loading: true,
@@ -40,23 +46,14 @@ export default function BranchStats() {
         }));
         setWidgetStates(initialStates);
 
-        // Her widget için ayrı veri çek
         data.forEach(async (widget, index) => {
-          if (widget.ReportID) {
+          if (widget.ReportID && startDate && endDate) {
             try {
-              const today = new Date();
-              const date1 = new Date(today);
-              date1.setHours(6, 0, 0, 0);
-              
-              const date2 = new Date(today);
-              date2.setDate(date2.getDate() + 1);
-              date2.setHours(6, 0, 0, 0);
-
               const params = {
-                date1: date1.toISOString(),
-                date2: date2.toISOString(),
+                date1: startDate.toISOString(),
+                date2: endDate.toISOString(),
                 reportId: widget.ReportID,
-                branches: selectedFilter?.branches?.map(b => b.BranchID) || []
+                branches: [selectedBranch.BranchID]
               };
 
               const response = await fetch('/api/widgetreport', {
@@ -78,7 +75,7 @@ export default function BranchStats() {
                 newStates[index] = {
                   ...newStates[index],
                   loading: false,
-                  value: reportData[0]  // Sadece seçili şubenin verisi olacak
+                  value: reportData[0]
                 };
                 return newStates;
               });
@@ -101,11 +98,10 @@ export default function BranchStats() {
       }
     };
 
-    // Sadece bir şube seçili olduğunda veriyi çek
-    if (selectedFilter?.branches?.length === 1) {
+    if (selectedBranch && startDate && endDate) {
       fetchWidgets();
     }
-  }, [selectedFilter?.branches]);
+  }, [selectedBranch, startDate, endDate]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('tr-TR', {
@@ -116,7 +112,6 @@ export default function BranchStats() {
   };
 
   const getColorByIndex = (index: number): string => {
-    // Daha soft ve uyumlu renkler
     const colors = [
       'blue',      // Ana renk - mavi
       'green',     // Pozitif - yeşil

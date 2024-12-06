@@ -2,7 +2,6 @@
 
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import { useFilterStore } from "@/stores/filters-store";
 import { Loader2 } from "lucide-react";
 import {
   Area,
@@ -36,6 +35,15 @@ interface ChartData {
   data: any[];
 }
 
+interface BranchChartsProps {
+  selectedBranch: {
+    BranchID: number;
+    BranchName: string;
+  };
+  startDate?: Date;
+  endDate?: Date;
+}
+
 const COLORS = [
   '#0088FE',  // Mavi
   '#00C49F',  // Yeşil
@@ -47,8 +55,7 @@ const COLORS = [
   '#ff7300',  // Koyu Turuncu
 ];
 
-export default function BranchCharts() {
-  const { selectedFilter } = useFilterStore();
+export default function BranchCharts({ selectedBranch, startDate, endDate }: BranchChartsProps) {
   const [chartStates, setChartStates] = useState<ChartData[]>([]);
 
   useEffect(() => {
@@ -65,21 +72,13 @@ export default function BranchCharts() {
         setChartStates(initialStates);
 
         data.forEach(async (widget, index) => {
-          if (widget.ReportID) {
+          if (widget.ReportID && startDate && endDate) {
             try {
-              const today = new Date();
-              const date1 = new Date(today);
-              date1.setHours(6, 0, 0, 0);
-              
-              const date2 = new Date(today);
-              date2.setDate(date2.getDate() + 1);
-              date2.setHours(6, 0, 0, 0);
-
               const params = {
-                date1: date1.toISOString(),
-                date2: date2.toISOString(),
+                date1: startDate.toISOString(),
+                date2: endDate.toISOString(),
                 reportId: widget.ReportID,
-                branches: selectedFilter?.branches?.map(b => b.BranchID) || []
+                branches: [selectedBranch.BranchID]
               };
 
               const response = await fetch('/api/widgetreport', {
@@ -128,11 +127,10 @@ export default function BranchCharts() {
       }
     };
 
-    // Sadece bir şube seçili olduğunda veriyi çek
-    if (selectedFilter?.branches?.length === 1) {
+    if (selectedBranch && startDate && endDate) {
       fetchCharts();
     }
-  }, [selectedFilter?.branches]);
+  }, [selectedBranch, startDate, endDate]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('tr-TR', {

@@ -1,5 +1,0 @@
-SELECT *, (RAPOR_VERISI-ANLIK_PAKET) as FARK FROM (
-SELECT br.BranchID, br.BranchName, br.LastDailyControlDatetime, br.LastInstantControlDatetime,
-(SELECT Count(*) FROM OrderHeaders WHERE OrderDateTime BETWEEN @date1 AND @date2 AND BranchID = br.BranchID) as RAPOR_VERISI, 
-(SELECT Count(*) FROM gsOrderHeaders WHERE OrderDateTime BETWEEN @date1 AND @date2 AND BranchID = br.BranchID) as ANLIK_PAKET
-FROM efr_Branchs br WHERE br.VerisonInfo IS NOT NULL AND br.CountryName='Türkiye' AND br.@BranchID) AS Tbl  ORDER BY Tbl.RAPOR_VERISI ASC

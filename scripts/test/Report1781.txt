@@ -1,9 +1,0 @@
-SELECT b.BranchName AS [Şube], t.OrderDateTime AS Tarih,t.CustomerName AS Müşteri, t.BonusUsed AS Satış, t.BonusEarned AS Tahsilat
-,isnull(t.CustomField1,'') AS [İşlem Tipi]
-  FROM BonusTransactions AS t
-LEFT OUTER JOIN efr_Branchs AS b ON b.BranchID = t.BranchID
-WHERE t.OrderDateTime>@date1
-AND t.OrderDateTime<@date2
-AND t.LineDeleted=0
-AND t.@BranchID
-AND (t.BonusUsed>0 OR t.BonusEarned>0)

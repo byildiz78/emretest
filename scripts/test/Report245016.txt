@@ -1,8 +1,0 @@
-SELECT distinct efr_Branchs.BranchName AS [Şube],isnull(CustomerFiles.CustomerName,'TANIMSIZ') AS [Müşteri Adı],
-ISNULL(CustomerPhones.PhoneNumber, '') AS Telefon , ISNULL(CustomerFiles.EmailAddress, '') AS Email,isnull(CustomerFiles.Neighborhood,'') AS [Mahalle],
-ISNULL(CustomerFiles.Avenue,'') AS [Cadde], ISNULL(CustomerFiles.Street,'') AS [Sokak], ISNULL(CustomerFiles.ApartmentNo,'') AS [Bina No],
-ISNULL(CustomerFiles.FlatNo,'') AS [Kat], ISNULL(CustomerFiles.AddressNotes,'') AS [Adres Notları]
-FROM CustomerFiles
-LEFT OUTER JOIN CustomerPhones ON CustomerPhones.CustomerKey = CustomerFiles.CustomerKey
-INNER JOIN efr_Branchs ON CustomerFiles.BranchID=efr_Branchs.BranchID 
-where CustomerFiles.@BranchID AND CustomerPhones.PhoneNumber IS NOT NULL 

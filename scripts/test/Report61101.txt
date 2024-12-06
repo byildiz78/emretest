@@ -1,9 +1,0 @@
-DECLARE @sql nvarchar(4000);
-SET @sql = 'SELECT t.CouponCode ' + char(10)
-+ 'AS [Kupon Kodu] ' + char(10)
-+ ',isnull(t.IsUsed,0) AS [Kullanıldı], h.OrderID AS [Çek No],isnull(b.BranchName,'''') AS [Şube], ' + char(10)
-+ 'CONVERT(VarChar(50),t.UseDate, 120) AS [Tarih],t.CampaignName AS [Kampanya] ' + char(10)
-+ '  FROM CouponTransactions AS t ' + char(10)
-+ 'LEFT OUTER JOIN Order'+'Headers AS h ON h.OrderKey = t.OrderKey ' + char(10)
-+ 'LEFT OUTER JOIN efr_Branchs AS b ON b.BranchID = h.BranchID ';
-EXEC(@sql);

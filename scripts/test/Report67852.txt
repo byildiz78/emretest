@@ -1,9 +1,0 @@
-select  efr_branchs.BranchName as Şube, h.orderID as [ÇekNo],h.OrderDateTime as Tarih,h.AddUserName as Kullanıcı
-,h.AmountDue as Tutar,cast(1.0 as Float) as [Adet]
-  from orderheaders as h
-
-inner join efr_branchs on efr_branchs.BranchID=h.branchID
-
-where h.OrderStatus=1 and h.LineDeleted=0 
-and h.OrderDateTime>=@date1 and h.OrderDateTime<@date2 
-AND h.@BranchID

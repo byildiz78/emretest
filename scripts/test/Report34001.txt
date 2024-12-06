@@ -1,9 +1,0 @@
-﻿SELECT webFormFilledDetail.AutoID, webFormFilledDetail.FormID, webFormFilledDetail.HeaderID, webFormFilledDetail.DetailID, webFormFilledDetail.FieldValue, 
- webFormDetail.FieldTitle,webFormFilled.AutoID, webFormFilled.FormID,
- webFormFilled.BranchID, webFormFilled.FormNotes, webFormFilled.AddUserName,
- webFormFilled.FormDate, webFormFilled.AddDateTime
-  FROM webFormFilledDetail  
- INNER JOIN webFormDetail ON webFormFilledDetail.FormID = webFormDetail.FormID AND webFormFilledDetail.DetailID = webFormDetail.AutoID 
- INNER JOIN webFormFilled ON webFormFilled.AutoID = webFormFilledDetail.HeaderID
- WHERE webFormFilled.FormDate>=@date1 AND webFormFilled.FormDate<@date2 
- AND webFormFilled.@BranchID AND webFormFilledDetail.FormID=1

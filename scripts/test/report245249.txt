@@ -1,8 +1,0 @@
-﻿SELECT b.BranchName AS [Şube],c.CustomerName AS [Müşteri], t.OrderDateTime AS [Tarih],
-t.BonusUsed AS [Kullanılan], t.BonusEarned AS [Kazanılan]
- FROM BonusTransactions AS t
-INNER JOIN efr_Branchs AS b ON b.BranchID = t.BranchID
-INNER JOIN BonusCustomerFiles AS c ON c.CustomerKey=t.CustomerKey
-WHERE t.OrderDateTime>=@date1
-AND t.OrderDateTime<@date2
-AND t.@BranchID

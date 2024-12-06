@@ -1,1 +1,0 @@
-dosya yolu : C:\inetpub\wwwroot\TavukDunyasi\WebReport2020\ReportData\Report100.txt

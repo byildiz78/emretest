@@ -1,7 +1,0 @@
-﻿SELECT CONVERT(CHAR(24),OrderPayments.PaymentDateTime,120) AS TARIH, AmountPaid AS TUTAR, ISNULL(PaymentMethodName,'TANIMSIZ') AS [ÖDEME TİPİ]
-FROM summaryOrderPayments as OrderPayments
-
-WHERE LineDeleted=0 
-AND PaymentDateTime>=@ilkTarih 
-AND PaymentDateTime<=@sonTarih
-AND orderpayments.@BranchID

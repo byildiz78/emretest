@@ -1,1 +1,0 @@
-page1|size20|sort1|a4|filter146|Contains([ADI], 'CEMALETTİN') And Contains([SOYADI], 'TOPÇU') And Contains([GIRIS], '2018') And [TARIH] >= #2018-02-10# And [TARIH] < #2018-02-11#|conditions5|2|3|3|3|4|3|5|3|7|3|visible9|f6|t0|t3|t4|t1|t2|f5|t7|f8|width9|e|e|e|e|e|e|e|e|e

@@ -1,6 +1,0 @@
-﻿SELECT efr_Branchs.BranchName AS Şube,round(SUM(AmountDue),2) AS Tutar 
-  FROM summaryOrderHeaders WITH(NOLOCK) 
-INNER JOIN efr_Branchs ON efr_Branchs.BranchID = summaryOrderHeaders.BranchID
-WHERE summaryOrderHeaders.OrderDateTime>@ilkTarih AND summaryOrderHeaders.OrderDateTime<@sonTarih 
-AND summaryOrderHeaders.LineDeleted=0 and summaryOrderHeaders.@BranchID 
-GROUP BY efr_Branchs.BranchName

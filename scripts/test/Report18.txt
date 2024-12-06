@@ -1,7 +1,0 @@
-SELECT     CustomerName AS [Müşteri Adı], TotalDebt AS [Borç Tutarı], TotalPayment AS [Ödenen Tutar], TotalRemainig AS Bakiye
-FROM         CustomerFiles 
-WHERE  ISNULL(TotalRemainig,0) <>0
-
-
-and CustomerFiles.@BranchID
-ORDER BY TotalRemainig DESC

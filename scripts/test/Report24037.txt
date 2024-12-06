@@ -1,9 +1,0 @@
-﻿SELECT OrderTransactions.MenumItemCategoryText AS tipi,
-       SUM(OrderTransactions.ExtendedPrice) AS tutar
-FROM   OrderTransactions
-WHERE  TransactionDateTime >= @ilkTarih
-       AND TransactionDateTime <= @sonTarih
-       AND LineDeleted = 0
-    AND OrderTransactions.@BranchID 
-    
-GROUP BY OrderTransactions.MenumItemCategoryText

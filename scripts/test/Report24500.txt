@@ -1,7 +1,0 @@
-﻿
-SELECT SUM(gsOrderheaders.AmountDue) AS Tutar, efr_Branchs.BranchName AS [Şube Adı]
-FROM gsOrderheaders INNER JOIN
- efr_Branchs ON gsOrderheaders.BranchID = efr_Branchs.BranchID
- WHERE gsOrderheaders.orderdatetime >= @ilkTarih and gsOrderheaders.orderdatetime <= @sonTarih
- AND gsOrderheaders.@BranchID and gsOrderheaders.OrderStatus<>'3'
-GROUP BY efr_Branchs.BranchName

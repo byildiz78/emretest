@@ -1,9 +1,0 @@
-﻿select u.UserName AS [Kullanici],b.BranchName AS [Sube] from
-(SELECT cast('<x>'+replace(u.UserBranchs,',','</x><x>')+'</x>' as xml) as thexml,u.UserID
-FROM efr_Users AS u WHERE u.UserID<>20
-)q1 CROSS APPLY
-(SELECT x.value('.','varchar(100)') as value FROM thexml.nodes('x') as f(x))q2
-INNER JOIN efr_Users AS u ON u.UserID = q1.UserID
-INNER JOIN efr_Branchs AS b ON b.BranchID=q2.value
-AND b.@BranchID
-ORDER BY u.UserName,b.BranchName

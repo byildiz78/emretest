@@ -1,8 +1,0 @@
-select CONVERT(DATE,OrderDateTime) as Tarih,b.BranchName,b.CustomField3 as [Bölge],
-SUM(CASE WHEN OrderTypeSourceExternalNo LIKE '%web%' THEN 1 ELSE 0 END) as [Web Sipariş Sayısı],
-SUM(CASE WHEN OrderTypeSourceExternalNo LIKE '%yemek%' THEN 1 ELSE 0 END) as [Yemek Sepeti Sayısı],
-SUM(CASE WHEN h.OrderType=5 and OrderTypeSourceExternalNo NOT LIKE '%yemek%' THEN 1 ELSE 0 END) as [Paket Sipariş Sayısı]
-from OrderHeaders h
-LEFT JOIN efr_Branchs b on b.BranchID=h.BranchID
-where h.OrderDateTime>@date1 and h.OrderDateTime<@date2 and h.@BranchID
-GROUP BY CONVERT(DATE,OrderDateTime),b.BranchName,b.CustomField3

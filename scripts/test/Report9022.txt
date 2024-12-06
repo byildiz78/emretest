@@ -1,5 +1,0 @@
-Detail|SELECT     CustomerName, TotalDebt, TotalPayment, TotalRemainig
-FROM         CustomerFiles WHERE   ISNULL(TotalRemainig,0) <>0
-
-and  CustomerFiles.@BranchID
-ORDER BY TotalRemainig DESC

@@ -1,8 +1,0 @@
-SELECT b.BranchName AS [Şube], d.ExpenseDate AS [Masraf Tarihi],e.GroupName AS [Masraf Grubu], e.ExpenseName AS Masraf, isnull(e.Notes,'') AS Notlar,d.AddDatetime AS [Eklenme Tarihi],d.ExpenseAmount AS [Tutar]
-FROM webExpenseData AS d
-INNER JOIN webExpenses AS e ON e.AutoID=d.ExpenseID
-INNER JOIN efr_Branchs AS b ON b.BranchID = d.BranchID
-WHERE dateadd(hour,7,d.ExpenseDate)>@date1
-AND dateadd(hour,7,d.ExpenseDate)<@date2
-AND d.@BranchID
-ORDER BY b.BranchName,e.GroupName,e.ExpenseName

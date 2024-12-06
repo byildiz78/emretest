@@ -1,4 +1,0 @@
-Detail|SELECT *  FROM 
-       OrderPayments
-
- WHERE LineDeleted=0  AND PaymentDateTime>=@ilkTarih AND OrderID IS NOT NULL and OrderPayments.PaymentDateTime<=@SonTarih and OrderPayments.@BranchID

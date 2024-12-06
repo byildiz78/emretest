@@ -1,7 +1,0 @@
-﻿SELECT SUM(round(t.Quantity*t.MenuItemUnitPrice,2)/*t.ExtendedPrice*/) AS Tutar FROM OrderHeaders AS h WITH(NOLOCK)
-INNER JOIN OrderTransactions AS t ON t.OrderKey = h.OrderKey AND t.BranchID = h.BranchID AND t.LineDeleted=0
-INNER JOIN posProducts as m on m.ProductKey=t.MenuItemKey and m.CustomField12='İÇECEKLER'
-WHERE h.LineDeleted=0
-AND h.OrderDateTime>@date1
-AND h.OrderDateTime<@date2
-AND h.@BranchID

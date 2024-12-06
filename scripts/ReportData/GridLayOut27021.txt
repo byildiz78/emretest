@@ -1,1 +1,0 @@
-page5|size20|filter31|[Masa] = 'HALİL İBRAHİM YAŞAR '|conditions7|0|3|2|3|3|3|4|3|7|3|8|3|9|3|hierarchy14|0|-1|1|-1|2|-1|3|-1|4|-1|5|-1|6|-1|7|-1|8|-1|9|-1|10|-1|11|-1|12|-1|13|-1|visible14|t0|t1|t2|t3|t4|t5|t6|t7|t8|t9|t10|t11|t12|f13|width14|e|e|e|e|e|e|e|e|e|e|e|e|e|e

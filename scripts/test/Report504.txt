@@ -1,8 +1,0 @@
-
-select 
-ROUND(SUM(h.AmountDue), 2) as reVal 
-from OrderHeaders h WITH (NOLOCK)
-where h.OrderDateTime between @date1 and @date2
-and h.LineDeleted=0
-and h.@BranchID
-

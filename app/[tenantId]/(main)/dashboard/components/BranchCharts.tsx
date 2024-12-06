@@ -222,7 +222,7 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
     // ReportID 531 - Kategori Dağılımı
     if (chartState.widget.ReportID === 531) {
       return (
-        <div className="h-[300px] w-full p-4">
+        <div className="h-[350px] w-full p-3">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie

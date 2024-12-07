@@ -134,7 +134,14 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen w-full overflow-hidden bg-gradient-to-br from-background via-background/95 to-muted/30">
+        <div className="flex items-center justify-center min-h-screen"
+            style={{
+                backgroundImage: `url('/images/background/background1.jpg')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+            }}
+        >
             {/* Noise Overlay */}
             <div className="fixed inset-0 bg-[url('/images/noise.png')] opacity-10 mix-blend-overlay" />
 
@@ -156,7 +163,7 @@ export default function LoginPage() {
             </Button>
 
             {/* Logo */}
-            <div className="absolute left-4 top-4 lg:left-8 lg:top-8">
+            <div className="absolute left-4 top-4 lg:left-8 lg:top-8 ml-[4rem]">
                 <div className="relative h-12 w-48 transition-all duration-300 hover:scale-105">
                     <Image
                         src="/images/robotpos-logo.png"
@@ -171,19 +178,27 @@ export default function LoginPage() {
             <div className="container relative mx-auto flex min-h-screen flex-col items-center justify-center px-4 py-8 md:px-8 lg:py-12">
                 <div className="flex w-full flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16 max-w-6xl">
                     {/* Left Side - Content */}
-                    <div className="w-full lg:w-1/2 space-y-6 order-2 lg:order-1 mt-8 lg:mt-0">
+                    <div className="w-full lg:w-1/2 space-y-6 order-1 lg:order-1 mt-8 lg:mt-0">
                         {/* Headings */}
-                        <div className="text-center lg:text-left space-y-4">
-                            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight bg-gradient-to-r from-foreground via-foreground/90 to-foreground/70 bg-clip-text text-transparent">
-                                {tenantName}
-                            </h1>
-                            <div className="flex items-center justify-center lg:justify-start gap-3 text-2xl sm:text-3xl text-muted-foreground/90 font-semibold">
-                                <div className="p-2 rounded-xl bg-primary/10 backdrop-blur-sm ring-1 ring-primary/20">
-                                    <Database className="h-7 w-7 text-primary" />
+                        <div className="flex flex-col items-center lg:items-start space-y-6">
+                            <div className="relative group">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-primary/15 via-transparent to-secondary/15 rounded-lg blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                                <h1 className="relative text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-[0_4px_4px_rgba(0,0,0,1)] dark:text-white dark:drop-shadow-[0_4px_4px_rgba(0,0,0,1)] [text-shadow:_2px_2px_0_rgb(0_0_0_/_40%)]">
+                                    {tenantName}
+                                </h1>
+                            </div>
+                            <div className="flex flex-col lg:flex-row items-center lg:items-center gap-3 text-2xl sm:text-3xl font-semibold">
+                                <div className="relative group">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-secondary/15 via-transparent to-primary/15 rounded-lg blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                                    <div className="relative flex items-center gap-3 bg-white/5 backdrop-blur-sm p-3 rounded-lg">
+                                        <div className="p-2 rounded-xl bg-white/5 ring-2 ring-white/20 shadow-[0_4px_8px_rgba(0,0,0,0.8)] hover:shadow-[0_6px_12px_rgba(0,0,0,0.8)] transition-all duration-300">
+                                            <Database className="h-7 w-7 text-white drop-shadow-[0_4px_4px_rgba(0,0,0,1)] [filter:_drop-shadow(0_0_4px_rgba(255,255,255,0.4))]" />
+                                        </div>
+                                        <h2 className="text-white drop-shadow-[0_4px_4px_rgba(0,0,0,1)] dark:text-white dark:drop-shadow-[0_4px_4px_rgba(0,0,0,1)] [text-shadow:_2px_2px_0_rgb(0_0_0_/_40%)]">
+                                            Data Manager
+                                        </h2>
+                                    </div>
                                 </div>
-                                <h2 className="bg-gradient-to-r from-foreground/80 to-foreground/60 bg-clip-text text-transparent">
-                                    Data Manager
-                                </h2>
                             </div>
                         </div>
 
@@ -215,13 +230,13 @@ export default function LoginPage() {
                     </div>
 
                     {/* Right Side - Login Form */}
-                    <div className="w-full lg:w-1/2 max-w-md order-1 lg:order-2">
+                    <div className="w-full lg:w-1/2 max-w-md order-2 lg:order-2">
                         <Card className={cn(
                             "border border-border/5 bg-background/60 shadow-lg backdrop-blur-sm transition-all duration-500",
                             shake && "animate-shake"
                         )}>
                             <CardHeader className="space-y-1 text-center pb-4">
-                                <h2 className="text-2xl font-semibold tracking-tight transition-all duration-300 hover:scale-105">
+                                <h2 className="text-2xl font-semibold tracking-tight transition-all duration-300 hover:scale-[1.02]">
                                     Hoş Geldiniz
                                 </h2>
                                 <p className="text-sm text-muted-foreground">

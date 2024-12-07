@@ -104,7 +104,7 @@ export default function Dashboard() {
     }, []);
 
     return (
-        <div className="h-screen overflow-hidden flex">
+        <div className="h-full flex">
             <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent 
                 [&::-webkit-scrollbar]:w-2
                 [&::-webkit-scrollbar-thumb]:bg-gray-300/50

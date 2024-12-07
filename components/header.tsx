@@ -248,11 +248,16 @@ export default function Header() {
   };
 
   const handleTabOpen = (id: string, title: string) => {
-    addTab({
-      id,
-      title,
-      lazyComponent: () => import(`@/app/[tenantId]/(main)/${id}/page`),
-    });
+    const existingTab = useTabStore.getState().tabs.find(tab => tab.id === id);
+    if (existingTab) {
+      useTabStore.getState().setActiveTab(id);
+    } else {
+      addTab({
+        id,
+        title,
+        lazyComponent: () => import(`@/app/[tenantId]/(main)/${id}/page`),
+      });
+    }
   };
 
   return (

@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { cn, formatDateTimeYMDHI } from "../lib/utils";
+import Link from "next/link";
 import {
   Calendar as CalendarIcon,
   ChevronDown,
@@ -17,6 +18,7 @@ import {
   Trash2,
   CheckCircle2,
   Filter,
+  Workflow,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -61,6 +63,8 @@ import {
 import { Efr_Branches } from "../types/tables";
 import { BranchProvider } from "../providers/branch-provider";
 import { TimePicker } from "./ui/time-picker";
+import { useParams } from "next/navigation";
+import { useTabStore } from "../stores/tab-store";
 
 const translations = {
   tr: {
@@ -87,6 +91,7 @@ const translations = {
     clearSelected: "Seçimleri Temizle",
     customRange: "Özel Aralık",
     cancel: "İptal",
+    functions: "Fonksiyonlar",
   },
   en: {
     startDate: "Start Date",
@@ -112,6 +117,7 @@ const translations = {
     clearSelected: "Clear Selected",
     customRange: "Custom Range",
     cancel: "Cancel",
+    functions: "Functions",
   },
   ar: {
     startDate: "تاريخ البدء",
@@ -137,6 +143,7 @@ const translations = {
     clearSelected: "مسح المحدد",
     customRange: "النطاق المخصص",
     cancel: "إلغاء",
+    functions: "الوظائف",
   },
 };
 
@@ -158,6 +165,8 @@ export default function Header() {
   const { setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const t = translations[language as keyof typeof translations];
+  const { tenantId } = useParams();
+  const addTab = useTabStore((state) => state.addTab);
 
   const applyFilters = () => {
     if (tempStartDate) {
@@ -235,6 +244,19 @@ export default function Header() {
         break;
       default:
         break;
+    }
+  };
+
+  const handleTabOpen = (id: string, title: string) => {
+    const existingTab = useTabStore.getState().tabs.find(tab => tab.id === id);
+    if (existingTab) {
+      useTabStore.getState().setActiveTab(id);
+    } else {
+      addTab({
+        id,
+        title,
+        lazyComponent: () => import(`@/app/[tenantId]/(main)/${id}/page`),
+      });
     }
   };
 
@@ -512,6 +534,7 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-2">
+            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -578,10 +601,21 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
+{/* fsdsdf */}
+<Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-accent/50"
+              onClick={() => handleTabOpen('functions', t.functions)}
+            >
+              <Workflow className="h-5 w-5" />
+            </Button>
+
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-accent/50 transition-colors duration-300"
+              className="hover:bg-accent/50"
+              onClick={() => handleTabOpen('notifications', t.notifications)}
             >
               <Bell className="h-5 w-5" />
             </Button>
@@ -589,11 +623,15 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-accent/50 transition-colors duration-300"
+              className="hover:bg-accent/50"
+              onClick={() => handleTabOpen('settings', t.settings)}
             >
               <Settings className="h-5 w-5" />
             </Button>
+   
 
+
+{/* skdljfsd */}
             <Button
               variant="ghost"
               size="icon"

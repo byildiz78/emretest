@@ -258,14 +258,14 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                         hover:[&::-webkit-scrollbar-thumb]:bg-gray-300/80
                         dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700/80">
             <div className="mx-auto space-y-6 py-6">
-                <Card className="p-3 border-2 border-border/60 rounded-xl shadow-lg hover:border-border/80 transition-all duration-300">
-                    <div className="flex flex-col gap-6">
-                        <div className="flex items-center gap-4">
-                            <Store className="h-5 w-5 text-muted-foreground" />
-                            <h2 className="text-lg font-semibold">Filtreler</h2>
+                <Card className="p-3 sm:p-4 border-2 border-border/60 rounded-xl shadow-lg hover:border-border/80 transition-all duration-300">
+                    <div className="flex flex-col gap-4 sm:gap-6">
+                        <div className="flex items-center gap-3 sm:gap-4">
+                            <Store className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                            <h2 className="text-base sm:text-lg font-semibold">Filtreler</h2>
                         </div>
 
-                        <div className="flex flex-row items-center gap-4">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                             <Popover 
                                 open={isOpen}
                                 onOpenChange={setIsOpen}
@@ -277,16 +277,19 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                                         role="combobox"
                                         aria-expanded={isOpen}
                                         className={cn(
-                                            "w-full justify-between bg-background/60 backdrop-blur-sm",
+                                            "w-full justify-between bg-background/60 backdrop-blur-sm h-9 sm:h-10",
                                             "border-border/50 shadow-sm hover:shadow-md transition-all duration-300",
-                                            "hover:border-border hover:bg-background/80"
+                                            "hover:border-border hover:bg-background/80",
+                                            "text-sm sm:text-base"
                                         )}
                                     >
-                                        {selectedBranch ? selectedBranch.BranchName : "Şube seçiniz"}
+                                        <span className="truncate">
+                                            {selectedBranch ? selectedBranch.BranchName : "Şube seçiniz"}
+                                        </span>
                                         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-[300px] p-0 bg-background/95 backdrop-blur-md border-border/50 shadow-xl">
+                                <PopoverContent className="w-[280px] sm:w-[300px] p-0 bg-background/95 backdrop-blur-md border-border/50 shadow-xl">
                                     <Command>
                                         <CommandInput 
                                             placeholder="Şube ara..."
@@ -305,11 +308,12 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                                                             setSelectedBranch(branch);
                                                             setIsOpen(false);
                                                         }}
+                                                        className="text-sm"
                                                     >
                                                         <Store className="mr-2 h-4 w-4" />
-                                                        {branch.BranchName}
+                                                        <span className="truncate flex-1">{branch.BranchName}</span>
                                                         {selectedBranch?.BranchID === branch.BranchID && (
-                                                            <Check className="ml-auto h-4 w-4" />
+                                                            <Check className="ml-2 h-4 w-4 flex-shrink-0" />
                                                         )}
                                                     </CommandItem>
                                                 ))}
@@ -324,9 +328,9 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                                 onValueChange={setTempDateRange} 
                                 className="flex-1"
                             >
-                                <SelectTrigger className="bg-background/60 backdrop-blur-sm border-border/50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-border">
+                                <SelectTrigger className="bg-background/60 backdrop-blur-sm border-border/50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-border h-9 sm:h-10 text-sm sm:text-base">
                                     <div className="flex items-center gap-2">
-                                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                                        <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                                         <SelectValue placeholder="Tarih Aralığı Seçin" />
                                     </div>
                                 </SelectTrigger>
@@ -335,7 +339,7 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                                         <SelectItem
                                             key={range.value}
                                             value={range.value}
-                                            className="cursor-pointer"
+                                            className="cursor-pointer text-sm"
                                         >
                                             <div className="flex items-center gap-2">
                                                 <div className={`w-2 h-2 rounded-full ${range.color}`} />
@@ -348,7 +352,7 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
 
                             <Button 
                                 variant="default"
-                                className="px-8 h-10"
+                                className="px-4 sm:px-8 h-9 sm:h-10 text-sm sm:text-base w-full sm:w-auto"
                                 onClick={handleApply}
                                 disabled={!selectedBranch}
                             >
@@ -357,22 +361,20 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                         </div>
 
                         {tempDateRange === "custom" && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
                                             variant="outline"
                                             className={cn(
-                                                "justify-start text-left font-normal h-12 border-2 border-border/60 rounded-xl",
+                                                "justify-start text-left font-normal h-10 sm:h-12 border-2 border-border/60 rounded-xl text-sm sm:text-base w-full",
                                                 !startDate && "text-muted-foreground"
                                             )}
                                         >
-                                            <Calendar className="mr-2 h-4 w-4" />
-                                            {startDate ? (
-                                                format(startDate, "PPP", { locale: tr })
-                                            ) : (
-                                                "Başlangıç Tarihi"
-                                            )}
+                                            <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />
+                                            <span className="truncate">
+                                                {startDate ? format(startDate, "PPP", { locale: tr }) : "Başlangıç Tarihi"}
+                                            </span>
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">
@@ -390,16 +392,14 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                                         <Button
                                             variant="outline"
                                             className={cn(
-                                                "justify-start text-left font-normal h-12 border-2 border-border/60 rounded-xl",
+                                                "justify-start text-left font-normal h-10 sm:h-12 border-2 border-border/60 rounded-xl text-sm sm:text-base w-full",
                                                 !endDate && "text-muted-foreground"
                                             )}
                                         >
-                                            <Calendar className="mr-2 h-4 w-4" />
-                                            {endDate ? (
-                                                format(endDate, "PPP", { locale: tr })
-                                            ) : (
-                                                "Bitiş Tarihi"
-                                            )}
+                                            <Calendar className="mr-2 h-4 w-4 flex-shrink-0" />
+                                            <span className="truncate">
+                                                {endDate ? format(endDate, "PPP", { locale: tr }) : "Bitiş Tarihi"}
+                                            </span>
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">

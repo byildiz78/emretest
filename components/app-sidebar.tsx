@@ -142,7 +142,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: "Raporlar",
             icon: LucideIcons.ScrollText,
             isActive: true,
-            expanded: true,
+            expanded: false,
             items: getReportNavItems(webreportMenuItems)
         },
     ], [supersetMenuItems, webreportMenuItems, getSupersetNavItems, getReportNavItems]);

@@ -1,25 +1,11 @@
-"use client";
-
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-  PieChart,
-  Pie,
-  Cell,
-  LabelList
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Legend,
+  Line, LineChart, ResponsiveContainer, Tooltip, XAxis,
+  YAxis, PieChart, Pie, Cell, LabelList
 } from "recharts";
 
 interface ChartWidget {
@@ -46,18 +32,19 @@ interface BranchChartsProps {
 }
 
 const COLORS = [
-  '#0088FE',  // Mavi
-  '#00C49F',  // Yeşil
-  '#FFBB28',  // Sarı
-  '#FF8042',  // Turuncu
-  '#8884d8',  // Mor
-  '#82ca9d',  // Açık Yeşil
-  '#ffc658',  // Altın
-  '#ff7300',  // Koyu Turuncu
+  '#3B82F6', // Blue
+  '#10B981', // Emerald
+  '#8B5CF6', // Violet
+  '#F43F5E', // Rose
+  '#F59E0B', // Amber
+  '#06B6D4', // Cyan
+  '#6366F1', // Indigo
+  '#22C55E'  // Green
 ];
 
 export default function BranchCharts({ selectedBranch, startDate, endDate }: BranchChartsProps) {
   const [chartStates, setChartStates] = useState<ChartData[]>([]);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchCharts = async () => {
@@ -141,42 +128,46 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
     }).format(value);
   };
 
+  const renderCompactValue = (value: number) => 
+    new Intl.NumberFormat('tr-TR', {
+      style: 'currency',
+      currency: 'TRY',
+      notation: 'compact',
+      maximumFractionDigits: 0
+    }).format(value);
+
+  const renderPercentage = (value: number) => 
+    `%${value.toLocaleString('tr-TR', { maximumFractionDigits: 1 })}`;
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-2 border rounded shadow-lg">
-          <p className="text-sm font-medium">{payload[0].name}</p>
-          <p className="text-sm">{formatCurrency(payload[0].value)}</p>
-          <p className="text-sm">%{payload[0].payload.percentage.toFixed(2)}</p>
+        <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg backdrop-blur-sm">
+          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{payload[0].name}</p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">{formatCurrency(payload[0].value)}</p>
+          {payload[0].payload?.percentage && (
+            <p className="text-sm text-gray-600 dark:text-gray-300">%{payload[0].payload.percentage.toFixed(2)}</p>
+          )}
         </div>
       );
     }
     return null;
   };
 
-  const renderChart = (chartState: ChartData) => {
+  const renderChart = (chartState: ChartData, index: number) => {
     if (chartState.loading) {
       return (
-        <div className="flex items-center justify-center h-[300px]">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="flex items-center justify-center h-[250px] sm:h-[350px]">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+          </motion.div>
         </div>
       );
     }
-
-    const renderValue = (value: number) => 
-      new Intl.NumberFormat('tr-TR', {
-        style: 'currency',
-        currency: 'TRY',
-        maximumFractionDigits: 0
-      }).format(value);
-
-    const renderCompactValue = (value: number) => 
-      new Intl.NumberFormat('tr-TR', {
-        style: 'currency',
-        currency: 'TRY',
-        notation: 'compact',
-        maximumFractionDigits: 1
-      }).format(value);
 
     // ReportID 530 - Günlük/Haftalık/Aylık Karşılaştırma
     if (chartState.widget.ReportID === 530) {
@@ -196,35 +187,81 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
       ];
 
       return (
-        <div className="h-[300px] w-full p-4">
+        <motion.div 
+          className="h-[250px] sm:h-[350px] w-full p-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={data}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-              barSize={40}
+              margin={{ top: 30, right: 30, left: 20, bottom: 20 }}
+              barSize={45}
             >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis tickFormatter={renderValue} />
-              <Tooltip formatter={renderValue} />
-              <Bar dataKey="value" fill="#8884d8">
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              <defs>
+                {COLORS.map((color, index) => (
+                  <linearGradient key={`gradient-${index}`} id={`gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity={0.8} />
+                    <stop offset="100%" stopColor={color} stopOpacity={0.3} />
+                  </linearGradient>
                 ))}
-                <LabelList dataKey="value" position="top" formatter={renderCompactValue} />
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" opacity={0.5} />
+              <XAxis 
+                dataKey="name" 
+                tick={{ fill: '#6b7280', fontSize: 12 }}
+                axisLine={{ stroke: '#e5e7eb' }}
+              />
+              <YAxis 
+                tickFormatter={renderCompactValue}
+                tick={{ fill: '#6b7280', fontSize: 12 }}
+                axisLine={{ stroke: '#e5e7eb' }}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Bar dataKey="value" radius={[8, 8, 0, 0]}>
+                {data.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={`url(#gradient-${index})`}
+                  />
+                ))}
+                <LabelList 
+                  dataKey="value"
+                  position="top"
+                  formatter={renderCompactValue}
+                  style={{ 
+                    fill: '#6b7280',
+                    fontSize: '12px',
+                    fontWeight: '500'
+                  }}
+                />
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </motion.div>
       );
     }
 
     // ReportID 531 - Kategori Dağılımı
     if (chartState.widget.ReportID === 531) {
       return (
-        <div className="h-[350px] w-full p-3">
+        <motion.div 
+          className="h-[250px] sm:h-[350px] w-full p-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: index * 0.1 }}
+        >
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
+              <defs>
+                {COLORS.map((color, index) => (
+                  <linearGradient key={`gradient-${index}`} id={`pie-gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={color} stopOpacity={0.8} />
+                    <stop offset="100%" stopColor={color} stopOpacity={0.6} />
+                  </linearGradient>
+                ))}
+              </defs>
               <Pie
                 data={chartState.data}
                 dataKey="value"
@@ -232,17 +269,23 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                label={(entry) => `${entry.name}: ${renderCompactValue(entry.value)}`}
+                innerRadius={60}
+                label={({ name, value, percent }) => (
+                  `${name}\n${renderCompactValue(value)}\n${renderPercentage(percent * 100)}`
+                )}
+                labelLine={{ stroke: '#6b7280', strokeWidth: 1 }}
               >
                 {chartState.data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={`url(#pie-gradient-${index})`}
+                  />
                 ))}
               </Pie>
-              <Tooltip formatter={renderValue} />
-              <Legend />
+              <Tooltip content={<CustomTooltip />} />
             </PieChart>
           </ResponsiveContainer>
-        </div>
+        </motion.div>
       );
     }
 
@@ -250,16 +293,44 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6">
       {chartStates.map((chartState, index) => (
-        <Card key={index} className="p-4">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium">{chartState.widget.ReportName}</h3>
+        <motion.div
+          key={chartState.widget.AutoID}
+          onHoverStart={() => setHoveredCard(index)}
+          onHoverEnd={() => setHoveredCard(null)}
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="relative overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-lg">
+            {/* Background Patterns */}
+            <div className="absolute inset-0 opacity-30">
+              <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-transparent dark:from-gray-800 dark:via-gray-900 dark:to-transparent" />
+              <motion.div
+                className={`absolute -top-20 -right-20 w-40 h-40 bg-blue-200 dark:bg-blue-800 rounded-full blur-3xl`}
+                animate={{
+                  scale: hoveredCard === index ? [1, 1.2, 1] : 1,
+                  opacity: hoveredCard === index ? [0.3, 0.5, 0.3] : 0.3,
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
             </div>
-            {renderChart(chartState)}
-          </div>
-        </Card>
+
+            {/* Content */}
+            <div className="relative p-4">
+              <motion.div 
+                className="flex items-center justify-between mb-6"
+                animate={{ y: hoveredCard === index ? -5 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 pb-2 relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-12 after:bg-gradient-to-r after:from-blue-500 after:to-transparent">
+                  {chartState.widget.ReportName}
+                </h3>
+              </motion.div>
+              {renderChart(chartState, index)}
+            </div>
+          </Card>
+        </motion.div>
       ))}
     </div>
   );

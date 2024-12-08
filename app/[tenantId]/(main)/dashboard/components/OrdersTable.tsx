@@ -10,7 +10,6 @@ import {
 import { Loader2, Utensils, User2, Package, ShoppingBag, Store, Phone } from "lucide-react";
 import { WebWidget, WebWidgetData } from "@/types/tables";
 
-
 interface OrdersTableProps {
   selectedBranch: {
     BranchID: number;
@@ -42,6 +41,13 @@ export default function OrdersTable({ selectedBranch, startDate, endDate }: Orde
   const [tableData, setTableData] = useState<WebWidgetData[]>([]);
   const [tableWidget, setTableWidget] = useState<WebWidget | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  const totalPages = Math.ceil(tableData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = tableData.slice(startIndex, endIndex);
 
   useEffect(() => {
     const fetchTableWidget = async () => {
@@ -132,34 +138,44 @@ export default function OrdersTable({ selectedBranch, startDate, endDate }: Orde
   }
 
   return (
-    <div className="rounded-xl border shadow-sm">
-      <div className="p-3 border-b">
-        <h2 className="text-lg font-semibold">Siparişler</h2>
+    <div className="rounded-xl border shadow-sm bg-white dark:bg-gray-950 mx-4 sm:mx-6">
+      <div className="p-4 border-b flex items-center justify-between">
+        <h2 className="text-lg font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
+          Siparişler
+        </h2>
+        <div className="text-sm text-muted-foreground">
+          Toplam {tableData.length} sipariş
+        </div>
       </div>
-      <div className="relative">
+      <div className="relative overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[180px]">Sipariş No</TableHead>
-              <TableHead className="w-[200px]">Tarih/Saat</TableHead>
-              <TableHead className="w-[200px]">Personel</TableHead>
-              <TableHead className="w-[150px]">Tutar</TableHead>
-              <TableHead className="w-[200px]">Sipariş Tipi</TableHead>
+              <TableHead className="w-[90px] sm:w-[100px] lg:w-[150px] xl:w-[180px]">Sipariş No</TableHead>
+              <TableHead className="w-[100px] sm:w-[120px] lg:w-[180px] xl:w-[200px]">Tarih/Saat</TableHead>
+              <TableHead className="w-[100px] sm:w-[120px] lg:w-[180px] xl:w-[200px]">Personel</TableHead>
+              <TableHead className="w-[90px] sm:w-[100px] lg:w-[120px] xl:w-[150px]">Tutar</TableHead>
+              <TableHead className="w-[100px] sm:w-[120px] lg:w-[180px] xl:w-[200px]">Sipariş Tipi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tableData.map((row, index) => (
-              <TableRow key={row.reportValue1} className="hover:bg-muted/50">
-                <TableCell className="font-medium">#{row.reportValue1}</TableCell>
-                <TableCell>{row.reportValue2}</TableCell>
-                <TableCell>{row.reportValue3}</TableCell>
+            {currentData.map((row, index) => (
+              <TableRow 
+                key={row.reportValue1} 
+                className="hover:bg-muted/50 transition-colors"
+              >
                 <TableCell className="font-medium">
+                  <span className="text-primary">#{row.reportValue1}</span>
+                </TableCell>
+                <TableCell className="whitespace-nowrap">{row.reportValue2}</TableCell>
+                <TableCell className="truncate max-w-[200px]">{row.reportValue3}</TableCell>
+                <TableCell className="font-medium whitespace-nowrap">
                   {formatCurrency(row.reportValue4)}
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     {getOrderTypeIcon(row.reportValue6)}
-                    <span className="font-medium">{row.reportValue6}</span>
+                    <span className="font-medium truncate">{row.reportValue6}</span>
                   </div>
                 </TableCell>
               </TableRow>
@@ -167,11 +183,64 @@ export default function OrdersTable({ selectedBranch, startDate, endDate }: Orde
           </TableBody>
         </Table>
         {tableData.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80">
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
             <p className="text-muted-foreground">Veri bulunamadı</p>
           </div>
         )}
       </div>
+
+      {/* Pagination */}
+      {tableData.length > 0 && (
+        <div className="flex items-center justify-between px-4 py-3 border-t">
+          <div className="flex-1 text-sm text-muted-foreground">
+            {startIndex + 1} - {Math.min(endIndex, tableData.length)} / {tableData.length} sipariş
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1.5 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none transition-colors"
+            >
+              Önceki
+            </button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNumber;
+                if (totalPages <= 5) {
+                  pageNumber = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNumber = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNumber = totalPages - 4 + i;
+                } else {
+                  pageNumber = currentPage - 2 + i;
+                }
+
+                return (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPage(pageNumber)}
+                    className={`w-8 h-8 text-sm rounded-md flex items-center justify-center transition-colors ${
+                      currentPage === pageNumber
+                        ? 'bg-primary text-primary-foreground'
+                        : 'hover:bg-accent hover:text-accent-foreground'
+                    }`}
+                  >
+                    {pageNumber}
+                  </button>
+                );
+              })}
+            </div>
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1.5 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none transition-colors"
+            >
+              Sonraki
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

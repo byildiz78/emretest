@@ -14,7 +14,7 @@ const REFRESH_TOKEN_ALGORITHM = process.env.REFRESH_TOKEN_ALGORITHM || 'HS512';
 
 export const config = {
     matcher: [
-        '/((?!api|_next/static|_next/image|images|avatars|favicon.ico).*)',
+        '/((?!api|_next/static|_next/image|images|avatars|favicon.ico|favicon2.ico).*)',
         '/api/((?!auth).)*'
     ]
 }

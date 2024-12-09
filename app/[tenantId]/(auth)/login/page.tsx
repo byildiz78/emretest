@@ -155,23 +155,19 @@ export default function LoginPage() {
         <div 
             className={cn(
                 "min-h-screen w-full flex flex-col items-center justify-between relative overflow-hidden",
-                "dark:bg-gray-900"
+                "bg-[url('/images/background/background1.jpg')] dark:bg-gray-900 bg-cover bg-center bg-no-repeat"
             )}
-            style={{
-                backgroundImage: theme === 'dark' ? 'none' : `url('/images/background/background1.jpg')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-            }}
         >
-            {theme !== 'dark' && (
-                <div className="fixed inset-0 bg-[url('/images/noise.png')] opacity-10 mix-blend-overlay" />
-            )}
+            {/* Noise overlay */}
+            <div className="fixed inset-0 bg-[url('/images/noise.png')] opacity-10 mix-blend-overlay pointer-events-none" />
 
-            {/* Gradient Orbs */}
-            <div className="fixed -left-20 -top-20 h-[600px] w-[600px] rounded-full bg-primary/5 dark:bg-primary/10 blur-[120px] animate-pulse-slow" />
-            <div className="fixed -bottom-20 -right-20 h-[600px] w-[600px] rounded-full bg-secondary/5 dark:bg-secondary/10 blur-[120px] animate-pulse-slow" />
-            <div className="fixed left-1/3 top-1/3 h-[400px] w-[400px] rounded-full bg-accent/5 dark:bg-accent/10 blur-[100px] animate-pulse" />
+            {/* Dark theme overlay */}
+            <div className="fixed inset-0 bg-black/40 dark:bg-black/60 pointer-events-none" />
+
+            {/* Gradient Orbs with reduced opacity */}
+            <div className="fixed -left-20 -top-20 h-[600px] w-[600px] rounded-full bg-primary/5 dark:bg-primary/10 blur-[120px] animate-pulse-slow pointer-events-none" />
+            <div className="fixed -bottom-20 -right-20 h-[600px] w-[600px] rounded-full bg-secondary/5 dark:bg-secondary/10 blur-[120px] animate-pulse-slow pointer-events-none" />
+            <div className="fixed left-1/3 top-1/3 h-[400px] w-[400px] rounded-full bg-accent/5 dark:bg-accent/10 blur-[100px] animate-pulse pointer-events-none" />
 
             {/* Theme Toggle */}
             <Button
@@ -193,260 +189,274 @@ export default function LoginPage() {
                         alt="RobotPOS Logo"
                         fill
                         priority
+                        sizes="(max-width: 768px) 150px, 192px"
                         className="object-contain dark:brightness-110 dark:contrast-125"
                     />
                 </div>
             </div>
 
-            <div className="container relative mx-auto flex flex-col items-center min-h-screen px-4 py-4">
-                {/* Top Section - Heading */}
-                <motion.div
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                    className="w-full text-center pt-16"
-                >
-                    <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold text-white dark:text-gray-100 drop-shadow-lg mb-4">
-                        {tenantName}
-                    </h1>
-                    <div className="backdrop-blur-md bg-white/10 dark:bg-gray-800/10 rounded-xl p-4 shadow-xl border border-white/20 dark:border-gray-700/20 max-w-2xl mx-auto">
-                        <p className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-100 dark:text-gray-200 mb-2">
-                            data manager
-                        </p>
-                        <p className="text-base sm:text-lg text-gray-300 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                            Veri odaklı kararlar için güçlü analitik platformu
-                        </p>
-                    </div>
-                </motion.div>
+            <div className="container relative mx-auto flex flex-col justify-between min-h-screen px-4 py-4">
+                <div className="flex flex-col items-center flex-1">
+                    {/* Main content wrapper with vertical centering */}
+                    <div className="flex flex-col items-center justify-center flex-1 w-full max-w-6xl mx-auto">
+                        {/* Tenant Name with new styling */}
+                        <div className="mt-0 md:mt-0 mb-8 text-center">
+                            <div className="relative group">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-primary/15 via-transparent to-secondary/15 rounded-lg blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                                <h1 className="relative text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-[0_4px_4px_rgba(0,0,0,1)] dark:text-white dark:drop-shadow-[0_4px_4px_rgba(0,0,0,1)] [text-shadow:_2px_2px_0_rgb(0_0_0_/_40%)]">
+                                    {tenantName}
+                                </h1>
+                            </div>
+                        </div>
 
-                {/* Middle Section - Login Form */}
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.5 }}
-                    className="w-full max-w-md mt-12"
-                >
-                    <Card className={cn(
-                        "border border-white/20 dark:border-gray-700 shadow-2xl",
-                        "bg-white/10 dark:bg-gray-800/90 backdrop-blur-md",
-                        shake && "animate-shake"
-                    )}>
-                        <CardHeader className="space-y-1 text-center pb-4">
-                            <h2 className="text-2xl font-semibold text-white dark:text-gray-100 tracking-tight">
-                                Hoş Geldiniz
-                            </h2>
-                            <p className="text-sm text-gray-200 dark:text-gray-400">
-                                Devam etmek için giriş yapın
-                            </p>
-                        </CardHeader>
-                        <form onSubmit={handleSubmit}>
-                            <CardContent className="space-y-4">
-                                {error && (
-                                    <Alert variant="destructive" className="bg-red-500/10 text-red-400 border-red-500/20">
-                                        <AlertDescription>{error}</AlertDescription>
-                                    </Alert>
-                                )}
-                                <div className="space-y-2">
-                                    <Label htmlFor="username" className="text-white dark:text-gray-200">
-                                        Kullanıcı Adı
-                                    </Label>
-                                    <div className="relative">
-                                        <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                        <Input
-                                            id="username"
-                                            type="text"
-                                            inputMode="text"
-                                            autoCapitalize="none"
-                                            autoCorrect="off"
-                                            placeholder="Kullanıcı adınızı girin"
-                                            value={formData.username}
-                                            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                                            className={cn(
-                                                "pl-10 h-12",
-                                                "bg-white/10 dark:bg-gray-900/50",
-                                                "border-white/20 dark:border-gray-700",
-                                                "text-white dark:text-gray-100",
-                                                "placeholder:text-gray-400 dark:placeholder:text-gray-500",
-                                                "focus:border-blue-500/50 focus:ring-blue-500/20"
-                                            )}
-                                            required
-                                        />
+                        {/* Data Manager Section */}
+                        <div className="mb-8">
+                            <div className="relative group">
+                                <div className="absolute -inset-1 bg-gradient-to-r from-secondary/15 via-transparent to-primary/15 rounded-lg blur-xl group-hover:blur-2xl transition-all duration-300"></div>
+                                <div className="relative flex flex-col items-center gap-2 bg-white/5 backdrop-blur-sm p-3 rounded-lg">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 rounded-xl bg-white/5 ring-2 ring-white/20 shadow-[0_4px_8px_rgba(0,0,0,0.8)] hover:shadow-[0_6px_12px_rgba(0,0,0,0.8)] transition-all duration-300">
+                                            <BarChart3 className="h-7 w-7 text-white drop-shadow-[0_4px_4px_rgba(0,0,0,1)] [filter:_drop-shadow(0_0_4px_rgba(255,255,255,0.4))]" />
+                                        </div>
+                                        <h2 className="text-2xl sm:text-3xl font-semibold text-white drop-shadow-[0_4px_4px_rgba(0,0,0,1)] dark:text-white dark:drop-shadow-[0_4px_4px_rgba(0,0,0,1)] [text-shadow:_2px_2px_0_rgb(0_0_0_/_40%)]">
+                                            Data Manager
+                                        </h2>
                                     </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="password" className="text-white dark:text-gray-200">
-                                        Şifre
-                                    </Label>
-                                    <div className="relative">
-                                        <LockKeyhole className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                        <Input
-                                            id="password"
-                                            type={showPassword ? "text" : "password"}
-                                            inputMode="text"
-                                            autoCapitalize="none"
-                                            autoCorrect="off"
-                                            placeholder="Şifrenizi girin"
-                                            value={formData.password}
-                                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                            className={cn(
-                                                "pl-10 pr-12 h-12",
-                                                "bg-white/10 dark:bg-gray-900/50",
-                                                "border-white/20 dark:border-gray-700",
-                                                "text-white dark:text-gray-100",
-                                                "placeholder:text-gray-400 dark:placeholder:text-gray-500",
-                                                "focus:border-blue-500/50 focus:ring-blue-500/20"
-                                            )}
-                                            required
-                                        />
-                                        <Button
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            className="absolute right-2 top-2 hover:bg-transparent"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            {showPassword ? (
-                                                <EyeOff className="h-5 w-5 text-gray-400" />
-                                            ) : (
-                                                <Eye className="h-5 w-5 text-gray-400" />
-                                            )}
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                {/* Forgot Password Link */}
-                                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button 
-                                            variant="link" 
-                                            className="text-sm text-gray-200 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 p-0 h-auto font-normal"
-                                        >
-                                            Şifrenizi mi unuttunuz?
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-md">
-                                        <DialogHeader>
-                                            <DialogTitle>Şifre Sıfırlama</DialogTitle>
-                                            <DialogDescription>
-                                                E-posta adresinizi girin, size şifre sıfırlama talimatlarını gönderelim.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <form onSubmit={handleForgotPassword} className="space-y-4 py-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="email">E-posta Adresi</Label>
-                                                <div className="relative">
-                                                    <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                                                    <Input
-                                                        id="email"
-                                                        type="email"
-                                                        placeholder="ornek@email.com"
-                                                        value={forgotPasswordEmail}
-                                                        onChange={(e) => setForgotPasswordEmail(e.target.value)}
-                                                        className="pl-10"
-                                                        required
-                                                    />
-                                                </div>
-                                            </div>
-                                            <DialogFooter className="sm:justify-start">
-                                                <Button
-                                                    type="submit"
-                                                    disabled={forgotPasswordLoading || forgotPasswordSuccess}
-                                                    className="w-full"
-                                                >
-                                                    {forgotPasswordLoading ? (
-                                                        <>
-                                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                                            Gönderiliyor...
-                                                        </>
-                                                    ) : forgotPasswordSuccess ? (
-                                                        <>
-                                                            <motion.div
-                                                                initial={{ scale: 0 }}
-                                                                animate={{ scale: 1 }}
-                                                                className="text-green-500"
-                                                            >
-                                                                ✓ Gönderildi
-                                                            </motion.div>
-                                                        </>
-                                                    ) : (
-                                                        "Şifre Sıfırlama Bağlantısı Gönder"
-                                                    )}
-                                                </Button>
-                                            </DialogFooter>
-                                        </form>
-                                    </DialogContent>
-                                </Dialog>
-                            </CardContent>
-                            <CardFooter>
-                                <Button
-                                    type="submit"
-                                    className={cn(
-                                        "w-full h-12 text-base font-medium",
-                                        "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
-                                        "text-white",
-                                        "transition-all duration-300",
-                                        "disabled:opacity-50 disabled:cursor-not-allowed",
-                                        "transform hover:scale-[1.02] active:scale-95"
-                                    )}
-                                    disabled={isLoading}
-                                >
-                                    <AnimatePresence mode="wait">
-                                        {isLoading ? (
-                                            <motion.div
-                                                key="loading"
-                                                initial={{ opacity: 0, y: 20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -20 }}
-                                                className="flex items-center"
-                                            >
-                                                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                                Giriş yapılıyor...
-                                            </motion.div>
-                                        ) : (
-                                            <motion.div
-                                                key="login"
-                                                initial={{ opacity: 0, y: 20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: -20 }}
-                                            >
-                                                Giriş Yap
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </Button>
-                            </CardFooter>
-                        </form>
-                    </Card>
-                </motion.div>
-
-                {/* Bottom Section - Features */}
-                {!isMobile && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                        className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-4 mt-16 mb-8"
-                    >
-                        {features.map((feature, index) => (
-                            <div
-                                key={index}
-                                className="backdrop-blur-md bg-white/5 dark:bg-gray-800/5 rounded-xl px-6 py-4 border border-white/10 dark:border-gray-700/10 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-4"
-                            >
-                                <div className={`flex-shrink-0 p-2.5 rounded-lg bg-gradient-to-br ${feature.gradient} shadow-lg`}>
-                                    <feature.icon className="h-5 w-5 text-white" />
-                                </div>
-                                <div>
-                                    <h3 className="text-base font-semibold text-white dark:text-gray-200">
-                                        {feature.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-300 dark:text-gray-400">
-                                        {feature.description}
+                                    <p className="text-lg text-white/90 text-center font-medium">
+                                        Veri odaklı kararlar için güçlü analitik platformu
                                     </p>
                                 </div>
                             </div>
-                        ))}
-                    </motion.div>
-                )}
+                        </div>
+
+                        {/* Middle Section - Login Form */}
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.5 }}
+                            className="w-full max-w-md"
+                        >
+                            <Card className={cn(
+                                "border border-white/20 dark:border-gray-700 shadow-2xl",
+                                "bg-white/10 dark:bg-gray-800/90 backdrop-blur-md",
+                                shake && "animate-shake"
+                            )}>
+                                <CardHeader className="space-y-1 text-center pb-4">
+                                    <h2 className="text-2xl font-semibold text-white dark:text-gray-100 tracking-tight">
+                                        Hoş Geldiniz
+                                    </h2>
+                                    <p className="text-sm text-gray-200 dark:text-gray-400">
+                                        Devam etmek için giriş yapın
+                                    </p>
+                                </CardHeader>
+                                <form onSubmit={handleSubmit}>
+                                    <CardContent className="space-y-4">
+                                        {error && (
+                                            <Alert variant="destructive" className="bg-red-500/10 text-red-400 border-red-500/20">
+                                                <AlertDescription>{error}</AlertDescription>
+                                            </Alert>
+                                        )}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="username" className="text-white dark:text-gray-200">
+                                                Kullanıcı Adı
+                                            </Label>
+                                            <div className="relative">
+                                                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                <Input
+                                                    id="username"
+                                                    type="text"
+                                                    inputMode="text"
+                                                    autoCapitalize="none"
+                                                    autoCorrect="off"
+                                                    placeholder="Kullanıcı adınızı girin"
+                                                    value={formData.username}
+                                                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                                                    className={cn(
+                                                        "pl-10 h-12",
+                                                        "bg-white/10 dark:bg-gray-900/50",
+                                                        "border-white/20 dark:border-gray-700",
+                                                        "text-white dark:text-gray-100",
+                                                        "placeholder:text-gray-400 dark:placeholder:text-gray-500",
+                                                        "focus:border-blue-500/50 focus:ring-blue-500/20"
+                                                    )}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="password" className="text-white dark:text-gray-200">
+                                                Şifre
+                                            </Label>
+                                            <div className="relative">
+                                                <LockKeyhole className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                <Input
+                                                    id="password"
+                                                    type={showPassword ? "text" : "password"}
+                                                    inputMode="text"
+                                                    autoCapitalize="none"
+                                                    autoCorrect="off"
+                                                    placeholder="Şifrenizi girin"
+                                                    value={formData.password}
+                                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                    className={cn(
+                                                        "pl-10 pr-12 h-12",
+                                                        "bg-white/10 dark:bg-gray-900/50",
+                                                        "border-white/20 dark:border-gray-700",
+                                                        "text-white dark:text-gray-100",
+                                                        "placeholder:text-gray-400 dark:placeholder:text-gray-500",
+                                                        "focus:border-blue-500/50 focus:ring-blue-500/20"
+                                                    )}
+                                                    required
+                                                />
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="absolute right-2 top-2 hover:bg-transparent"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                >
+                                                    {showPassword ? (
+                                                        <EyeOff className="h-5 w-5 text-gray-400" />
+                                                    ) : (
+                                                        <Eye className="h-5 w-5 text-gray-400" />
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        {/* Forgot Password Link */}
+                                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                            <DialogTrigger asChild>
+                                                <Button 
+                                                    variant="link" 
+                                                    className="text-sm text-gray-200 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 p-0 h-auto font-normal"
+                                                >
+                                                    Şifrenizi mi unuttunuz?
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="sm:max-w-md">
+                                                <DialogHeader>
+                                                    <DialogTitle>Şifre Sıfırlama</DialogTitle>
+                                                    <DialogDescription>
+                                                        E-posta adresinizi girin, size şifre sıfırlama talimatlarını gönderelim.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <form onSubmit={handleForgotPassword} className="space-y-4 py-4">
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="email">E-posta Adresi</Label>
+                                                        <div className="relative">
+                                                            <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                                            <Input
+                                                                id="email"
+                                                                type="email"
+                                                                placeholder="ornek@email.com"
+                                                                value={forgotPasswordEmail}
+                                                                onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                                                                className="pl-10"
+                                                                required
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <DialogFooter className="sm:justify-start">
+                                                        <Button
+                                                            type="submit"
+                                                            disabled={forgotPasswordLoading || forgotPasswordSuccess}
+                                                            className="w-full"
+                                                        >
+                                                            {forgotPasswordLoading ? (
+                                                                <>
+                                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                                    Gönderiliyor...
+                                                                </>
+                                                            ) : forgotPasswordSuccess ? (
+                                                                <>
+                                                                    <motion.div
+                                                                        initial={{ scale: 0 }}
+                                                                        animate={{ scale: 1 }}
+                                                                        className="text-green-500"
+                                                                    >
+                                                                        ✓ Gönderildi
+                                                                    </motion.div>
+                                                                </>
+                                                            ) : (
+                                                                "Şifre Sıfırlama Bağlantısı Gönder"
+                                                            )}
+                                                        </Button>
+                                                    </DialogFooter>
+                                                </form>
+                                            </DialogContent>
+                                        </Dialog>
+                                    </CardContent>
+                                    <CardFooter>
+                                        <Button
+                                            type="submit"
+                                            className={cn(
+                                                "w-full h-12 text-base font-medium",
+                                                "bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700",
+                                                "text-white",
+                                                "transition-all duration-300",
+                                                "disabled:opacity-50 disabled:cursor-not-allowed",
+                                                "transform hover:scale-[1.02] active:scale-95"
+                                            )}
+                                            disabled={isLoading}
+                                        >
+                                            <AnimatePresence mode="wait">
+                                                {isLoading ? (
+                                                    <motion.div
+                                                        key="loading"
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -20 }}
+                                                        className="flex items-center"
+                                                    >
+                                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                                        Giriş yapılıyor...
+                                                    </motion.div>
+                                                ) : (
+                                                    <motion.div
+                                                        key="login"
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -20 }}
+                                                    >
+                                                        Giriş Yap
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </Button>
+                                    </CardFooter>
+                                </form>
+                            </Card>
+                        </motion.div>
+                    </div>
+                </div>
+
+                {/* Bottom Section - Features */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                    className="w-full max-w-6xl mx-auto hidden md:grid grid-cols-1 md:grid-cols-3 gap-4 mt-auto mb-10"
+                >
+                    {features.map((feature, index) => (
+                        <div
+                            key={index}
+                            className="backdrop-blur-md bg-white/5 dark:bg-gray-800/5 rounded-xl px-6 py-4 border border-white/10 dark:border-gray-700/10 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex items-center gap-4"
+                        >
+                            <div className={`flex-shrink-0 p-2.5 rounded-lg bg-gradient-to-br ${feature.gradient} shadow-lg`}>
+                                <feature.icon className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-semibold text-white dark:text-gray-200">
+                                    {feature.title}
+                                </h3>
+                                <p className="text-sm text-gray-300 dark:text-gray-400">
+                                    {feature.description}
+                                </p>
+                            </div>
+                        </div>
+                    ))}
+                </motion.div>
             </div>
         </div>
     );

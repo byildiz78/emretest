@@ -20,7 +20,7 @@ const navItems = [
     {
         label: "Yapay Zeka",
         icon: Brain,
-        href: "/[tenantId]/mobile/chatbot",
+        href: "/[tenantId]/mobile/analyser",
     },
     {
         label: "Bildirimler",

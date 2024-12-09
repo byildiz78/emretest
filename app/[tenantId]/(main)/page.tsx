@@ -6,6 +6,8 @@ import { useTabStore } from "@/stores/tab-store";
 import dynamic from 'next/dynamic';
 import { memo } from 'react';
 import { Home as HomeIcon } from 'lucide-react';
+import MobilePage from "./mobile/page";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const DashboardPage = memo(dynamic(() => import('./dashboard/page'), {
     loading: () => <div>Loading...</div>,
@@ -14,7 +16,7 @@ const DashboardPage = memo(dynamic(() => import('./dashboard/page'), {
 
 export default function MainPage() {
     const { tabs, activeTab, setActiveTab, removeTab, removeAllTabs, renderedComponents, setRenderedComponent } = useTabStore();
-
+    const  isMobile  = useIsMobile();
     const handleCloseTab = (tabId: string) => {
         if (activeTab === tabId) {
             const tabIndex = tabs.findIndex((tab) => tab.id === tabId);
@@ -29,6 +31,9 @@ export default function MainPage() {
         removeTab(tabId);
     };
 
+    if(isMobile){
+        return <MobilePage />;
+    }
     return (
         <div className="flex h-screen overflow-hidden w-full">
             <AppSidebar />

@@ -1,5 +1,7 @@
+import Dashboard from "./components/MobileDashboard/page";
+
 const MobilePage = () => {
-    return <div>MobilePage</div>;
+    return <div><Dashboard /></div>;
 };
 
 export default MobilePage;

@@ -38,22 +38,20 @@ export function NavUser({
     const pathname = usePathname();
 
     const Logout = async () => {
+        // Önce storage'ları temizle
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+
+        // Hemen yönlendir
+        const tenantId = pathname?.split('/')[1];
+        window.location.href = `/${tenantId}/login`;
+
+        // Arka planda API'yi çağır
         try {
-            // Önce storage temizliği yap (daha hızlı)
-            localStorage.clear();
-            sessionStorage.clear();
-            document.cookie.split(";").forEach(function(c) { 
-                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-            });
-
-            // Tenant ID'yi al
-            const tenantId = pathname?.split('/')[1];
-            const loginPath = tenantId ? `/${tenantId}/login` : '/login';
-
-            // Hızlı yönlendirme
-            window.location.href = loginPath;
-
-            // Arka planda logout API'sini çağır
             await axios.get('/api/auth/logout', {
                 headers: {
                     'Content-Type': 'application/json',
@@ -61,9 +59,6 @@ export function NavUser({
             });
         } catch (error) {
             console.error('Logout error:', error);
-            // Hata durumunda da aynı yönlendirme
-            const tenantId = pathname?.split('/')[1];
-            window.location.href = tenantId ? `/${tenantId}/login` : '/login';
         }
     };
     return (

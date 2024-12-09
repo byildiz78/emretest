@@ -84,8 +84,8 @@ export async function middleware(request: NextRequest) {
         }
     }
 
-    const accessToken = request.cookies.get("access_token")?.value;
-    const refreshToken = request.cookies.get("refresh_token")?.value;
+    const accessToken = request.cookies.get(`${tenantId}_access_token`)?.value;
+    const refreshToken = request.cookies.get(`${tenantId}_refresh_token`)?.value;
     
     if (!accessToken || !refreshToken) {
         
@@ -93,8 +93,8 @@ export async function middleware(request: NextRequest) {
             return NextResponse.next();
         }
         const response = NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
-        response.cookies.set('access_token', '', { maxAge: 0 });
-        response.cookies.set('refresh_token', '', { maxAge: 0 });
+        response.cookies.set(`${tenantId}_access_token`, '', { maxAge: 0 });
+        response.cookies.set(`${tenantId}_refresh_token`, '', { maxAge: 0 });
         return response;
     }
 
@@ -109,8 +109,8 @@ export async function middleware(request: NextRequest) {
 
     if (!isValidRefresh) {
         const response = NextResponse.redirect(new URL(`/${tenantId}/login`, request.url));
-        response.cookies.set('access_token', '', { maxAge: 0 });
-        response.cookies.set('refresh_token', '', { maxAge: 0 });
+        response.cookies.set(`${tenantId}_access_token`, '', { maxAge: 0 });
+        response.cookies.set(`${tenantId}_refresh_token`, '', { maxAge: 0 });
         return response;
     }
     const isValidAccess = await verifyToken(accessToken, ACCESS_TOKEN_SECRET, {
@@ -127,7 +127,7 @@ export async function middleware(request: NextRequest) {
         const newAccessToken = await createNewAccessToken(decodedToken.username, decodedToken.userId, tenantId);
         const response = NextResponse.next();
         
-        response.cookies.set('access_token', newAccessToken, {
+        response.cookies.set(`${tenantId}_access_token`, newAccessToken, {
             httpOnly: true,
             secure: NODE_ENV === 'production',
             sameSite: 'lax',

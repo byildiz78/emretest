@@ -162,7 +162,7 @@ export default function LoginPage() {
             <div className="fixed inset-0 bg-[url('/images/noise.png')] opacity-10 mix-blend-overlay pointer-events-none" />
 
             {/* Dark theme overlay */}
-            <div className="fixed inset-0 bg-black/40 dark:bg-black/60 pointer-events-none" />
+            <div className="fixed inset-0 bg-black/5 dark:bg-black/5 pointer-events-none" />
 
             {/* Gradient Orbs with reduced opacity */}
             <div className="fixed -left-20 -top-20 h-[600px] w-[600px] rounded-full bg-primary/5 dark:bg-primary/10 blur-[120px] animate-pulse-slow pointer-events-none" />

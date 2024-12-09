@@ -185,11 +185,11 @@ export default function MobileChatBotComponent() {
     );
 
     const renderFilterStep = () => (
-        <div className="p-4 space-y-6">
+        <div className="p-4 space-y-6 w-full">
             <div className="space-y-4">
                 <div className="space-y-2">
                     <h2 className="text-lg font-semibold">Tarih Aralığı</h2>
-                    <div className="flex items-center gap-2 p-3 bg-card rounded-lg border">
+                    <div className="flex items-center gap-2 p-3 bg-card rounded-lg border w-full">
                         <Calendar className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm">
                             {format(selectedFilter.date.from, "d MMMM yyyy", { locale: tr })} -{" "}
@@ -200,7 +200,7 @@ export default function MobileChatBotComponent() {
 
                 <div className="space-y-2">
                     <h2 className="text-lg font-semibold">Şubeler</h2>
-                    <div className="flex items-center gap-2 p-3 bg-card rounded-lg border">
+                    <div className="flex items-center gap-2 p-3 bg-card rounded-lg border w-full">
                         <Building2 className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm">
                             {selectedFilter.selectedBranches.length > 0
@@ -215,8 +215,8 @@ export default function MobileChatBotComponent() {
                 className="w-full" 
                 onClick={() => setStep('analysis')}
             >
+                <ArrowRight className="w-4 h-4 mr-2" />
                 Devam Et
-                <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
         </div>
     );
@@ -275,7 +275,7 @@ export default function MobileChatBotComponent() {
 
     if (step === 'welcome') {
         return (
-            <div>
+            <div className="w-full">
                 {renderHeader()}
                 <WelcomeScreen />
                 <div className="fixed bottom-4 left-4 right-4">
@@ -292,7 +292,7 @@ export default function MobileChatBotComponent() {
     }
 
     return (
-        <div className="flex flex-col h-[calc(100vh-4rem)]">
+        <div className="flex flex-col h-[calc(100vh-4rem)] w-full">
             {renderHeader()}
             <div className="flex-1 overflow-y-auto">
                 {step === 'filter' && renderFilterStep()}

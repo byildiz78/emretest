@@ -44,11 +44,41 @@ export default function BranchDetailWidgets() {
     return colors[index % colors.length];
   };
 
+  const gradientColors = [
+    {
+        bg: "from-emerald-100/95 via-teal-50/85 to-white/80 dark:from-emerald-950/30 dark:via-teal-900/20 dark:to-background/80",
+        border: "border-emerald-200/60 dark:border-teal-800/60",
+        text: "text-emerald-700 dark:text-teal-400",
+        badge: "bg-emerald-500 text-white dark:bg-emerald-600"
+    },
+    {
+        bg: "from-blue-100/95 via-indigo-50/85 to-white/80 dark:from-blue-950/30 dark:via-indigo-900/20 dark:to-background/80",
+        border: "border-blue-200/60 dark:border-indigo-800/60",
+        text: "text-blue-700 dark:text-indigo-400",
+        badge: "bg-blue-500 text-white dark:bg-blue-600"
+    },
+    {
+        bg: "from-sky-100/95 via-blue-50/85 to-white/80 dark:from-sky-950/30 dark:via-blue-900/20 dark:to-background/80",
+        border: "border-sky-200/60 dark:border-blue-800/60",
+        text: "text-sky-700 dark:text-blue-400",
+        badge: "bg-sky-500 text-white dark:bg-blue-600"
+    },
+    {
+        bg: "from-violet-100/95 via-purple-50/85 to-white/80 dark:from-violet-950/30 dark:via-purple-900/20 dark:to-background/80",
+        border: "border-violet-200/60 dark:border-purple-800/60",
+        text: "text-violet-700 dark:text-purple-400",
+        badge: "bg-violet-500 text-white dark:bg-violet-600"
+    }
+];
+
+const colorSet = gradientColors[columnIndex % gradientColors.length];
+
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {widgets.map((widget, index) => {
         const Icon = LucideIcons[widget.ReportIcon as keyof typeof LucideIcons] || LucideIcons.HelpCircle;
-        const color = getColorByIndex(index);
+        const color = colorSet(index);
         
         return (
           <motion.div

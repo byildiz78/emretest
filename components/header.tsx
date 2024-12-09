@@ -3,8 +3,7 @@
 import { Button } from "./ui/button";
 import { Calendar } from "./ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { cn, formatDateTimeYMDHI } from "../lib/utils";
-import Link from "next/link";
+import { cn, formatDateTimeDMYHI, formatDateTimeYMDHI } from "../lib/utils";
 import {
   Calendar as CalendarIcon,
   ChevronDown,
@@ -20,7 +19,7 @@ import {
   Filter,
   Workflow,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Command,
   CommandEmpty,
@@ -63,8 +62,8 @@ import {
 import { Efr_Branches } from "../types/tables";
 import { BranchProvider } from "../providers/branch-provider";
 import { TimePicker } from "./ui/time-picker";
-import { useParams } from "next/navigation";
 import { useTabStore } from "../stores/tab-store";
+import { useSettingsStore } from "@/stores/settings-store";
 
 const translations = {
   tr: {
@@ -148,24 +147,78 @@ const translations = {
 };
 
 export default function Header() {
-  const [open, setOpen] = useState(false);
   const [desktopBranchOpen, setDesktopBranchOpen] = useState(false);
   const [mobileBranchOpen, setMobileBranchOpen] = useState(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const { selectedFilter, setFilter, handleStartDateSelect, handleEndDateSelect } = useFilterStore();
+  const { settings } = useSettingsStore();
+  const [tempStartTime, setTempStartTime] = useState<string>("00:00");
+  const [tempEndTime, setTempEndTime] = useState<string>("23:59");
+  const [tempStartDate, setTempStartDate] = useState<Date | undefined>(selectedFilter.date.from);
+  const [tempEndDate, setTempEndDate] = useState<Date | undefined>(selectedFilter.date.to);
+
+  useEffect(() => {
+    if (settings.length > 0) {
+      const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
+
+      let startTime: string;
+      let endTime: string;
+
+      if (daystart === 0) {
+        startTime = "00:00";
+        endTime = "23:59";
+      } else {
+        const startHour = daystart.toString().padStart(2, '0');
+        startTime = `${startHour}:00`;
+        const endHour = ((daystart - 1 + 24) % 24).toString().padStart(2, '0');
+        endTime = `${endHour}:59`;
+      }
+
+      setTempStartTime(startTime);
+      setTempEndTime(endTime);
+
+      if (selectedFilter.date.from && selectedFilter.date.to) {
+        const fromDate = new Date(selectedFilter.date.from);
+        const toDate = new Date(selectedFilter.date.to);
+
+        const [startHours, startMinutes] = startTime.split(':').map(Number);
+        const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+        fromDate.setHours(startHours, startMinutes, 0);
+        toDate.setHours(endHours, endMinutes, 59);
+
+        if (tempStartDate) {
+          const newTempStartDate = new Date(tempStartDate);
+          newTempStartDate.setHours(startHours, startMinutes, 0);
+          setTempStartDate(newTempStartDate);
+        }
+
+        if (tempEndDate) {
+          const newTempEndDate = new Date(tempEndDate);
+          newTempEndDate.setHours(endHours, endMinutes, 59);
+          setTempEndDate(newTempEndDate);
+        }
+
+        setFilter({
+          ...selectedFilter,
+          date: {
+            from: fromDate,
+            to: toDate
+          }
+        });
+
+        console.log(selectedFilter)
+      }
+    }
+  }, [settings]);
   const [pendingBranches, setPendingBranches] = useState(
     selectedFilter.selectedBranches
   );
 
-  const [tempStartDate, setTempStartDate] = useState<Date | undefined>(selectedFilter.date.from);
-  const [tempEndDate, setTempEndDate] = useState<Date | undefined>(selectedFilter.date.to);
-  const [tempStartTime, setTempStartTime] = useState<string>("00:00");
-  const [tempEndTime, setTempEndTime] = useState<string>("23:59");
 
   const { setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const t = translations[language as keyof typeof translations];
-  const { tenantId } = useParams();
   const addTab = useTabStore((state) => state.addTab);
 
   const applyFilters = () => {
@@ -534,7 +587,7 @@ export default function Header() {
           </div>
 
           <div className="flex items-center gap-2">
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -601,8 +654,8 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-{/* fsdsdf */}
-<Button
+            {/* fsdsdf */}
+            <Button
               variant="ghost"
               size="icon"
               className="hover:bg-accent/50"
@@ -628,10 +681,10 @@ export default function Header() {
             >
               <Settings className="h-5 w-5" />
             </Button>
-   
 
 
-{/* skdljfsd */}
+
+            {/* skdljfsd */}
             <Button
               variant="ghost"
               size="icon"

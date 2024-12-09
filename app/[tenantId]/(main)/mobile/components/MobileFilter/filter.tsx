@@ -71,6 +71,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useSettingsStore } from "@/stores/settings-store";
 
 const translations = {
   tr: {
@@ -159,6 +160,8 @@ export default function Header() {
   const [mobileBranchOpen, setMobileBranchOpen] = useState(false);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
   const [isDateBranchModalOpen, setIsDateBranchModalOpen] = useState(false);
+  const { settings } = useSettingsStore();
+
   const { selectedFilter, setFilter, handleStartDateSelect, handleEndDateSelect } = useFilterStore();
   const [pendingBranches, setPendingBranches] = useState(
     selectedFilter.selectedBranches
@@ -172,9 +175,63 @@ export default function Header() {
   const { setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const t = translations[language as keyof typeof translations];
-  const { tenantId } = useParams();
+
   const addTab = useTabStore((state) => state.addTab);
 
+  useEffect(() => {
+    if (settings.length > 0) {
+      const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
+
+      let startTime: string;
+      let endTime: string;
+
+      if (daystart === 0) {
+        startTime = "00:00";
+        endTime = "23:59";
+      } else {
+        const startHour = daystart.toString().padStart(2, '0');
+        startTime = `${startHour}:00`;
+        const endHour = ((daystart - 1 + 24) % 24).toString().padStart(2, '0');
+        endTime = `${endHour}:59`;
+      }
+
+      setTempStartTime(startTime);
+      setTempEndTime(endTime);
+
+      if (selectedFilter.date.from && selectedFilter.date.to) {
+        const fromDate = new Date(selectedFilter.date.from);
+        const toDate = new Date(selectedFilter.date.to);
+
+        const [startHours, startMinutes] = startTime.split(':').map(Number);
+        const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+        fromDate.setHours(startHours, startMinutes, 0);
+        toDate.setHours(endHours, endMinutes, 59);
+
+        if (tempStartDate) {
+          const newTempStartDate = new Date(tempStartDate);
+          newTempStartDate.setHours(startHours, startMinutes, 0);
+          setTempStartDate(newTempStartDate);
+        }
+
+        if (tempEndDate) {
+          const newTempEndDate = new Date(tempEndDate);
+          newTempEndDate.setHours(endHours, endMinutes, 59);
+          setTempEndDate(newTempEndDate);
+        }
+
+        setFilter({
+          ...selectedFilter,
+          date: {
+            from: fromDate,
+            to: toDate
+          }
+        });
+
+        console.log(selectedFilter)
+      }
+    }
+  }, [settings]);
   const applyFilters = () => {
     if (tempStartDate) {
       const [hours, minutes] = tempStartTime.split(':');
@@ -273,7 +330,7 @@ export default function Header() {
   return (
     <BranchProvider>
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md shadow-lg dark:shadow-slate-900/20">
-        <div className="flex h-16 items-center px-4 gap-4">
+        <div className="flex-end h-16 items-center p-4 gap-4">
           {/* Desktop View */}
           <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-5 gap-2 flex-1">
             <Select onValueChange={dateRangeChange} defaultValue="today">
@@ -611,10 +668,9 @@ export default function Header() {
                     size="default"
                     className="flex items-center gap-2 bg-background/80 backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-300"
                   >
-                    <Languages className="h-5 w-5" />
-                    <span className="hidden xs:inline">
-                      {language === "tr" ? "🇹🇷 TR" : language === "en" ? "🇬🇧 EN" : "🇸🇦 AR"}
+                     <span> {language === "tr" ? "TR" : language === "en" ? "EN" : "AR"}
                     </span>
+                  
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent

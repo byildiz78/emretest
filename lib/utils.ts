@@ -5,6 +5,7 @@ import { Dataset } from "@/pages/api/dataset";
 import * as LucideIcons from "lucide-react";
 import { ComponentType } from "react";
 import { LucideIcon } from "lucide-react";
+import { useSettingsStore } from "@/stores/settings-store";
 
 interface FormatNumberOptions {
     decimals?: number;
@@ -21,6 +22,7 @@ interface IntlFormatNumberOptions {
     maximumFractionDigits?: number;
     currency?: string;
 }
+
 
 
 export const getLucideIcon = (iconName: string | undefined, defaultIcon?: LucideIcon): LucideIcon => {
@@ -62,6 +64,7 @@ export const formatCurrency = (amount: number) => {
         minimumFractionDigits: 2,
     }).format(amount);
 };
+
 
 export const formatDateTimeDMY = (date: Date | undefined) => {
     if (!date) return '';

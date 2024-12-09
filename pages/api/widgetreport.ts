@@ -48,8 +48,6 @@ export default async function handler(
         try {
             const date1Obj = new Date(date1);
             const date2Obj = new Date(date2);
-            date1Obj.setHours(6, 0, 0, 0);
-            date2Obj.setHours(6, 0, 0, 0);
 
             const result = await instance.executeQuery<WebWidgetData[]>({
                 query: widget.ReportQuery?.toString() + "",

@@ -1,3 +1,4 @@
+"use client"
 import Dashboard from "./components/MobileDashboard/page";
 import Filter from "./components/MobileFilter/filter";
 import { MobileFooter } from "./components/MobileNavigation/MobileFooter";

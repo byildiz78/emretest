@@ -12,35 +12,27 @@ const REFRESH_INTERVAL = 60000;
 const gradientColors = [
     {
         bg: "from-emerald-100/95 via-teal-50/85 to-white/80 dark:from-emerald-950/30 dark:via-teal-900/20 dark:to-background/80",
-        glowBg: "after:bg-emerald-500/20",
-        border: "border-emerald-200/60 dark:border-emerald-800/60",
-        text: "text-emerald-700 dark:text-emerald-400",
-        badge: "bg-emerald-500/90 text-white dark:bg-emerald-600/90",
-        shine: "before:from-emerald-500/20 before:via-emerald-100/40 before:to-transparent"
+        border: "border-emerald-200/60 dark:border-teal-800/60",
+        text: "text-emerald-700 dark:text-teal-400",
+        badge: "bg-emerald-500 text-white dark:bg-emerald-600"
     },
     {
         bg: "from-blue-100/95 via-indigo-50/85 to-white/80 dark:from-blue-950/30 dark:via-indigo-900/20 dark:to-background/80",
-        glowBg: "after:bg-blue-500/20",
-        border: "border-blue-200/60 dark:border-blue-800/60",
-        text: "text-blue-700 dark:text-blue-400",
-        badge: "bg-blue-500/90 text-white dark:bg-blue-600/90",
-        shine: "before:from-blue-500/20 before:via-blue-100/40 before:to-transparent"
+        border: "border-blue-200/60 dark:border-indigo-800/60",
+        text: "text-blue-700 dark:text-indigo-400",
+        badge: "bg-blue-500 text-white dark:bg-blue-600"
     },
     {
         bg: "from-sky-100/95 via-blue-50/85 to-white/80 dark:from-sky-950/30 dark:via-blue-900/20 dark:to-background/80",
-        glowBg: "after:bg-sky-500/20",
-        border: "border-sky-200/60 dark:border-sky-800/60",
-        text: "text-sky-700 dark:text-sky-400",
-        badge: "bg-sky-500/90 text-white dark:bg-sky-600/90",
-        shine: "before:from-sky-500/20 before:via-sky-100/40 before:to-transparent"
+        border: "border-sky-200/60 dark:border-blue-800/60",
+        text: "text-sky-700 dark:text-blue-400",
+        badge: "bg-sky-500 text-white dark:bg-blue-600"
     },
     {
         bg: "from-violet-100/95 via-purple-50/85 to-white/80 dark:from-violet-950/30 dark:via-purple-900/20 dark:to-background/80",
-        glowBg: "after:bg-violet-500/20",
-        border: "border-violet-200/60 dark:border-violet-800/60",
-        text: "text-violet-700 dark:text-violet-400",
-        badge: "bg-violet-500/90 text-white dark:bg-violet-600/90",
-        shine: "before:from-violet-500/20 before:via-violet-100/40 before:to-transparent"
+        border: "border-violet-200/60 dark:border-purple-800/60",
+        text: "text-violet-700 dark:text-purple-400",
+        badge: "bg-violet-500 text-white dark:bg-violet-600"
     }
 ];
 
@@ -152,13 +144,8 @@ export default function EnhancedWidgetCard({
             <motion.div
                 className={cn(
                     "h-full bg-gradient-to-br p-4 relative backdrop-blur-sm",
-                    "before:absolute before:inset-0 before:w-full before:h-full before:bg-gradient-to-r before:animate-shine before:duration-1000",
-                    "after:absolute after:w-40 after:h-40 after:rounded-full after:blur-3xl after:-z-10 after:opacity-0 after:group-hover:opacity-100 after:transition-opacity after:duration-700",
-                    "after:-top-8 after:-right-8",
                     colorSet.bg,
-                    colorSet.border,
-                    colorSet.shine,
-                    colorSet.glowBg
+                    colorSet.border
                 )}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -167,9 +154,6 @@ export default function EnhancedWidgetCard({
                     boxShadow: "0 12px 36px -12px rgba(0, 0, 0, 0.2)",
                 }}
             >
-                {/* Glass Effect Overlay */}
-                <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
                 {/* Header with Icon */}
                 <motion.div 
                     className="flex items-start justify-between"

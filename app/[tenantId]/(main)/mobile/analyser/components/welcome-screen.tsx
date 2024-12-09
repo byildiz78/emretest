@@ -3,18 +3,6 @@ import { Calendar, Building2, ListFilter } from 'lucide-react'
 export default function WelcomeScreen() {
     return (
         <div className="flex flex-col min-h-[calc(100vh-4rem)] bg-background">
-            <div className="flex items-center justify-between p-4 border-b">
-                <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                        <ListFilter className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                        <h1 className="font-semibold">Yapay Zeka Analizi</h1>
-                        <p className="text-sm text-muted-foreground">Hoş Geldiniz</p>
-                    </div>
-                </div>
-            </div>
-
             <div className="flex-1 p-4 space-y-6">
                 <div className="space-y-2">
                     <h2 className="text-xl font-semibold text-foreground">

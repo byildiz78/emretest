@@ -138,7 +138,7 @@ export default function OrdersTable({ selectedBranch, startDate, endDate }: Orde
   }
 
   return (
-    <div className="rounded-xl border shadow-sm bg-white dark:bg-gray-950 mx-4 sm:mx-6">
+    <div className="rounded-xl border shadow-sm bg-white dark:bg-gray-950">
       <div className="p-4 border-b flex items-center justify-between">
         <h2 className="text-lg font-semibold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
           Siparişler
@@ -151,11 +151,11 @@ export default function OrdersTable({ selectedBranch, startDate, endDate }: Orde
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[90px] sm:w-[100px] lg:w-[150px] xl:w-[180px]">Sipariş No</TableHead>
-              <TableHead className="w-[100px] sm:w-[120px] lg:w-[180px] xl:w-[200px]">Tarih/Saat</TableHead>
-              <TableHead className="w-[100px] sm:w-[120px] lg:w-[180px] xl:w-[200px]">Personel</TableHead>
-              <TableHead className="w-[90px] sm:w-[100px] lg:w-[120px] xl:w-[150px]">Tutar</TableHead>
-              <TableHead className="w-[100px] sm:w-[120px] lg:w-[180px] xl:w-[200px]">Sipariş Tipi</TableHead>
+              <TableHead className="w-[80px] sm:w-[100px]">Sipariş No</TableHead>
+              <TableHead className="w-[90px] sm:w-[120px]">Tarih/Saat</TableHead>
+              <TableHead className="w-[90px] sm:w-[120px]">Personel</TableHead>
+              <TableHead className="w-[80px] sm:w-[100px]">Tutar</TableHead>
+              <TableHead className="w-[90px] sm:w-[120px]">Sipariş Tipi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -164,18 +164,18 @@ export default function OrdersTable({ selectedBranch, startDate, endDate }: Orde
                 key={row.reportValue1} 
                 className="hover:bg-muted/50 transition-colors"
               >
-                <TableCell className="font-medium">
+                <TableCell className="font-medium text-sm">
                   <span className="text-primary">#{row.reportValue1}</span>
                 </TableCell>
-                <TableCell className="whitespace-nowrap">{row.reportValue2}</TableCell>
-                <TableCell className="truncate max-w-[200px]">{row.reportValue3}</TableCell>
-                <TableCell className="font-medium whitespace-nowrap">
+                <TableCell className="whitespace-nowrap text-sm">{row.reportValue2}</TableCell>
+                <TableCell className="truncate max-w-[120px] text-sm">{row.reportValue3}</TableCell>
+                <TableCell className="font-medium whitespace-nowrap text-sm">
                   {formatCurrency(row.reportValue4)}
                 </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
+                <TableCell className="text-sm">
+                  <div className="flex items-center gap-1">
                     {getOrderTypeIcon(row.reportValue6)}
-                    <span className="font-medium truncate">{row.reportValue6}</span>
+                    <span className="font-medium truncate max-w-[80px] sm:max-w-[120px]">{row.reportValue6}</span>
                   </div>
                 </TableCell>
               </TableRow>
@@ -191,19 +191,19 @@ export default function OrdersTable({ selectedBranch, startDate, endDate }: Orde
 
       {/* Pagination */}
       {tableData.length > 0 && (
-        <div className="flex items-center justify-between px-4 py-3 border-t">
-          <div className="flex-1 text-sm text-muted-foreground">
+        <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t gap-3">
+          <div className="text-sm text-muted-foreground order-2 sm:order-1">
             {startIndex + 1} - {Math.min(endIndex, tableData.length)} / {tableData.length} sipariş
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 order-1 sm:order-2 w-full sm:w-auto justify-center">
             <button
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
               disabled={currentPage === 1}
-              className="px-3 py-1.5 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none transition-colors"
+              className="px-2 sm:px-3 py-1.5 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none transition-colors min-w-[60px] sm:min-w-[70px]"
             >
               Önceki
             </button>
-            <div className="flex items-center gap-1">
+            <div className="hidden sm:flex items-center gap-1">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNumber;
                 if (totalPages <= 5) {
@@ -231,10 +231,13 @@ export default function OrdersTable({ selectedBranch, startDate, endDate }: Orde
                 );
               })}
             </div>
+            <div className="flex sm:hidden items-center justify-center min-w-[40px]">
+              <span className="text-sm font-medium">{currentPage} / {totalPages}</span>
+            </div>
             <button
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
               disabled={currentPage === totalPages}
-              className="px-3 py-1.5 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none transition-colors"
+              className="px-2 sm:px-3 py-1.5 text-sm rounded-md border border-input bg-background hover:bg-accent hover:text-accent-foreground disabled:opacity-50 disabled:pointer-events-none transition-colors min-w-[60px] sm:min-w-[70px]"
             >
               Sonraki
             </button>

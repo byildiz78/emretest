@@ -65,7 +65,7 @@ export default function LoginPage() {
                 .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
                 .join(" ");
             setTenantName(formattedName);
-            document.title = `${formattedName} - Web Rapor Sistemi`;
+            document.title = `${formattedName} - Data Manager`;
         }
     }, [pathname]);
 

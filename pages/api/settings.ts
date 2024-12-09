@@ -13,7 +13,7 @@ export default async function handler(
     }
 
     try {
-        const query = "SELECT * FROM ProjectSettings";
+        const query = "SELECT * FROM ProjectSettings WHERE Kod IN('daystart')";
 
         const instance = Dataset.getInstance();
 

@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import LoadingSpinner from './LoadingSpinner';
+import LoadingSpinner from './MobileDashboardLoadingSpinner';
 
 export default function PageWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

@@ -1,10 +1,10 @@
 import { create } from 'zustand'
-import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, subWeeks, subMonths, subYears, addDays, format } from 'date-fns'
+import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, subWeeks, subMonths, subYears } from 'date-fns'
 import { DateRange } from 'react-day-picker'
 import { Efr_Branches } from '@/types/tables'
 
 interface Filter {
-    date: DateRange & { formattedFrom?: string; formattedTo?: string }
+    date: DateRange
     branches: Efr_Branches[]
     selectedBranches: Efr_Branches[]
 }
@@ -23,10 +23,8 @@ interface FilterStore {
 export const useFilterStore = create<FilterStore>((set) => ({
     selectedFilter: {
         date: {
-            from: new Date(),
-            to: addDays(new Date(), 1),
-            formattedFrom: format(new Date(), 'dd.MM.yyyy HH:mm'),
-            formattedTo: format(addDays(new Date(), 1), 'dd.MM.yyyy HH:mm')
+            from: new Date(new Date().setHours(0, 0, 0, 0)),
+            to: new Date(new Date().setHours(23, 59, 59, 999)),
         },
         branches: [],
         selectedBranches: []
@@ -47,10 +45,8 @@ export const useFilterStore = create<FilterStore>((set) => ({
         set(() => ({
             selectedFilter: {
                 date: {
-                    from: new Date(),
-                    to: addDays(new Date(), 1),
-                    formattedFrom: format(new Date(), 'dd.MM.yyyy HH:mm'),
-                    formattedTo: format(addDays(new Date(), 1), 'dd.MM.yyyy HH:mm')
+                    from: new Date(new Date().setHours(0, 0, 0, 0)),
+                    to: new Date(new Date().setHours(23, 59, 59, 999))
                 },
                 branches: [],
                 selectedBranches: []
@@ -77,9 +73,7 @@ export const useFilterStore = create<FilterStore>((set) => ({
                     ...state.selectedFilter,
                     date: {
                         from: date,
-                        to: endDate,
-                        formattedFrom: format(date, 'dd.MM.yyyy HH:mm'),
-                        formattedTo: endDate ? format(endDate, 'dd.MM.yyyy HH:mm') : undefined
+                        to: endDate
                     }
                 }
             }
@@ -98,9 +92,7 @@ export const useFilterStore = create<FilterStore>((set) => ({
                     ...state.selectedFilter,
                     date: {
                         from: startDate,
-                        to: date,
-                        formattedFrom: startDate ? format(startDate, 'dd.MM.yyyy HH:mm') : undefined,
-                        formattedTo: format(date, 'dd.MM.yyyy HH:mm')
+                        to: date
                     }
                 }
             }
@@ -109,37 +101,29 @@ export const useFilterStore = create<FilterStore>((set) => ({
     handleDateRangeChange: (value: string) =>
         set((state) => {
             const today = new Date()
-            let newDateRange: DateRange & { formattedFrom?: string; formattedTo?: string } = { 
+            let newDateRange: DateRange = { 
                 from: today, 
-                to: today, 
-                formattedFrom: format(today, 'dd.MM.yyyy HH:mm'), 
-                formattedTo: format(today, 'dd.MM.yyyy HH:mm') 
+                to: today
             }
 
             switch (value) {
                 case 'today':
                     newDateRange = { 
-                        from: today, 
-                        to: today, 
-                        formattedFrom: format(today, 'dd.MM.yyyy HH:mm'), 
-                        formattedTo: format(today, 'dd.MM.yyyy HH:mm') 
+                        from: new Date(new Date().setHours(0, 0, 0, 0)), 
+                        to: new Date(new Date().setHours(23, 59, 59, 999))
                     }
                     break
                 case 'yesterday':
                     const yesterday = subDays(today, 1)
                     newDateRange = { 
-                        from: yesterday, 
-                        to: yesterday, 
-                        formattedFrom: format(yesterday, 'dd.MM.yyyy HH:mm'), 
-                        formattedTo: format(yesterday, 'dd.MM.yyyy HH:mm') 
+                        from: new Date(yesterday.setHours(0, 0, 0, 0)), 
+                        to: new Date(yesterday.setHours(23, 59, 59, 999))
                     }
                     break
                 case 'thisWeek':
                     newDateRange = {
                         from: startOfWeek(today, { weekStartsOn: 1 }),
-                        to: endOfWeek(today, { weekStartsOn: 1 }),
-                        formattedFrom: format(startOfWeek(today, { weekStartsOn: 1 }), 'dd.MM.yyyy HH:mm'),
-                        formattedTo: format(endOfWeek(today, { weekStartsOn: 1 }), 'dd.MM.yyyy HH:mm')
+                        to: endOfWeek(today, { weekStartsOn: 1 })
                     }
                     break
 
@@ -147,51 +131,39 @@ export const useFilterStore = create<FilterStore>((set) => ({
                     const lastWeek = subWeeks(today, 1)
                     newDateRange = {
                         from: startOfWeek(lastWeek, { weekStartsOn: 1 }),
-                        to: endOfWeek(lastWeek, { weekStartsOn: 1 }),
-                        formattedFrom: format(startOfWeek(lastWeek, { weekStartsOn: 1 }), 'dd.MM.yyyy HH:mm'),
-                        formattedTo: format(endOfWeek(lastWeek, { weekStartsOn: 1 }), 'dd.MM.yyyy HH:mm')
+                        to: endOfWeek(lastWeek, { weekStartsOn: 1 })
                     }
                     break
                 case 'thisMonth':
                     newDateRange = {
                         from: startOfMonth(today),
-                        to: endOfMonth(today),
-                        formattedFrom: format(startOfMonth(today), 'dd.MM.yyyy HH:mm'),
-                        formattedTo: format(endOfMonth(today), 'dd.MM.yyyy HH:mm')
+                        to: endOfMonth(today)
                     }
                     break
                 case 'lastMonth':
                     const lastMonth = subMonths(today, 1)
                     newDateRange = {
                         from: startOfMonth(lastMonth),
-                        to: endOfMonth(lastMonth),
-                        formattedFrom: format(startOfMonth(lastMonth), 'dd.MM.yyyy HH:mm'),
-                        formattedTo: format(endOfMonth(lastMonth), 'dd.MM.yyyy HH:mm')
+                        to: endOfMonth(lastMonth)
                     }
                     break
                 case 'thisYear':
                     newDateRange = {
                         from: startOfYear(today),
-                        to: endOfYear(today),
-                        formattedFrom: format(startOfYear(today), 'dd.MM.yyyy HH:mm'),
-                        formattedTo: format(endOfYear(today), 'dd.MM.yyyy HH:mm')
+                        to: endOfYear(today)
                     }
                     break
                 case 'lastYear':
                     const lastYear = subYears(today, 1)
                     newDateRange = {
                         from: startOfYear(lastYear),
-                        to: endOfYear(lastYear),
-                        formattedFrom: format(startOfYear(lastYear), 'dd.MM.yyyy HH:mm'),
-                        formattedTo: format(endOfYear(lastYear), 'dd.MM.yyyy HH:mm')
+                        to: endOfYear(lastYear)
                     }
                     break
                 case 'lastSevenDays':
                     newDateRange = {
                         from: subDays(today, 7),
-                        to: today,
-                        formattedFrom: format(subDays(today, 7), 'dd.MM.yyyy HH:mm'),
-                        formattedTo: format(today, 'dd.MM.yyyy HH:mm')
+                        to: today
                     }
                     break
                 default:

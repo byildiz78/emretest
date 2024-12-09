@@ -27,6 +27,7 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command";
+import { useSettingsStore } from "@/stores/settings-store";
 
 interface BranchData {
     id: string;
@@ -93,6 +94,7 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
     const [selectedBranch, setSelectedBranch] = useState<Efr_Branches | null>(null);
     // Seçilen tarih aralığı (henüz uygulanmamış)
     const [tempDateRange, setTempDateRange] = useState("today");
+    const { settings } = useSettingsStore();
 
     // Şubeleri çek
     useEffect(() => {
@@ -125,11 +127,25 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
     useEffect(() => {
         const today = new Date();
         const date1 = new Date(today);
-        date1.setHours(6, 0, 0, 0);
+        const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
+        let startTime: string;
+        let endTime: string;
         
+        if (daystart === 0) {
+          startTime = "00:00";
+          endTime = "23:59";
+        } else {
+          const startHour = daystart.toString().padStart(2, '0');
+          startTime = `${startHour}:00`;
+          const endHour = ((daystart - 1 + 24) % 24).toString().padStart(2, '0');
+          endTime = `${endHour}:59`;
+        }
+        const [startHours, startMinutes] = startTime.split(':').map(Number);
+        const [endHours, endMinutes] = endTime.split(':').map(Number);
+
         const date2 = new Date(today);
-        date2.setDate(date2.getDate() + 1);
-        date2.setHours(6, 0, 0, 0);
+        date1.setHours(startHours, startMinutes, 0);
+        date2.setHours(endHours, endMinutes, 59);
 
         setStartDate(date1);
         setEndDate(date2);

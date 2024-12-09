@@ -30,7 +30,7 @@ export default function ChatBotComponent() {
     useEffect(() => {
         const fetchMenuItems = async () => {
             try {
-                const response = await fetch('/api/ai/chatbot_menu_items');
+                const response = await fetch('/api/ai/analyser_menu_items');
                 if (!response.ok) throw new Error('Failed to fetch menu items');
                 const data = await response.json();
 
@@ -75,7 +75,7 @@ export default function ChatBotComponent() {
         setSelectedMenu(menuId);
 
         try {
-            const response = await fetch('/api/ai/chatbot', {
+            const response = await fetch('/api/ai/analyser', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

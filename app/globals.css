@@ -29,6 +29,8 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --scrollbar-thumb: rgba(156, 163, 175, 0.5);
+    --scrollbar-thumb-hover: rgba(156, 163, 175, 0.8);
 
     /* Add sidebar variables for light theme */
     --sidebar-background: 0 0% 100%;
@@ -66,6 +68,8 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+    --scrollbar-thumb: rgba(75, 85, 99, 0.5);
+    --scrollbar-thumb-hover: rgba(75, 85, 99, 0.8);
 
     /* Add sidebar variables for dark theme */
     --sidebar-background: 222.2 84% 4.9%;
@@ -176,12 +180,12 @@
 /* Custom Scrollbar Styles */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+  scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -189,23 +193,19 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(156, 163, 175, 0.5);
-  border-radius: 3px;
+  background-color: var(--scrollbar-thumb);
+  border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(156, 163, 175, 0.8);
+  background-color: var(--scrollbar-thumb-hover);
 }
 
 /* Dark mode styles */
-.dark .custom-scrollbar {
-  scrollbar-color: rgba(75, 85, 99, 0.5) transparent;
-}
-
 .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(75, 85, 99, 0.5);
+  background-color: var(--scrollbar-thumb);
 }
 
 .dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(75, 85, 99, 0.8);
+  background-color: var(--scrollbar-thumb-hover);
 }

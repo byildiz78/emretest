@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown, Users } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { memo, useState } from "react";
@@ -142,7 +142,14 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
 
     return (
         <div onClick={handleClick} className="cursor-pointer">
-            <Card className="group hover:shadow-xl transition-all duration-300 bg-card/95 backdrop-blur-sm border-2 border-border/60 rounded-xl shadow-lg hover:border-border/80 h-full">
+            <Card className="group hover:shadow-xl transition-all duration-300 bg-card/95 backdrop-blur-sm border-2 border-border/60 rounded-xl shadow-lg hover:border-border/80 h-full relative">
+                <div className={cn(
+                    "absolute bottom-3 right-3 flex items-center gap-1 text-xs font-medium backdrop-blur-sm shadow-md border px-2 py-1 rounded-full",
+                    colorSet.badge
+                )}>
+                    <span>Detaylar</span>
+                    <ChevronRight className="h-3 w-3" />
+                </div>
                 <div className="p-4 sm:p-6">
                     <div className="flex items-center justify-between mb-4 sm:mb-6 gap-3">
                         <h3 className="font-semibold text-base sm:text-lg text-foreground line-clamp-1">{data.name}</h3>

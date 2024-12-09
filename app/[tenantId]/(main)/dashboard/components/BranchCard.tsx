@@ -4,7 +4,7 @@
 
 import { motion } from "framer-motion";
 
-import { TrendingUp, TrendingDown, Users } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, ChevronRight } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 
@@ -300,7 +300,15 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
 
         <div onClick={handleClick} className="cursor-pointer">
 
-            <Card className="group hover:shadow-xl transition-all duration-300 bg-card/95 backdrop-blur-sm border-2 border-border/60 rounded-xl shadow-lg hover:border-border/80 h-full">
+            <Card className="group hover:shadow-xl transition-all duration-300 bg-card/95 backdrop-blur-sm border-2 border-border/60 rounded-xl shadow-lg hover:border-border/80 h-full relative">
+
+                <div className={cn(
+                    "absolute bottom-3 right-3 flex items-center gap-1 text-xs font-medium backdrop-blur-sm shadow-md border px-2 py-1 rounded-full",
+                    colorSet.badge
+                )}>
+                    <span>Detaylar</span>
+                    <ChevronRight className="h-3 w-3" />
+                </div>
 
                 <div className="p-4 sm:p-6">
 
@@ -325,25 +333,16 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
  
 
                     <div className={cn(
-
                         "mb-4 sm:mb-6 bg-gradient-to-br p-4 sm:p-6 rounded-xl border-2 shadow-lg backdrop-blur-md relative overflow-hidden",
-
                         colorSet.bg,
-
                         colorSet.border
-
                     )}>
 
                         <motion.div
-
                             className={cn("absolute inset-0", colorSet.shadow)}
-
                             initial={{ opacity: 0 }}
-
                             animate={{ opacity: 1 }}
-
                             transition={{ duration: 1 }}
-
                         />
 
                         <div className="flex items-center justify-between relative mb-2">
@@ -351,49 +350,29 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
                             <p className={cn("text-xs sm:text-sm font-medium relative", colorSet.text)}>Ciro</p>
 
                             {data.percentageChange && (
-
                                 <motion.span
-
                                     className={cn(
-
                                         "px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium backdrop-blur-sm shadow-md border",
-
                                         colorSet.badge
-
                                     )}
-
                                     initial={{ scale: 0.9, opacity: 0 }}
-
                                     animate={{ scale: 1, opacity: 1 }}
-
                                     transition={{ duration: 0.3 }}
-
                                 >
-
                                     {Number(data.percentageChange).toFixed(2)}%
-
                                 </motion.span>
-
                             )}
-
                         </div>
 
                         <div className="flex items-center justify-between relative">
 
                             <motion.p
-
                                 className="text-2xl sm:text-4xl font-bold text-foreground tracking-tight break-words"
-
                                 initial={{ scale: 0.9 }}
-
                                 animate={{ scale: 1 }}
-
                                 transition={{ duration: 0.5, delay: 0.2 }}
-
                             >
-
                                 {formatCurrency(data.currentValue)}
-
                             </motion.p>
 
                         </div>
@@ -401,29 +380,17 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
  
 
                         <motion.div
-
                             className="mt-4 h-2 sm:h-2.5 bg-background/50 rounded-full overflow-hidden border border-border/40"
-
                             initial={{ opacity: 0, scaleX: 0 }}
-
                             animate={{ opacity: 1, scaleX: 1 }}
-
                             transition={{ duration: 0.7, delay: 0.4 }}
-
                         >
-
                             <motion.div
-
                                 className={cn("h-full bg-gradient-to-r rounded-full", colorSet.bar)}
-
                                 initial={{ width: 0 }}
-
                                 animate={{ width: `${barHeight}%` }}
-
                                 transition={{ duration: 1, delay: 0.5 }}
-
                             />
-
                         </motion.div>
 
                     </div>
@@ -431,77 +398,41 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
  
 
                     <motion.div
-
                         className="grid grid-cols-2 gap-3 sm:gap-4 text-sm bg-muted/50 p-3 sm:p-4 rounded-xl shadow-inner border border-border/60"
-
                         initial={{ opacity: 0, y: 10 }}
-
                         animate={{ opacity: 1, y: 0 }}
-
                         transition={{ duration: 0.5, delay: 0.6 }}
-
                     >
-
                         <div>
-
                             <p className="text-muted-foreground text-xs mb-0.5 sm:mb-1">Geçen Hafta Bu an</p>
-
                             <p className="font-semibold text-foreground text-sm sm:text-base">
-
                                 {formatCurrency(data.previousValue)}
-
                             </p>
-
                         </div>
-
                         <div>
-
                             <p className="text-muted-foreground text-xs mb-0.5 sm:mb-1">Geçen Hafta aynı gün</p>
-
                             <p className="font-semibold text-foreground text-sm sm:text-base">
-
                                 {formatCurrency(data.totalDaily)}
-
                             </p>
-
                         </div>
-
                         <div>
-
                             <p className="text-muted-foreground text-xs mb-0.5 sm:mb-1">Müşteri Sayısı</p>
-
                             <p className="font-semibold text-foreground text-sm sm:text-base">
-
                                 {data.dailyCustomers}
-
                             </p>
-
                         </div>
-
                         <div>
-
                             <p className="text-muted-foreground text-xs mb-0.5 sm:mb-1">Fark</p>
-
                             <div className="flex items-center gap-1">
-
                                 {getTrendIcon(data.difference)}
-
                                 <span className={cn(
-
                                     "font-semibold text-sm sm:text-base",
-
                                     Number(data.difference) >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
-
                                 )}>
-
                                     {formatCurrency(data.difference)}
-
                                 </span>
-
                             </div>
-
                         </div>
-
                     </motion.div>
 
                 </div>

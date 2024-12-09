@@ -79,7 +79,7 @@ export async function middleware(request: NextRequest) {
 
     if (!isApiRoute && !tenantId.includes("api")) {
         const database = await checkTenantDatabase(tenantId);
-        if (!database === undefined) {
+        if (database === undefined) {
             return NextResponse.redirect(new URL(`/${tenantId}/notfound`, request.url));
         }
     }

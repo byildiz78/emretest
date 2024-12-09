@@ -95,7 +95,7 @@ export default function MobileNotifications({ isOpen, onClose }: MobileNotificat
                 animate={{ y: 0 }}
                 exit={{ y: "100%" }}
                 transition={{ type: "spring", damping: 20 }}
-                className="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-hidden rounded-t-2xl bg-background shadow-2xl"
+                className="absolute inset-x-0 bottom-0 h-[85vh] overflow-y-auto rounded-t-2xl bg-background shadow-2xl"
             >
                 <TooltipProvider>
                     <div className="w-full">
@@ -160,7 +160,7 @@ export default function MobileNotifications({ isOpen, onClose }: MobileNotificat
                                     <p>Bildirimler yüklenirken hata oluştu</p>
                                 </div>
                             ) : (
-                                <div className="relative pl-6 pt-4">
+                                <div className="relative pl-6 pt-4 pb-20">
                                     <div className="absolute left-6 top-0 bottom-4 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
                                     
                                     {notifications.map((notification, index) => {

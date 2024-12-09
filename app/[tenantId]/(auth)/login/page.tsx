@@ -182,8 +182,22 @@ export default function LoginPage() {
             </Button>
 
             {/* Logo */}
-            <div className="absolute left-4 top-4 lg:left-8 lg:top-8 ml-[4rem]">
+            <div className="absolute left-4 top-4 lg:left-8 lg:top-8 md:ml-[4rem] sm:block hidden">
                 <div className="relative h-12 w-48 transition-all duration-300 hover:scale-105">
+                    <Image
+                        src="/images/robotpos-logo.png"
+                        alt="RobotPOS Logo"
+                        fill
+                        priority
+                        sizes="(max-width: 768px) 150px, 192px"
+                        className="object-contain dark:brightness-110 dark:contrast-125"
+                    />
+                </div>
+            </div>
+
+            {/* Mobile Logo */}
+            <div className="absolute left-1/2 -translate-x-1/2 top-4 sm:hidden block">
+                <div className="relative h-10 w-40 transition-all duration-300">
                     <Image
                         src="/images/robotpos-logo.png"
                         alt="RobotPOS Logo"
@@ -200,7 +214,7 @@ export default function LoginPage() {
                     {/* Main content wrapper with vertical centering */}
                     <div className="flex flex-col items-center justify-center flex-1 w-full max-w-6xl mx-auto">
                         {/* Tenant Name with new styling */}
-                        <div className="mt-0 md:mt-0 mb-8 text-center">
+                        <div className="mt-16 sm:mt-0 mb-4 text-center">
                             <div className="relative group">
                                 <div className="absolute -inset-1 bg-gradient-to-r from-primary/15 via-transparent to-secondary/15 rounded-lg blur-xl group-hover:blur-2xl transition-all duration-300"></div>
                                 <h1 className="relative text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-[0_4px_4px_rgba(0,0,0,1)] dark:text-white dark:drop-shadow-[0_4px_4px_rgba(0,0,0,1)] [text-shadow:_2px_2px_0_rgb(0_0_0_/_40%)]">
@@ -210,7 +224,7 @@ export default function LoginPage() {
                         </div>
 
                         {/* Data Manager Section */}
-                        <div className="mb-8">
+                        <div className="mb-6">
                             <div className="relative group">
                                 <div className="absolute -inset-1 bg-gradient-to-r from-secondary/15 via-transparent to-primary/15 rounded-lg blur-xl group-hover:blur-2xl transition-all duration-300"></div>
                                 <div className="relative flex flex-col items-center gap-2 bg-white/5 backdrop-blur-sm p-3 rounded-lg">
@@ -222,7 +236,10 @@ export default function LoginPage() {
                                             Data Manager
                                         </h2>
                                     </div>
-                                    <p className="text-lg text-white/90 text-center font-medium">
+                                    <p className="text-lg text-white/90 text-center font-medium md:block hidden">
+                                        Veri odaklı kararlar için güçlü analitik platformu
+                                    </p>
+                                    <p className="text-sm text-white/90 text-center font-medium truncate md:hidden block w-full">
                                         Veri odaklı kararlar için güçlü analitik platformu
                                     </p>
                                 </div>

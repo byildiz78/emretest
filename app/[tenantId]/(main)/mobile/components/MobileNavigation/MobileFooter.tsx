@@ -80,7 +80,7 @@ export function MobileFooter({ onNotificationsClick }: MobileFooterProps) {
                                         <span className="text-xs mt-1">{item.label}</span>
                                         {item.label === "Bildirimler" && (
                                             <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-[10px] font-medium text-primary-foreground rounded-full flex items-center justify-center">
-                                                3
+                                                10
                                             </span>
                                         )}
                                         {isActive && (

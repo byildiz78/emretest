@@ -86,7 +86,7 @@ export default async function handler(
                 .setAudience(tenantId)
                 .setIssuedAt(currentTimestamp)
                 .sign(ACCESS_TOKEN_SECRET);
-            const accessTokenCookie = serialize('access_token', accessToken, {
+            const accessTokenCookie = serialize(`${tenantId}_access_token`, accessToken, {
                 httpOnly: true,
                 //secure: NODE_ENV === 'production',
                 //sameSite: NODE_ENV === 'production' ? 'none' : 'lax',
@@ -101,7 +101,7 @@ export default async function handler(
                 .setAudience(tenantId)
                 .setIssuedAt(currentTimestamp)
                 .sign(REFRESH_TOKEN_SECRET);
-            const refreshTokenCookie = serialize('refresh_token', refreshToken, {
+            const refreshTokenCookie = serialize(`${tenantId}_refresh_token`, refreshToken, {
                 httpOnly: true,
                 //secure: NODE_ENV === 'production',
                 //sameSite: NODE_ENV === 'production' ? 'none' : 'lax',

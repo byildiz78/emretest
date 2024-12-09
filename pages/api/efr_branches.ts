@@ -9,7 +9,14 @@ export default async function handler(
     res: NextApiResponse
 ) {
     try {
-
+        let tenantId = '';
+        if (req.headers.referer) {
+            try {
+                tenantId = new URL(req.headers.referer).pathname.split('/')[1];
+            } catch (error) {
+                console.error('Error parsing referer:', error);
+            }
+        }
         const ACCESS_TOKEN_SECRET = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
 
         const cookies = req.headers.cookie?.split(';').reduce((acc: { [key: string]: string }, cookie) => {
@@ -19,7 +26,7 @@ export default async function handler(
         }, {});
 
         if (cookies) {
-            const accessToken = cookies['access_token'];
+            const accessToken = cookies[`${tenantId}_access_token`];
             const decoded = await jwtVerify(
                 accessToken,
                 ACCESS_TOKEN_SECRET

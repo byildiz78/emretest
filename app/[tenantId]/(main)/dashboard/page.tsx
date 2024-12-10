@@ -27,6 +27,39 @@ export default function Dashboard() {
     const { setBranchDatas } = useWidgetDataStore();
 
 
+    const fetchData = useCallback(async () => {
+        const branches =
+            selectedFilter.selectedBranches.length <= 0
+                ? selectedFilter.branches
+                : selectedFilter.selectedBranches;
+
+        if (branches.length > 0) {
+            const branchIds = branches.map((item: Branch) => item.BranchID);
+
+            try {
+                const response = await axios.post<WebWidgetData[]>(
+                    "/api/widgetreport",
+                    {
+                        date1: selectedFilter.date.from,
+                        date2: selectedFilter.date.to,
+                        branches: branchIds,
+                        reportId: 522,
+                    },
+                    {
+                        headers: { "Content-Type": "application/json" },
+                    }
+                )
+                setBranchDatas(response.data);
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setCountdown(REFRESH_INTERVAL / 1000);
+            }
+        }
+    }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, setBranchDatas]);
+
+
     useEffect(() => {
         const fetchWidgetsData = async () => {
             try {
@@ -40,38 +73,6 @@ export default function Dashboard() {
                 console.error("Error fetching initial data:", error);
             }
         };
-
-        const fetchData = async ()  => {
-            const branches =
-                selectedFilter.selectedBranches.length <= 0
-                    ? selectedFilter.branches
-                    : selectedFilter.selectedBranches;
-    
-            if (branches.length > 0) {
-                const branchIds = branches.map((item: Branch) => item.BranchID);
-    
-                try {
-                    const response = await axios.post<WebWidgetData[]>(
-                        "/api/widgetreport",
-                        {
-                            date1: selectedFilter.date.from,
-                            date2: selectedFilter.date.to,
-                            branches: branchIds,
-                            reportId: 522,
-                        },
-                        {
-                            headers: { "Content-Type": "application/json" },
-                        }
-                    )
-                    setBranchDatas(response.data);
-    
-                } catch (error) {
-                    console.error("Error fetching data:", error);
-                } finally {
-                    setCountdown(REFRESH_INTERVAL / 1000);
-                }
-            }
-        }
 
         fetchWidgetsData();
         fetchData();

@@ -26,22 +26,8 @@ export default function Dashboard() {
     const { selectedFilter } = useFilterStore();
     const { setBranchDatas } = useWidgetDataStore();
 
-    useEffect(() => {
-        const fetchWidgetsData = async () => {
-            try {
-                const response = await axios.get<WebWidget[]>("/api/webwidgets", {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-                setWidgets(response.data);
-            } catch (error) {
-                console.error("Error fetching initial data:", error);
-            }
-        };
-
-        const fetchData = async () => {
-            const branches =
+    const fetchData = useCallback(async () => {
+        const branches =
             selectedFilter.selectedBranches.length <= 0
                 ? selectedFilter.branches
                 : selectedFilter.selectedBranches;
@@ -70,7 +56,22 @@ export default function Dashboard() {
                 setCountdown(REFRESH_INTERVAL / 1000);
             }
         }
-        }
+    }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, setBranchDatas]);
+
+    useEffect(() => {
+        const fetchWidgetsData = async () => {
+            try {
+                const response = await axios.get<WebWidget[]>("/api/webwidgets", {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                setWidgets(response.data);
+            } catch (error) {
+                console.error("Error fetching initial data:", error);
+            }
+        };
+
 
         fetchData();
         fetchWidgetsData();

@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { Balance } from "../../../chatbot/types";
+import { Balance } from "../../../ai-analyser/types";
 import { CreditCard, Wallet } from "lucide-react";
 
 interface BalanceCardProps {

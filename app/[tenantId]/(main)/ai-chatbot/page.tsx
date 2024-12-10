@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Send, Bot, Database, TrendingUp, Clock, Search } from 'lucide-react';
 import axios from 'axios';
 import { useFilterStore } from '@/stores/filters-store';

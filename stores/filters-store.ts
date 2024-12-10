@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, subWeeks, subMonths, subYears } from 'date-fns'
 import { DateRange } from 'react-day-picker'
 import { Efr_Branches } from '@/types/tables'
+import { useSettingsStore } from './settings-store'
 
 interface Filter {
     date: DateRange
@@ -105,25 +106,46 @@ export const useFilterStore = create<FilterStore>((set) => ({
                 from: today, 
                 to: today
             }
+            const { settings  } = useSettingsStore();
+            console.log("settings", settings)
 
+            const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
+            console.log(daystart)
+            let startTime: string;
+            let endTime: string;
+      
+            if (daystart === 0) {
+              startTime = "00:00";
+              endTime = "23:59";
+            } else {
+              const startHour = daystart.toString().padStart(2, '0');
+              startTime = `${startHour}:00`;
+              const endHour = ((daystart - 1 + 24) % 24).toString().padStart(2, '0');
+              endTime = `${endHour}:59`;
+            }
+
+            const [startHours, startMinutes] = startTime.split(':').map(Number);
+            const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+            
             switch (value) {
                 case 'today':
                     newDateRange = { 
-                        from: new Date(new Date().setHours(0, 0, 0, 0)), 
-                        to: new Date(new Date().setHours(23, 59, 59, 999))
+                        from: new Date(new Date(today).setHours(startHours, startMinutes, 0)), 
+                        to: new Date(new Date(today).setHours(startHours, startMinutes, 0))
                     }
                     break
                 case 'yesterday':
-                    const yesterday = subDays(today, 1)
+                    const yesterday = subDays(today, -1)
                     newDateRange = { 
-                        from: new Date(yesterday.setHours(0, 0, 0, 0)), 
-                        to: new Date(yesterday.setHours(23, 59, 59, 999))
+                        from: new Date(new Date(yesterday).setHours(startHours, startMinutes, 0)), 
+                        to: new Date(today.setHours(endHours, endMinutes, 59))
                     }
                     break
                 case 'thisWeek':
                     newDateRange = {
-                        from: startOfWeek(today, { weekStartsOn: 1 }),
-                        to: endOfWeek(today, { weekStartsOn: 1 })
+                        from: startOfWeek(new Date(new Date(today).setHours(startHours, startMinutes, 0)), { weekStartsOn: 1 }),
+                        to: endOfWeek(new Date(new Date(today).setHours(startHours, startMinutes, 0)), { weekStartsOn: 1 })
                     }
                     break
 

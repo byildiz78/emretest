@@ -72,19 +72,19 @@ export default function Dashboard() {
         return () => clearInterval(intervalId);
     }, [fetchData]);
 
-    // Countdown timer effect
-    useEffect(() => {
-        const countdownInterval = setInterval(() => {
-            setCountdown((prevCount) => {
-                if (prevCount <= 1) {
-                    return REFRESH_INTERVAL / 1000;
-                }
-                return prevCount - 1;
-            });
-        }, 1000);
+    // // Countdown timer effect
+    // useEffect(() => {
+    //     const countdownInterval = setInterval(() => {
+    //         setCountdown((prevCount) => {
+    //             if (prevCount <= 1) {
+    //                 return REFRESH_INTERVAL / 1000;
+    //             }
+    //             return prevCount - 1;
+    //         });
+    //     }, 1000);
 
-        return () => clearInterval(countdownInterval);
-    }, []);
+    //     return () => clearInterval(countdownInterval);
+    // }, []);
 
     useEffect(() => {
         const fetchWidgetsData = async () => {

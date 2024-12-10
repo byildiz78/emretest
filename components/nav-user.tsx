@@ -38,23 +38,29 @@ export function NavUser({
     const pathname = usePathname();
 
     const Logout = async () => {
-        try {
+        // Önce storage'ları temizle
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+        });
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
 
-            const response = await axios.get('/api/auth/logout', {
+        // Hemen yönlendir
+        const tenantId = pathname?.split('/')[1];
+        window.location.href = `/${tenantId}/login`;
+
+        // Arka planda API'yi çağır
+        try {
+            await axios.get('/api/auth/logout', {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-
-            if (response.status === 200) {
-                router.push(`/${pathname?.split('/')[1]}/login`)
-            }
-
         } catch (error) {
-            console.error('Login error:', error);
-        } finally {
+            console.error('Logout error:', error);
         }
-    }
+    };
     return (
         <SidebarMenu>
             <SidebarMenuItem className="!bg-sky-100/80 dark:!bg-indigo-500/20 hover:!bg-sky-200/90 dark:hover:!bg-indigo-500/30 !rounded-xl !transition-all !duration-200">

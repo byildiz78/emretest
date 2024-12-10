@@ -667,7 +667,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="hover:bg-accent/50"
+              className="hover:bg-accent/50 md:flex hidden"
               onClick={() => handleTabOpen('notifications', t.notifications)}
             >
               <Bell className="h-5 w-5" />

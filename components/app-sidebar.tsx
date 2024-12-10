@@ -123,16 +123,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             expanded: true,
             items: [
                 {
-                    title: "Chatbot ile konuşun",
+                    title: "Veritabanı ile konuşun",
                     url: "ai-chatbot",
                     icon: LucideIcons.Bot,
                 },
-                {
+                /*{
                     title: "Veri tabanı ile konuşun",
                     url: "ai-askdatabase",
                     icon: LucideIcons.Bot,
-                },
-
+                },*/
                 {
                     title: "Analizci",
                     url: "ai-analyser",

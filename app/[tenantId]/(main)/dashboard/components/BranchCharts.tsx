@@ -157,7 +157,7 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
   const renderChart = (chartState: ChartData, index: number) => {
     if (chartState.loading) {
       return (
-        <div className="flex items-center justify-center h-[250px] sm:h-[350px]">
+        <div className="flex items-center justify-center h-[200px] sm:h-[250px]">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -188,7 +188,7 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
 
       return (
         <motion.div 
-          className="h-[250px] sm:h-[350px] w-full p-4"
+          className="h-[200px] sm:h-[250px] w-full"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
@@ -196,8 +196,8 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
           <ResponsiveContainer width="100%" height="100%">
             <BarChart 
               data={data}
-              margin={{ top: 30, right: 30, left: 20, bottom: 20 }}
-              barSize={45}
+              margin={{ top: 20, right: 10, left: 0, bottom: 20 }}
+              barSize={35}
             >
               <defs>
                 {COLORS.map((color, index) => (
@@ -245,15 +245,20 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
 
     // ReportID 531 - Kategori Dağılımı
     if (chartState.widget.ReportID === 531) {
+      const isMobile = window.innerWidth <= 768;
+      const chartHeight = isMobile ? 300 : 250;
+      const outerRadius = isMobile ? 80 : 100;
+      const innerRadius = isMobile ? 40 : 60;
+      
       return (
         <motion.div 
-          className="h-[250px] sm:h-[350px] w-full p-4"
+          className="h-[300px] sm:h-[250px] w-full"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: index * 0.1 }}
         >
           <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
+            <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
               <defs>
                 {COLORS.map((color, index) => (
                   <linearGradient key={`gradient-${index}`} id={`pie-gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
@@ -268,12 +273,15 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                outerRadius={100}
-                innerRadius={60}
-                label={({ name, value, percent }) => (
-                  `${name}\n${renderCompactValue(value)}\n${renderPercentage(percent * 100)}`
-                )}
-                labelLine={{ stroke: '#6b7280', strokeWidth: 1 }}
+                outerRadius={outerRadius}
+                innerRadius={innerRadius}
+                labelLine={{ stroke: '#6b7280', strokeWidth: 1, strokeDasharray: '2 2' }}
+                label={({ name, value, percent }) => {
+                  const formattedValue = renderCompactValue(value);
+                  const formattedPercent = renderPercentage(percent * 100);
+                  const label = isMobile ? `${formattedPercent}` : `${name}\n${formattedValue}\n${formattedPercent}`;
+                  return label;
+                }}
               >
                 {chartState.data.map((entry, index) => (
                   <Cell 
@@ -282,7 +290,10 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
                   />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip 
+                content={<CustomTooltip />}
+                wrapperStyle={{ zIndex: 1000 }}
+              />
             </PieChart>
           </ResponsiveContainer>
         </motion.div>
@@ -293,7 +304,7 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 p-4 sm:p-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
       {chartStates.map((chartState, index) => (
         <motion.div
           key={chartState.widget.AutoID}
@@ -301,9 +312,9 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
           onHoverEnd={() => setHoveredCard(null)}
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.3 }}
+          className="w-full"
         >
           <Card className="relative overflow-hidden border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-lg">
-            {/* Background Patterns */}
             <div className="absolute inset-0 opacity-30">
               <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-transparent dark:from-gray-800 dark:via-gray-900 dark:to-transparent" />
               <motion.div
@@ -316,18 +327,19 @@ export default function BranchCharts({ selectedBranch, startDate, endDate }: Bra
               />
             </div>
 
-            {/* Content */}
             <div className="relative p-4">
               <motion.div 
-                className="flex items-center justify-between mb-6"
+                className="flex items-center justify-between mb-4"
                 animate={{ y: hoveredCard === index ? -5 : 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100 pb-2 relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-12 after:bg-gradient-to-r after:from-blue-500 after:to-transparent">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-100 pb-2 relative after:content-[''] after:absolute after:left-0 after:bottom-0 after:h-0.5 after:w-12 after:bg-gradient-to-r after:from-blue-500 after:to-transparent">
                   {chartState.widget.ReportName}
                 </h3>
               </motion.div>
-              {renderChart(chartState, index)}
+              <div className="max-w-full overflow-hidden">
+                {renderChart(chartState, index)}
+              </div>
             </div>
           </Card>
         </motion.div>

@@ -89,8 +89,7 @@ export class Dataset {
         try {
           
             const database = await checkTenantDatabase(tenantId || '');
-            const databaseId = database?.databaseId || params.databaseId;
-
+            const databaseId = database?.databaseId || params.databaseId || '3';
             if(databaseId !== undefined && databaseId !== null) {
                 return this.datasetApi<T>('/query/execute', {
                     method: 'POST',

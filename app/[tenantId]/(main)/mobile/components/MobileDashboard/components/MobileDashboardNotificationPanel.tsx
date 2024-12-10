@@ -154,12 +154,6 @@ export default function NotificationPanel() {
                                 }}
                                 className="relative mt-3 first:mt-0"
                             >
-                                {/* Centered timestamp */}
-                                {/* <div className="absolute left-[-48px] top-4 flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-background/95 shadow-sm backdrop-blur-sm rounded-full px-2.5 py-1 select-none border border-border/50">
-                                    <Clock className="h-3.5 w-3.5" />
-                                    {formatTime(notification.orderDateTime)}
-                                </div> */}
-
                                 <div className={cn(
                                     "absolute left-0 top-3 w-6 h-px bg-border",
                                     "after:absolute after:w-2 after:h-2 after:rounded-full after:top-1/2 after:-translate-y-1/2 after:-right-1",

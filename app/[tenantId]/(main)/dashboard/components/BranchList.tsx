@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useWidgetDataStore } from "@/stores/widget-data-store";
-import { Loader2 } from "lucide-react";
+import PulseLoader from "react-spinners/PulseLoader";
 import BranchCard from "./BranchCard";
 import { WebWidgetData } from "@/types/tables";
 
@@ -28,11 +28,12 @@ const transformBranchData = (data: WebWidgetData) => {
 
 export default function BranchList() {
     const { branchDatas } = useWidgetDataStore();
-   
+
     if (!branchDatas || branchDatas.length === 0) {
         return (
             <div className="col-span-full flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <PulseLoader color="#6366f1" size={18} margin={4} speedMultiplier={0.8} />
+
             </div>
         );
     }

@@ -1,5 +1,6 @@
 import { useNotifications } from "@/hooks/use-notifications";
 import { motion } from "framer-motion";
+import PulseLoader from "react-spinners/PulseLoader";
 import {
     Bell,
     CheckCircle2,
@@ -77,7 +78,7 @@ export default function NotificationPanel() {
     if (loading) {
         return (
             <div className="flex items-center justify-center h-64">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <PulseLoader color="#6366f1" size={18} margin={4} speedMultiplier={0.8} />
             </div>
         );
     }
@@ -137,12 +138,12 @@ export default function NotificationPanel() {
 
                 <div className="relative pl-6 pt-4">
                     <div className="absolute left-6 top-0 bottom-4 w-px bg-gradient-to-b from-transparent via-border to-transparent" />
-                    
+
                     {notifications.map((notification, index) => {
                         const style = getNotificationStyle(notification.type);
                         const Icon = style.icon;
                         const isLastItem = index === notifications.length - 1;
-                        
+
                         return (
                             <motion.div
                                 key={notification.autoId}
@@ -167,7 +168,7 @@ export default function NotificationPanel() {
                                     "after:border-2 after:border-current after:bg-background",
                                     style.color
                                 )} />
-                                
+
                                 {!isLastItem && (
                                     <div className="absolute left-6 top-6 bottom-0 w-px bg-border" />
                                 )}
@@ -186,7 +187,7 @@ export default function NotificationPanel() {
                                     >
                                         <div className="flex items-start gap-3">
                                             <Icon className={cn("h-5 w-5 mt-0.5 flex-shrink-0", style.color)} />
-                                            
+
                                             <div className="flex-1 min-w-0">
                                                 <Tooltip>
                                                     <TooltipTrigger asChild>
@@ -215,13 +216,13 @@ export default function NotificationPanel() {
                                                     style.bgColor,
                                                     style.color
                                                 )}>
-                                                    {notification.type === 'sale' ? 'satış' : 
-                                                     notification.type === 'discount' ? 'indirim' : 
-                                                     notification.type === 'cancel' ? 'iptal' : 'uyarı'}
+                                                    {notification.type === 'sale' ? 'satış' :
+                                                        notification.type === 'discount' ? 'indirim' :
+                                                            notification.type === 'cancel' ? 'iptal' : 'uyarı'}
                                                 </span>
                                             </div>
                                         </div>
-                                        
+
                                         <div className={cn(
                                             "absolute bottom-2 right-2 p-1 rounded-full",
                                             "opacity-0 group-hover:opacity-100 transition-opacity",

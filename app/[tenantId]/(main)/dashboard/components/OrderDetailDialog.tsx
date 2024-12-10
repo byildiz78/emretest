@@ -47,7 +47,7 @@ const formatTransactions = (transactions: string): ParsedTransaction[][] => {
 
 const LoadingState = () => (
     <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <PulseLoader color="#6366f1" size={12} margin={4} speedMultiplier={0.8} />
+        <PulseLoader color="#6366f1" size={18} margin={4} speedMultiplier={0.8} />
         <p className="text-sm text-slate-600 dark:text-slate-400 animate-pulse">Sipariş detayları yükleniyor...</p>
     </div>
 );

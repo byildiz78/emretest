@@ -251,7 +251,6 @@ export default function Header() {
       selectedBranches: pendingBranches,
     });
 
-    setIsMobileFiltersOpen(false);
     setIsDateBranchModalOpen(false);
   };
 

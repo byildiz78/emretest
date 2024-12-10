@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useEffect, useState} from "react";
 import axios from "axios";
 import { WebWidget, WebWidgetData } from "@/types/tables";
 import { useFilterStore } from "@/stores/filters-store";
 import { useWidgetDataStore } from "@/stores/widget-data-store";
 import RingLoader from "react-spinners/RingLoader";
-import LazyWidgetCard from "@/app/[tenantId]/(main)/dashboard/components/LazyWidgetCard";
 import NotificationPanel from "@/app/[tenantId]/(main)/dashboard/components/NotificationPanel";
 import { Bell, Store } from "lucide-react";
 import { motion } from "framer-motion";
@@ -22,69 +21,11 @@ interface Branch {
 }
 
 export default function Dashboard() {
-    const [loading, setLoading] = useState<boolean>(true);
     const [widgets, setWidgets] = useState<WebWidget[]>([]);
-    const [initialLoading, setInitialLoading] = useState(true);
-    const [filterLoading, setFilterLoading] = useState(false);
     const [countdown, setCountdown] = useState(REFRESH_INTERVAL / 1000);
     const { selectedFilter } = useFilterStore();
-    const { addOrReplaceWidgetData, setBranchDatas } = useWidgetDataStore();
+    const { setBranchDatas } = useWidgetDataStore();
 
-    const fetchData = useCallback(async () => {
-        const branches =
-            selectedFilter.selectedBranches.length <= 0
-                ? selectedFilter.branches
-                : selectedFilter.selectedBranches;
-
-        if (branches.length > 0) {
-            const branchIds = branches.map((item: Branch) => item.BranchID);
-
-            try {
-                const response = await axios.post<WebWidgetData[]>(
-                    "/api/widgetreport",
-                    {
-                        date1: selectedFilter.date.from,
-                        date2: selectedFilter.date.to,
-                        branches: branchIds,
-                        reportId: 522,
-                    },
-                    {
-                        headers: { "Content-Type": "application/json" },
-                    }
-                )
-                setBranchDatas(response.data);
-
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setInitialLoading(false);
-                setFilterLoading(false);
-                setCountdown(REFRESH_INTERVAL / 1000);
-            }
-        }
-    }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, addOrReplaceWidgetData, setBranchDatas]);
-
-    useEffect(() => {
-        fetchData();
-        const intervalId = setInterval(() => {
-            fetchData();
-        }, REFRESH_INTERVAL);
-        return () => clearInterval(intervalId);
-    }, [fetchData]);
-
-    // // Countdown timer effect
-    // useEffect(() => {
-    //     const countdownInterval = setInterval(() => {
-    //         setCountdown((prevCount) => {
-    //             if (prevCount <= 1) {
-    //                 return REFRESH_INTERVAL / 1000;
-    //             }
-    //             return prevCount - 1;
-    //         });
-    //     }, 1000);
-
-    //     return () => clearInterval(countdownInterval);
-    // }, []);
 
     useEffect(() => {
         const fetchWidgetsData = async () => {
@@ -100,7 +41,55 @@ export default function Dashboard() {
             }
         };
 
+        const fetchData = async () => async () => {
+            const branches =
+                selectedFilter.selectedBranches.length <= 0
+                    ? selectedFilter.branches
+                    : selectedFilter.selectedBranches;
+    
+            if (branches.length > 0) {
+                const branchIds = branches.map((item: Branch) => item.BranchID);
+    
+                try {
+                    const response = await axios.post<WebWidgetData[]>(
+                        "/api/widgetreport",
+                        {
+                            date1: selectedFilter.date.from,
+                            date2: selectedFilter.date.to,
+                            branches: branchIds,
+                            reportId: 522,
+                        },
+                        {
+                            headers: { "Content-Type": "application/json" },
+                        }
+                    )
+                    setBranchDatas(response.data);
+    
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                } finally {
+                    setCountdown(REFRESH_INTERVAL / 1000);
+                }
+            }
+        }
+
         fetchWidgetsData();
+        const countdownInterval = setInterval(() => {
+            setCountdown((prevCount) => {
+                if (prevCount <= 1) {
+                    return REFRESH_INTERVAL / 1000;
+                }
+                return prevCount - 1;
+            });
+        }, 1000);
+
+        const intervalId = setInterval(() => {
+            fetchData();
+        }, REFRESH_INTERVAL);
+        return () => {
+            clearInterval(intervalId);
+            clearInterval(countdownInterval);
+        };
     }, []);
 
     return (

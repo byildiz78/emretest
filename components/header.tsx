@@ -156,6 +156,11 @@ export default function Header() {
   const [tempEndTime, setTempEndTime] = useState<string>("23:59");
   const [tempStartDate, setTempStartDate] = useState<Date | undefined>(selectedFilter.date.from);
   const [tempEndDate, setTempEndDate] = useState<Date | undefined>(selectedFilter.date.to);
+  const { setTheme } = useTheme();
+  const { language, setLanguage } = useLanguage();
+  const t = translations[language as keyof typeof translations];
+  const addTab = useTabStore((state) => state.addTab);
+
 
   useEffect(() => {
     if (settings.length > 0) {
@@ -216,10 +221,7 @@ export default function Header() {
   );
 
 
-  const { setTheme } = useTheme();
-  const { language, setLanguage } = useLanguage();
-  const t = translations[language as keyof typeof translations];
-  const addTab = useTabStore((state) => state.addTab);
+
 
   const applyFilters = () => {
     if (tempStartDate) {

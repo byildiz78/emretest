@@ -14,7 +14,7 @@ export default async function handler(
     try {
         const instance = Dataset.getInstance();
 
-        const query = `SELECT ChatBotID, AnalysisTitle, Icon FROM dm_ChatBot WHERE ChatBotID NOT IN(999)`;
+        const query = `SELECT ChatBotID, AnalysisTitle, Icon FROM dm_ChatBot WHERE ChatBotID NOT IN('999')`;
         const result = await instance.executeQuery<ChatBot[]>({
             query,
             req

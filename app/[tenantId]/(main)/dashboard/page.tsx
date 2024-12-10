@@ -41,7 +41,7 @@ export default function Dashboard() {
             }
         };
 
-        const fetchData = async () => async () => {
+        const fetchData = async ()  => {
             const branches =
                 selectedFilter.selectedBranches.length <= 0
                     ? selectedFilter.branches
@@ -74,6 +74,8 @@ export default function Dashboard() {
         }
 
         fetchWidgetsData();
+        fetchData();
+
         const countdownInterval = setInterval(() => {
             setCountdown((prevCount) => {
                 if (prevCount <= 1) {
@@ -86,6 +88,7 @@ export default function Dashboard() {
         const intervalId = setInterval(() => {
             fetchData();
         }, REFRESH_INTERVAL);
+
         return () => {
             clearInterval(intervalId);
             clearInterval(countdownInterval);

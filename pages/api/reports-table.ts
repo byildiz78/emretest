@@ -2,6 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { Dataset } from '@/pages/api/dataset';
 import { formatDateTimeYMDHI } from '@/lib/utils';
 import { WebReport } from '@/types/tables';
+import { toZonedTime } from 'date-fns-tz';
+const timeZone = 'Europe/Istanbul';
 
 export default async function handler(
     req: NextApiRequest,
@@ -20,8 +22,10 @@ export default async function handler(
 
         const reportQuery = `SELECT ReportQuery FROM dm_infiniaWebReports WHERE ReportID = @reportId`;
         const instance = Dataset.getInstance();
-        const date1Obj = new Date(date1);
-        const date2Obj = new Date(date2);
+
+        const date1Obj = toZonedTime(new Date(date1), timeZone);
+        const date2Obj = toZonedTime(new Date(date2), timeZone);
+
         const reportQueryResult = await instance.executeQuery<WebReport[]>({
             query: reportQuery,
             parameters: {

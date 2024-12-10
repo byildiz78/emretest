@@ -4,6 +4,7 @@ import { DateRange } from 'react-day-picker'
 import { Efr_Branches } from '@/types/tables'
 import { useSettingsStore } from './settings-store'
 
+import { toZonedTime } from 'date-fns-tz';
 interface Filter {
     date: DateRange
     branches: Efr_Branches[]
@@ -24,8 +25,8 @@ interface FilterStore {
 export const useFilterStore = create<FilterStore>((set) => ({
     selectedFilter: {
         date: {
-            from: new Date(new Date().setHours(0, 0, 0, 0)),
-            to: new Date(new Date().setHours(23, 59, 59, 999)),
+            from: toZonedTime(new Date(new Date().setHours(0, 0, 0, 0)), ''),
+            to: toZonedTime(new Date(new Date().setHours(23, 59, 59, 999)), '') ,
         },
         branches: [],
         selectedBranches: []

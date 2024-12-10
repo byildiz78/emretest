@@ -156,6 +156,11 @@ export default function Header() {
   const [tempEndTime, setTempEndTime] = useState<string>("23:59");
   const [tempStartDate, setTempStartDate] = useState<Date | undefined>(selectedFilter.date.from);
   const [tempEndDate, setTempEndDate] = useState<Date | undefined>(selectedFilter.date.to);
+  const { setTheme } = useTheme();
+  const { language, setLanguage } = useLanguage();
+  const t = translations[language as keyof typeof translations];
+  const addTab = useTabStore((state) => state.addTab);
+
 
   useEffect(() => {
     if (settings.length > 0) {
@@ -216,10 +221,7 @@ export default function Header() {
   );
 
 
-  const { setTheme } = useTheme();
-  const { language, setLanguage } = useLanguage();
-  const t = translations[language as keyof typeof translations];
-  const addTab = useTabStore((state) => state.addTab);
+
 
   const applyFilters = () => {
     if (tempStartDate) {
@@ -251,8 +253,27 @@ export default function Header() {
   };
 
   const dateRangeChange = (value: string) => {
-    const today = new Date();
-    const tomorrow = addDays(new Date(), 1);
+    const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
+    let startTime: string;
+    let endTime: string;
+
+    if (daystart === 0) {
+      startTime = "00:00";
+      endTime = "23:59";
+    } else {
+      const startHour = daystart.toString().padStart(2, '0');
+      startTime = `${startHour}:00`;
+      const endHour = ((daystart - 1 + 24) % 24).toString().padStart(2, '0');
+      endTime = `${endHour}:59`;
+    }
+
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+
+    const today = new Date(new Date().setHours(startHours, startMinutes, 0));
+    const tomorrow = addDays(new Date().setHours(endHours, endMinutes, 0), 1);
+    console.log("today", today, "tomorrow", tomorrow)
     switch (value) {
       case "today":
         setTempStartDate(today);
@@ -260,36 +281,36 @@ export default function Header() {
         break;
       case "yesterday":
         const yesterday = subDays(today, 1);
-        setTempStartDate(yesterday);
-        setTempEndDate(today);
+        setTempStartDate(new Date(yesterday.setHours(startHours, startMinutes, 0)));
+        setTempEndDate(new Date(today.setHours(endHours, endMinutes, 0)));
         break;
       case "thisWeek":
-        setTempStartDate(startOfWeek(today, { weekStartsOn: 1 }));
-        setTempEndDate(endOfWeek(today, { weekStartsOn: 1 }));
+        setTempStartDate(new Date(startOfWeek(today, { weekStartsOn: 1 }).setHours(startHours, startMinutes, 0)));
+        setTempEndDate(new Date(endOfWeek(today, { weekStartsOn: 1 }).setHours(endHours, endMinutes, 0)));
         break;
 
       case "lastWeek":
         const lastWeek = subWeeks(today, 1);
-        setTempStartDate(startOfWeek(lastWeek, { weekStartsOn: 1 }));
-        setTempEndDate(endOfWeek(lastWeek, { weekStartsOn: 1 }));
+        setTempStartDate(new Date(startOfWeek(lastWeek, { weekStartsOn: 1 }).setHours(startHours, startMinutes, 0)));
+        setTempEndDate(new Date(endOfWeek(lastWeek, { weekStartsOn: 1 }).setHours(endHours, endMinutes, 0)));
         break;
       case "thisMonth":
-        setTempStartDate(startOfMonth(today));
-        setTempEndDate(endOfMonth(today));
+        setTempStartDate(new Date(startOfMonth(today).setHours(startHours, startMinutes, 0)));
+        setTempEndDate(new Date(endOfMonth(today).setHours(endHours, endMinutes, 0)));
         break;
       case "lastMonth":
         const lastMonth = subMonths(today, 1);
-        setTempStartDate(startOfMonth(lastMonth));
-        setTempEndDate(endOfMonth(lastMonth));
+        setTempStartDate(new Date(startOfMonth(lastMonth).setHours(startHours, startMinutes, 0)));
+        setTempEndDate(new Date(endOfMonth(lastMonth).setHours(endHours, endMinutes, 0)));
         break;
       case "thisYear":
-        setTempStartDate(startOfYear(today));
-        setTempEndDate(endOfYear(today));
+        setTempStartDate(new Date(startOfYear(today).setHours(startHours, startMinutes, 0)));
+        setTempEndDate(new Date(endOfYear(today).setHours(endHours, endMinutes, 0)));
         break;
       case "lastYear":
         const lastYear = subYears(today, 1);
-        setTempStartDate(startOfYear(lastYear));
-        setTempEndDate(endOfYear(lastYear));
+        setTempStartDate(new Date(startOfYear(lastYear).setHours(startHours, startMinutes, 0)));
+        setTempEndDate(new Date(endOfYear(lastYear).setHours(endHours, endMinutes, 0)));
         break;
       case "lastSevenDays":
         setTempStartDate(subDays(today, 7));

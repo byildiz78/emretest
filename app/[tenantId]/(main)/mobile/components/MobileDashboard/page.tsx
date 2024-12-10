@@ -21,16 +21,27 @@ interface Branch {
 }
 
 export default function Dashboard() {
-    const [loading, setLoading] = useState<boolean>(true);
     const [widgets, setWidgets] = useState<WebWidget[]>([]);
-    const [initialLoading, setInitialLoading] = useState(true);
-    const [filterLoading, setFilterLoading] = useState(false);
     const [countdown, setCountdown] = useState(REFRESH_INTERVAL / 1000);
     const { selectedFilter } = useFilterStore();
-    const { addOrReplaceWidgetData, setBranchDatas } = useWidgetDataStore();
+    const { setBranchDatas } = useWidgetDataStore();
 
-    const fetchData = useCallback(async () => {
-        const branches =
+    useEffect(() => {
+        const fetchWidgetsData = async () => {
+            try {
+                const response = await axios.get<WebWidget[]>("/api/webwidgets", {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                setWidgets(response.data);
+            } catch (error) {
+                console.error("Error fetching initial data:", error);
+            }
+        };
+
+        const fetchData = async () => {
+            const branches =
             selectedFilter.selectedBranches.length <= 0
                 ? selectedFilter.branches
                 : selectedFilter.selectedBranches;
@@ -56,23 +67,18 @@ export default function Dashboard() {
             } catch (error) {
                 console.error("Error fetching data:", error);
             } finally {
-                setInitialLoading(false);
-                setFilterLoading(false);
                 setCountdown(REFRESH_INTERVAL / 1000);
             }
         }
-    }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, addOrReplaceWidgetData, setBranchDatas]);
+        }
 
-    useEffect(() => {
         fetchData();
+        fetchWidgetsData();
+
         const intervalId = setInterval(() => {
             fetchData();
         }, REFRESH_INTERVAL);
-        return () => clearInterval(intervalId);
-    }, [fetchData]);
 
-    // Countdown timer effect
-    useEffect(() => {
         const countdownInterval = setInterval(() => {
             setCountdown((prevCount) => {
                 if (prevCount <= 1) {
@@ -82,24 +88,10 @@ export default function Dashboard() {
             });
         }, 1000);
 
-        return () => clearInterval(countdownInterval);
-    }, []);
-
-    useEffect(() => {
-        const fetchWidgetsData = async () => {
-            try {
-                const response = await axios.get<WebWidget[]>("/api/webwidgets", {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-                setWidgets(response.data);
-            } catch (error) {
-                console.error("Error fetching initial data:", error);
-            }
+        return () => {
+            clearInterval(intervalId);
+            clearInterval(countdownInterval);
         };
-
-        fetchWidgetsData();
     }, []);
 
     return (

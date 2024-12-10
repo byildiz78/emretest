@@ -641,8 +641,8 @@ export default function Header() {
                       <Sun className="h-5 w-5" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-medium">Light</span>
-                      <span className="text-xs text-muted-foreground">Light theme for bright environments</span>
+                      <span className="font-medium">Açık Tonlar</span>
+                      <span className="text-xs text-muted-foreground">Sayfa Açık Tonlarda görüntülenir</span>
                     </div>
                   </DropdownMenuItem>
                   <DropdownMenuItem
@@ -653,8 +653,8 @@ export default function Header() {
                       <Moon className="h-5 w-5" />
                     </div>
                     <div className="flex flex-col">
-                      <span className="font-medium">Dark</span>
-                      <span className="text-xs text-muted-foreground">Dark theme for low-light environments</span>
+                      <span className="font-medium">Koyu Tonlar</span>
+                      <span className="text-xs text-muted-foreground">Sayfa Koyu tonlarda görüntülenir</span>
                     </div>
                   </DropdownMenuItem>
                 </DropdownMenuContent>

@@ -1,4 +1,4 @@
-import { formatDateTimeYMDHIS } from '@/lib/utils';
+import { formatDateTimeYMDHI, formatDateTimeYMDHIS } from '@/lib/utils';
 import { Dataset } from '@/pages/api/dataset';
 import { ChatBot } from '@/types/tables';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -13,14 +13,25 @@ const client = new OpenAI({
     baseURL: DEEPSEEK_API_URL
 });
 
+type ResponseWithFlush = NextApiResponse & {
+    flush?: () => void;
+};
+
 export default async function handler(
     req: NextApiRequest,
-    res: NextApiResponse
+    res: ResponseWithFlush
 ) {
+    // Enable streaming for progress updates
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
     try {
+        const { branches, message, oldMessages } = req.body;
 
-
-        const { branches, date1, date2, message } = req.body;
+        // Send progress update for config fetch
+        res.write('data: ' + JSON.stringify({ status: 'progress', message: 'Yapılandırma alınıyor...' }) + '\n\n');
+        res.flush?.();
 
         const instance = Dataset.getInstance();
         const query = `SELECT TOP 1 ChatbotRole, ChatbotContent FROM dm_ChatBot WHERE ChatBotID = '999' `;
@@ -34,27 +45,39 @@ export default async function handler(
             return res.status(404).json({ error: 'Chatbot configuration not found' });
         }
 
-        const date1Obj = new Date(date1);
-        const date2Obj = new Date(date2);
+        // Send progress update for AI processing
+        res.write('data: ' + JSON.stringify({ status: 'progress', message: 'Sorgunuz AI tarafından işleniyor...' }) + '\n\n');
+        res.flush?.();
 
         const parameters = {
-            date1: formatDateTimeYMDHIS(date1Obj),
-            date2: formatDateTimeYMDHIS(date2Obj),
             BranchID: branches
         };
 
-        // Create messages array with explicit type checking
         const messages: ChatCompletionMessageParam[] = [
             {
-                role: 'system',
-                content: `${chatbotConfig.ChatbotContent}\nLütfen yanıtını sadece SQL sorgusu olarak ver ve sorguyu JSON formatında döndür. Örnek format: {"sql": "SELECT * FROM table"}. Başka bir açıklama ekleme, sadece SQL sorgusunu JSON formatında döndür.`
+                role: chatbotConfig.ChatbotRole as 'system' | 'user' | 'assistant',
+                content: `${chatbotConfig.ChatbotContent}.  SQL Parametreleri: ${JSON.stringify(parameters)}" `
             }
         ];
 
-        console.log('Final messages array:', JSON.stringify(messages, null, 2));
+        let oldmesgs = '';
+        try{
+            oldmesgs = oldMessages.join('\n')
+            messages.push({
+                role: 'user',
+                content: `Geçmiş Mesajlar: ` + oldmesgs 
+            })
+    
+        }catch(error){
+            console.log(error)
+        }
 
+        messages.push({
+            role: 'user',
+            content: message
+        })
+        console.log(messages)
         try {
-            // Get streaming response from AI
             const response = await client.chat.completions.create({
                 model: 'deepseek-chat',
                 messages,
@@ -63,52 +86,74 @@ export default async function handler(
                 max_tokens: 2000
             });
 
-            let fullContent = '';
-            
-            // Collect all content parts
+            // Send progress update for SQL generation
+            res.write('data: ' + JSON.stringify({ status: 'progress', message: 'SQL sorgusu oluşturuluyor...' }) + '\n\n');
+            res.flush?.();
+
+            let aiResponse = '';
             for await (const part of response) {
                 const content = part.choices[0]?.delta?.content || '';
-                fullContent += content;
+                aiResponse += content;
             }
+            console.log(aiResponse)
+            if(aiResponse.toString().includes('ONLY_SQL')){
+                aiResponse = aiResponse
+                .replace('ONLY_SQL', '')
+                .replace(/```sql/g, '')
+                .replace(/```/g, '')
+                .replace(/\\n/g, '\n')
+                .trim();
 
-            console.log('AI Response:', fullContent); // Debug için
-
-            try {
-                // Eğer response zaten JSON formatında ise
-                const parsedContent = JSON.parse(fullContent);
-                const sqlQuery = parsedContent?.sql || '';
-                console.log('Extracted SQL Query:', sqlQuery);
-                res.setHeader('Content-Type', 'application/json');
-                res.status(200).json(sqlQuery);
-            } catch (parseError) {
-                // Eğer JSON parse edilemezse, SQL sorgusunu çıkarmaya çalış
-                const sqlMatch = fullContent.match(/SELECT[\s\S]*?(?=;|$)/i);
-                if (sqlMatch) {
-                    const sqlQuery = sqlMatch[0].trim();
-                    console.log('Extracted SQL Query (from regex):', sqlQuery);
-                    res.setHeader('Content-Type', 'application/json');
-                    res.status(200).json(sqlQuery);
-                } else {
-                    console.error('Could not extract SQL query:', fullContent);
-                    res.status(500).json({ error: 'Could not extract SQL query from response' });
+                if (!aiResponse.toString().includes('SELECT')) {
+                    res.write('data: ' + JSON.stringify({ 
+                        status: 'error',
+                        error: aiResponse
+                    }) + '\n\n');
+    
+                    res.flush?.();
+                    res.end();
+    
                 }
+    
+                // Send progress update for database query
+                res.write('data: ' + JSON.stringify({ status: 'progress', message: 'Veritabanı sorgusu çalıştırılıyor...' }) + '\n\n');
+                res.flush?.();
+    
+                const result = await instance.executeQuery<any[]>({
+                    query: aiResponse,
+                    req
+                });
+    
+                // Send final result
+                res.write('data: ' + JSON.stringify({ status: 'complete', data: result }) + '\n\n');
+                res.flush?.();
+            }else{
+                res.write('data: ' + JSON.stringify({ status: 'complete', data: aiResponse }) + '\n\n');
+
             }
+
+
+            res.end();
 
         } catch (error) {
             console.error('AI processing error:', error);
-            res.status(500).json({ 
-                error: error instanceof Error ? error.message : 'AI processing error',
-                details: error
-            });
+            res.write('data: ' + JSON.stringify({ 
+                status: 'error',
+                error: error instanceof Error ? error.message : 'AI processing error'
+            }) + '\n\n');
+            res.flush?.();
+            res.end();
         }
 
     } catch (error) {
         console.error('Handler error:', error);
         if (!res.headersSent) {
-            res.status(500).json({
-                error: error instanceof Error ? error.message : 'An unexpected error occurred',
-                details: error
-            });
+            res.write('data: ' + JSON.stringify({ 
+                status: 'error',
+                error: error instanceof Error ? error.message : 'An unexpected error occurred'
+            }) + '\n\n');
+            res.flush?.();
+            res.end();
         }
     }
 }

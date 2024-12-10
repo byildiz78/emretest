@@ -64,6 +64,7 @@ import { BranchProvider } from "../providers/branch-provider";
 import { TimePicker } from "./ui/time-picker";
 import { useTabStore } from "../stores/tab-store";
 import { useSettingsStore } from "@/stores/settings-store";
+import { toZonedTime } from "date-fns-tz";
 
 const translations = {
   tr: {
@@ -207,8 +208,8 @@ export default function Header() {
         setFilter({
           ...selectedFilter,
           date: {
-            from: fromDate,
-            to: toDate
+            from: toZonedTime(fromDate, 'Europe/Istanbul'),
+            to: toZonedTime(toDate, 'Europe/Istanbul') 
           }
         });
 
@@ -241,8 +242,8 @@ export default function Header() {
     setFilter({
       ...selectedFilter,
       date: {
-        from: tempStartDate,
-        to: tempEndDate,
+        from: toZonedTime(tempStartDate || new Date(), 'Europe/Istanbul'),
+        to: toZonedTime(tempEndDate|| new Date(), 'Europe/Istanbul') 
       },
       selectedBranches: pendingBranches,
     });

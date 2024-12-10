@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn, formatDateTimeYMDHI } from "@/lib/utils";
-import Link from "next/link";
+import { toZonedTime } from 'date-fns-tz';
+
 import {
   Calendar as CalendarIcon,
   ChevronDown,
@@ -220,8 +221,8 @@ export default function Header() {
         setFilter({
           ...selectedFilter,
           date: {
-            from: fromDate,
-            to: toDate
+            from: toZonedTime(fromDate, 'Europe/Istanbul'),
+            to: toZonedTime(toDate, 'Europe/Istanbul') 
           }
         });
       }
@@ -245,8 +246,8 @@ export default function Header() {
     setFilter({
       ...selectedFilter,
       date: {
-        from: tempStartDate,
-        to: tempEndDate,
+        from: toZonedTime(tempStartDate || new Date(), 'Europe/Istanbul'),
+        to: toZonedTime(tempEndDate|| new Date(), 'Europe/Istanbul') 
       },
       selectedBranches: pendingBranches,
     });

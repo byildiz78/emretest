@@ -1,7 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Dataset } from '@/pages/api/dataset';
 import { WebWidget, WebWidgetData } from '@/types/tables';
-
+import { toZonedTime } from 'date-fns-tz';
+const timeZone = 'Europe/Istanbul';
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
@@ -46,8 +47,8 @@ export default async function handler(
         }
 
         try {
-            const date1Obj = new Date(date1);
-            const date2Obj = new Date(date2);
+            const date1Obj = toZonedTime(new Date(date1), timeZone);
+            const date2Obj = toZonedTime(new Date(date2), timeZone);
 
             const result = await instance.executeQuery<WebWidgetData[]>({
                 query: widget.ReportQuery?.toString() + "",

@@ -58,6 +58,16 @@ export default function Dashboard() {
         }
     }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, setBranchDatas]);
 
+    
+    useEffect(() => {
+        fetchData();
+        const intervalId = setInterval(() => {
+            fetchData();
+        }, REFRESH_INTERVAL);
+        return () => clearInterval(intervalId);
+    }, [fetchData]);
+
+
     useEffect(() => {
         const fetchWidgetsData = async () => {
             try {
@@ -73,12 +83,7 @@ export default function Dashboard() {
         };
 
 
-        fetchData();
         fetchWidgetsData();
-
-        const intervalId = setInterval(() => {
-            fetchData();
-        }, REFRESH_INTERVAL);
 
         const countdownInterval = setInterval(() => {
             setCountdown((prevCount) => {
@@ -90,7 +95,6 @@ export default function Dashboard() {
         }, 1000);
 
         return () => {
-            clearInterval(intervalId);
             clearInterval(countdownInterval);
         };
     }, []);

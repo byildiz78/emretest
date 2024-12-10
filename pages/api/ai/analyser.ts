@@ -37,7 +37,6 @@ export default async function handler(
             },
             req
         });
-        console.log(config)
 
         const chatbotConfig = config[0];
 
@@ -55,8 +54,6 @@ export default async function handler(
             ...(chatbotConfig.ChatbotQueryParams ? JSON.parse(chatbotConfig.ChatbotQueryParams) : {})
         };
 
-        console.log(parameters)
-        // Execute the analysis query
         const queryResult = await instance.executeQuery<any[]>({
             query: chatbotConfig.ChatbotQuery,
             parameters,
@@ -89,13 +86,11 @@ export default async function handler(
         try {
 
             if (queryResult.length) {
-                // Prepare the complete data summary
                 const dataSummary = {
                     totalRecords: queryResult.length,
                     data: queryResult
                 };
 
-                // Send a single request with all data
                 const messages: ChatCompletionMessageParam[] = [
                     firstMessage,
                     {

@@ -1,14 +1,11 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export const revalidate = 0;
-export const dynamic = "force-dynamic";
-
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
     try {
-        const { url } = await fetch("https://www.askyourdatabase.com/api/chatbot/v2/session", {
+        const { url } = await fetch(process.env.DATABASE_CHATBOT_API_URL || '', {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

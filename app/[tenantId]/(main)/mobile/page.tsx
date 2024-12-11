@@ -4,11 +4,19 @@ import Filter from "./components/MobileFilter/filter";
 import { MobileFooter } from "./components/MobileNavigation/MobileFooter";
 import { Toaster } from "@/components/ui/toaster";
 import MobileNotifications from "./components/MobileNotifications/MobileNotifications";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const MobilePage = () => {
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
+    useEffect(() => {   
+        if (window.ReactNativeWebView) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({
+                type: 'loginSuccess',
+                userId: "1297"
+            }));
+        }
+    }, []);
     return (
         <div className="w-full">
             <Filter />

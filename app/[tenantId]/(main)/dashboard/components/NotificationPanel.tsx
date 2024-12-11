@@ -1,4 +1,3 @@
-import { useNotifications } from "@/hooks/use-notifications";
 import { motion } from "framer-motion";
 import PulseLoader from "react-spinners/PulseLoader";
 import {
@@ -7,7 +6,6 @@ import {
     Ban,
     Tag,
     AlertCircle,
-    Loader2,
     ArrowUpRight,
     Clock
 } from "lucide-react";
@@ -49,7 +47,6 @@ export default function NotificationPanel() {
                     });
     
                     if(response.status === 200){
-                        console.log(response.data)
                         setNotifications(response.data);
                     }
                 } catch (err) {

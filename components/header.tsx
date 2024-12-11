@@ -65,6 +65,8 @@ import { TimePicker } from "./ui/time-picker";
 import { useTabStore } from "../stores/tab-store";
 import { useSettingsStore } from "@/stores/settings-store";
 import { toZonedTime } from "date-fns-tz";
+import { useExpo } from "@/hooks/use-expo";
+import { useTab } from "@/hooks/use-tab";
 
 const translations = {
   tr: {
@@ -160,9 +162,8 @@ export default function Header() {
   const { setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const t = translations[language as keyof typeof translations];
-  const addTab = useTabStore((state) => state.addTab);
 
-
+  const { handleTabOpen } = useTab();
   useEffect(() => {
     if (settings.length > 0) {
       const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
@@ -202,7 +203,6 @@ export default function Header() {
           newTempEndDate.setHours(endHours, endMinutes, 59);
           setTempEndDate(newTempEndDate);
         }
-        console.log(toZonedTime(fromDate, 'Europe/Istanbul'), toZonedTime(toDate, 'Europe/Istanbul'))
         setFilter({
           ...selectedFilter,
           date: {
@@ -217,8 +217,6 @@ export default function Header() {
   const [pendingBranches, setPendingBranches] = useState(
     selectedFilter.selectedBranches
   );
-
-
 
 
   const applyFilters = () => {
@@ -318,18 +316,7 @@ export default function Header() {
     }
   };
 
-  const handleTabOpen = (id: string, title: string) => {
-    const existingTab = useTabStore.getState().tabs.find(tab => tab.id === id);
-    if (existingTab) {
-      useTabStore.getState().setActiveTab(id);
-    } else {
-      addTab({
-        id,
-        title,
-        lazyComponent: () => import(`@/app/[tenantId]/(main)/${id}/page`),
-      });
-    }
-  };
+
 
   return (
     <BranchProvider>

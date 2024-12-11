@@ -8,16 +8,9 @@ import { toZonedTime } from 'date-fns-tz';
 
 import {
   Calendar as CalendarIcon,
-  ChevronDown,
   Sun,
   Moon,
-  Palette,
-  Languages,
-  Bell,
-  Settings,
-  User,
   Trash2,
-  CheckCircle2,
   Filter,
   Workflow,
 } from "lucide-react";
@@ -74,6 +67,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useSettingsStore } from "@/stores/settings-store";
+import { useExpo } from "@/hooks/use-expo";
 
 const translations = {
   tr: {
@@ -159,6 +153,7 @@ const translations = {
 export default function Header() {
   const [isDateBranchModalOpen, setIsDateBranchModalOpen] = useState(false);
   const { settings } = useSettingsStore();
+  const { sendNotification } = useExpo()
 
   const { selectedFilter, setFilter, handleStartDateSelect, handleEndDateSelect } = useFilterStore();
   const [pendingBranches, setPendingBranches] = useState(
@@ -215,19 +210,28 @@ export default function Header() {
           newTempEndDate.setHours(endHours, endMinutes, 59);
           setTempEndDate(newTempEndDate);
         }
-        console.log(toZonedTime(fromDate, 'Europe/Istanbul'), toZonedTime(toDate, 'Europe/Istanbul'))
         setFilter({
           ...selectedFilter,
           date: {
             from: toZonedTime(fromDate, 'Europe/Istanbul'),
-            to: toZonedTime(toDate, 'Europe/Istanbul') 
+            to: toZonedTime(toDate, 'Europe/Istanbul')
           }
         });
 
       }
     }
   }, [settings]);
+
+  useEffect(() => {
+    sendNotification(["1297"], "Dil Bildirimi", "Dil Değiştirildi");
+  }, [language]);
+
+  useEffect(() => {
+    sendNotification(["1297"], "Filtre Bildirimi", "Filtre uygulandı");
+  }, [selectedFilter]);
+
   const applyFilters = () => {
+
     if (tempStartDate) {
       const [hours, minutes] = tempStartTime.split(':');
       const newStartDate = new Date(tempStartDate);
@@ -246,7 +250,7 @@ export default function Header() {
       ...selectedFilter,
       date: {
         from: toZonedTime(tempStartDate || new Date(), 'Europe/Istanbul'),
-        to: toZonedTime(tempEndDate|| new Date(), 'Europe/Istanbul') 
+        to: toZonedTime(tempEndDate || new Date(), 'Europe/Istanbul')
       },
       selectedBranches: pendingBranches,
     });
@@ -301,21 +305,21 @@ export default function Header() {
         break;
       case "thisMonth":
         setTempStartDate(new Date(startOfMonth(today).setHours(startHours, startMinutes, 0)));
-        setTempEndDate(addDays(new Date(endOfMonth(today).setHours(endHours, endMinutes, 0)),1));
+        setTempEndDate(addDays(new Date(endOfMonth(today).setHours(endHours, endMinutes, 0)), 1));
         break;
       case "lastMonth":
         const lastMonth = subMonths(today, 1);
         setTempStartDate(new Date(startOfMonth(lastMonth).setHours(startHours, startMinutes, 0)));
-        setTempEndDate(addDays(new Date(endOfMonth(lastMonth).setHours(endHours, endMinutes, 0)),1));
+        setTempEndDate(addDays(new Date(endOfMonth(lastMonth).setHours(endHours, endMinutes, 0)), 1));
         break;
       case "thisYear":
         setTempStartDate(new Date(startOfYear(today).setHours(startHours, startMinutes, 0)));
-        setTempEndDate(addDays(new Date(endOfYear(today).setHours(endHours, endMinutes, 0)),1));
+        setTempEndDate(addDays(new Date(endOfYear(today).setHours(endHours, endMinutes, 0)), 1));
         break;
       case "lastYear":
         const lastYear = subYears(today, 1);
         setTempStartDate(new Date(startOfYear(lastYear).setHours(startHours, startMinutes, 0)));
-        setTempEndDate(addDays(new Date(endOfYear(lastYear).setHours(endHours, endMinutes, 0)),1));
+        setTempEndDate(addDays(new Date(endOfYear(lastYear).setHours(endHours, endMinutes, 0)), 1));
         break;
       case "lastSevenDays":
         setTempStartDate(subDays(today, 7));
@@ -479,7 +483,7 @@ export default function Header() {
             <DialogHeader className="px-4 py-3 border-b">
               <DialogTitle className="text-lg font-semibold">{t.functions}</DialogTitle>
               <DialogDescription className="text-sm text-muted-foreground">
-                
+
               </DialogDescription>
             </DialogHeader>
             <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">

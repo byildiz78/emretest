@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import WidgetCard from "./components/MobileDashboardWidgetCard";
 import BranchList from "./components/MobileDashboardBranchList";
 import NotificationPanel from "./components/MobileDashboardNotificationPanel";
+import { useToast } from "@/components/ui/toast/use-toast";
 
 const REFRESH_INTERVAL = 90000; // 90 seconds in milliseconds
 
@@ -58,6 +59,7 @@ export default function Dashboard() {
         }
     }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, setBranchDatas]);
 
+
     
     useEffect(() => {
         fetchData();
@@ -69,6 +71,8 @@ export default function Dashboard() {
 
 
     useEffect(() => {
+
+
         const fetchWidgetsData = async () => {
             try {
                 const response = await axios.get<WebWidget[]>("/api/webwidgets", {
@@ -77,6 +81,7 @@ export default function Dashboard() {
                     },
                 });
                 setWidgets(response.data);
+
             } catch (error) {
                 console.error("Error fetching initial data:", error);
             }

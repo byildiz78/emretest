@@ -227,3 +227,10 @@ export type DatabaseResponse = {
     server: string;
     database: string;
 }
+
+export type ExpoTokens = {
+    AutoID: number;
+    ExpoToken: string;
+    UpdatedAt: Date;
+    UserID: string;
+}

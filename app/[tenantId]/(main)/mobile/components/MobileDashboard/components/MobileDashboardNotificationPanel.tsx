@@ -1,4 +1,3 @@
-import { useNotifications } from "@/hooks/use-notifications";
 import { motion } from "framer-motion";
 import PulseLoader from "react-spinners/PulseLoader";
 import {
@@ -7,7 +6,6 @@ import {
     Ban,
     Tag,
     AlertCircle,
-    Loader2,
     ArrowUpRight,
     Clock
 } from "lucide-react";
@@ -21,9 +19,16 @@ import { cn, formatCurrency } from "@/lib/utils";
 import { Notification, OrderDetail } from "@/types/tables";
 import { useOrderDetail } from "@/hooks/use-orderdetail";
 import { OrderDetailDialog } from "./MobileDashboardOrderDetailDialog";
+import { useFilterStore } from "@/stores/filters-store";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function NotificationPanel() {
-    const { notifications, loading, error } = useNotifications();
+    const { selectedFilter} = useFilterStore();
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [loading, setLoading] = useState(true); 
+    const [error, setError] = useState<string | null>(null);
+    
     const {
         isOpen,
         setIsOpen,
@@ -67,6 +72,34 @@ export default function NotificationPanel() {
                 };
         }
     };
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            if(selectedFilter.branches.length > 0){
+                try {
+                    setLoading(true);
+                    setError(null)
+                    const response = await axios.post<Notification[]>('/api/notifications', {
+                       branches: selectedFilter.branches.map(item => item.BranchID) || [] 
+                    });
+    
+                    if(response.status === 200){
+                        setNotifications(response.data);
+                    }
+                } catch (err) {
+                    setError(err instanceof Error ? err.message : 'Bilinmeyen hata');
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+
+
+        fetchNotifications();
+
+        const interval = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(interval);
+    }, [selectedFilter.branches]);
 
     const formatTime = (timestamp: string) => {
         return new Date(timestamp).toLocaleTimeString("tr-TR", {

@@ -4,14 +4,20 @@ import { motion } from "framer-motion";
 import { Bell, MessageSquare, Calendar, Clock, Users, AlertTriangle, CheckCircle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useTab } from "@/hooks/use-tab";
 
 export default function NotificationsPage() {
+
+  const { handleTabOpen } = useTab();
+
+  
   const notifications = [
     {
       title: "Sistem Bildirimleri",
       description: "Sistemle ilgili önemli güncellemeler ve bildirimler",
       icon: Bell,
       color: "bg-blue-500 dark:bg-blue-600",
+      url: "notifications",
       count: 3
     },
     {
@@ -19,6 +25,7 @@ export default function NotificationsPage() {
       description: "Diğer kullanıcılardan gelen mesajlar",
       icon: MessageSquare,
       color: "bg-green-500 dark:bg-green-600",
+      url: "notifications",
       count: 5
     },
     {
@@ -26,6 +33,7 @@ export default function NotificationsPage() {
       description: "Yaklaşan toplantılar ve etkinlikler",
       icon: Calendar,
       color: "bg-purple-500 dark:bg-purple-600",
+      url: "notifications",
       count: 2
     },
     {
@@ -33,6 +41,7 @@ export default function NotificationsPage() {
       description: "Yaklaşan ve geciken görevler",
       icon: Clock,
       color: "bg-yellow-500 dark:bg-yellow-600",
+      url: "notifications",
       count: 4
     },
     {
@@ -40,6 +49,7 @@ export default function NotificationsPage() {
       description: "Diğer kullanıcıların sistem aktiviteleri",
       icon: Users,
       color: "bg-pink-500 dark:bg-pink-600",
+      url: "notifications",
       count: 8
     },
     {
@@ -47,6 +57,7 @@ export default function NotificationsPage() {
       description: "Önemli sistem uyarıları ve hatalar",
       icon: AlertTriangle,
       color: "bg-red-500 dark:bg-red-600",
+      url: "notifications",
       count: 1
     },
     {
@@ -54,6 +65,7 @@ export default function NotificationsPage() {
       description: "Başarıyla tamamlanan işlem bildirimleri",
       icon: CheckCircle,
       color: "bg-indigo-500 dark:bg-indigo-600",
+      url: "notifications",
       count: 6
     },
     {
@@ -61,6 +73,7 @@ export default function NotificationsPage() {
       description: "Genel sistem duyuruları",
       icon: Info,
       color: "bg-cyan-500 dark:bg-cyan-600",
+      url: "notifications/announce",
       count: 2
     }
   ];
@@ -115,6 +128,7 @@ export default function NotificationsPage() {
                   <Button 
                     className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300" 
                     variant="outline"
+                    onClick={() => handleTabOpen(notification.url, notification.title)}
                   >
                     Görüntüle
                   </Button>

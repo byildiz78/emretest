@@ -110,7 +110,7 @@ export default async function handler(
             });
 
             res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
-            return res.status(200).json({ message: 'Login successful' });
+            return res.status(200).json({ userId: user.UserID, message: 'Login successful' });
         }
 
         return res.status(401).json({ message: 'Invalid credentials' });

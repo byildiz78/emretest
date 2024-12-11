@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Dataset } from '@/pages/api/dataset';
-import { formatDateTimeYMDHI } from '@/lib/utils';
 import { WebReport } from '@/types/tables';
-import { toZonedTime } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
+import { parseISO } from 'date-fns';
 const timeZone = 'Europe/Istanbul';
 
 export default async function handler(
@@ -23,8 +23,11 @@ export default async function handler(
         const reportQuery = `SELECT ReportQuery FROM dm_infiniaWebReports WHERE ReportID = @reportId`;
         const instance = Dataset.getInstance();
 
-        const date1Obj = toZonedTime(new Date(date1), timeZone);
-        const date2Obj = toZonedTime(new Date(date2), timeZone);
+        const date1Parsed = parseISO(date1);
+        const date2Parsed = parseISO(date2);
+
+        const date1Formatted = formatInTimeZone(date1Parsed, timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        const date2Formatted = formatInTimeZone(date2Parsed, timeZone, "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
         const reportQueryResult = await instance.executeQuery<WebReport[]>({
             query: reportQuery,
@@ -45,8 +48,8 @@ export default async function handler(
         const queryResult = await instance.executeQuery<WebReport[]>({
             query,
             parameters: {
-                date1: formatDateTimeYMDHI(date1Obj),
-                date2: formatDateTimeYMDHI(date2Obj),
+                date1: date1Formatted,
+                date2: date2Formatted,
                 BranchID: branches
             },
             req

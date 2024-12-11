@@ -48,11 +48,12 @@ export default async function handler(
 
 ) {
 
-    if (req.method !== 'GET') {
+    if (req.method !== 'POST') {
 
         return res.status(405).json({ error: 'Method not allowed' });
 
     }
+    const { branches } = req.body;
 
 
     try {
@@ -168,7 +169,7 @@ export default async function handler(
     LEFT JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = row.BranchID
 
     WHERE row.OrderKey NOT IN ('73D9682F-4AD6-4E44-B4DA-65CEEC27988A','F6469277-353D-42BA-AE37-F771E12D5E05')
-
+        AND row.@BranchID
 ) AS combined
 
 ORDER BY orderDateTime DESC
@@ -180,6 +181,9 @@ ORDER BY orderDateTime DESC
         const result = await instance.executeQuery<Notification[]>({
 
             query,
+            parameters:{
+                BranchID: branches
+            },
             req
 
         });

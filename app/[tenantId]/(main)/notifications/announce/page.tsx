@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
     SelectContent,
@@ -62,12 +61,7 @@ const Announce = () => {
 
                 <div className="space-y-2">
                     <label className="text-sm font-medium">Mesaj</label>
-                    <Textarea
-                        placeholder="Duyuru mesajı"
-                        value={message}
-                        onChange={(e) => setMessage(e.target.value)}
-                        className="min-h-[150px]"
-                    />
+               
                 </div>
 
                 <Button type="submit" className="w-full">

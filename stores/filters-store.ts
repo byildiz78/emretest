@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, subWeeks, subMonths, subYears } from 'date-fns'
+import { startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays, subWeeks, subMonths, subYears, addDays } from 'date-fns'
 import { DateRange } from 'react-day-picker'
 import { Efr_Branches } from '@/types/tables'
 import { useSettingsStore } from './settings-store'
@@ -25,8 +25,8 @@ interface FilterStore {
 export const useFilterStore = create<FilterStore>((set) => ({
     selectedFilter: {
         date: {
-            from: toZonedTime(new Date(new Date().setHours(0, 0, 0, 0)), ''),
-            to: toZonedTime(new Date(new Date().setHours(23, 59, 59, 999)), '') ,
+            from: toZonedTime(new Date(new Date().setHours(0, 0, 0, 0)), 'Europe/Istanbul'),
+            to: toZonedTime(addDays(new Date().setHours(23, 59, 59, 999), 1), 'Europe/Istanbul') ,
         },
         branches: [],
         selectedBranches: []

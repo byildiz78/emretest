@@ -69,6 +69,36 @@ export default function LoginPage() {
         }
     }, [pathname]);
 
+    useEffect(() => {
+        // Expo token'ını dinle
+        const handleExpoToken = async (event: any) => {
+            const data = event.data;
+            try {
+                if (typeof data === 'string') {
+                    const parsedData = JSON.parse(data);
+                    if (parsedData.type === 'expoToken') {
+                        // Token'ı API'ye gönder
+                        await fetch('/api/expo/savetoken', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                userId: parsedData.userId,
+                                expoToken: parsedData.token
+                            }),
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Expo token kaydetme hatası:', error);
+            }
+        };
+
+        window.addEventListener('message', handleExpoToken);
+        return () => window.removeEventListener('message', handleExpoToken);
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
@@ -82,7 +112,7 @@ export default function LoginPage() {
             });
 
             if (response.status === 200) {
-                // Add success animation before redirect
+
                 const button = document.querySelector('button[type="submit"]');
                 if (button) {
                     button.classList.add('scale-95', 'opacity-80');
@@ -152,7 +182,7 @@ export default function LoginPage() {
     ];
 
     return (
-        <div 
+        <div
             className={cn(
                 "min-h-screen w-full flex flex-col items-center justify-between relative overflow-hidden",
                 "bg-[url('/images/background/background1.jpg')] dark:bg-gray-900 bg-cover bg-center bg-no-repeat"
@@ -344,8 +374,8 @@ export default function LoginPage() {
                                         {/* Forgot Password Link */}
                                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                             <DialogTrigger asChild>
-                                                <Button 
-                                                    variant="link" 
+                                                <Button
+                                                    variant="link"
                                                     className="text-sm text-gray-200 dark:text-gray-400 hover:text-white dark:hover:text-gray-200 p-0 h-auto font-normal"
                                                 >
                                                     Şifrenizi mi unuttunuz?

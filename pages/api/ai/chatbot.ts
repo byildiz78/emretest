@@ -69,14 +69,12 @@ export default async function handler(
             })
     
         }catch(error){
-            console.log(error)
         }
 
         messages.push({
             role: 'user',
             content: message
         })
-        console.log(messages)
         try {
             const response = await client.chat.completions.create({
                 model: 'deepseek-chat',
@@ -95,7 +93,6 @@ export default async function handler(
                 const content = part.choices[0]?.delta?.content || '';
                 aiResponse += content;
             }
-            console.log(aiResponse)
             if(aiResponse.toString().includes('ONLY_SQL')){
                 aiResponse = aiResponse
                 .replace('ONLY_SQL', '')

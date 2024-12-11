@@ -1,5 +1,6 @@
 import { ThemeProvider } from "@/providers/theme-provider";
 import { LanguageProvider } from "@/providers/language-provider";
+import { Toaster } from "@/components/ui/toast/toaster";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import { Metadata } from "next";
@@ -38,7 +39,10 @@ export default function RootLayout({
                     enableSystem
                     disableTransitionOnChange
                 >
-                    <LanguageProvider>{children}</LanguageProvider>
+                    <LanguageProvider>
+                        {children}
+                        <Toaster />
+                    </LanguageProvider>
                 </ThemeProvider>
             </body>
         </html>

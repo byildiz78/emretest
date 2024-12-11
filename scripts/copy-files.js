@@ -26,7 +26,6 @@ async function copyFiles() {
             envFile,
             path.join('.next', 'standalone', '.env')
           );
-          console.log(`${envFile} dosyası başarıyla kopyalandı`);
           break; // İlk bulunan .env dosyasını kopyaladıktan sonra döngüden çık
         }
       } catch (err) {

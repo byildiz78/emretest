@@ -26,7 +26,6 @@ export default function Dashboard() {
     const { selectedFilter } = useFilterStore();
     const { setBranchDatas } = useWidgetDataStore();
 
-
     const fetchData = useCallback(async () => {
         const branches =
             selectedFilter.selectedBranches.length <= 0
@@ -67,7 +66,10 @@ export default function Dashboard() {
         return () => clearInterval(intervalId);
     }, [fetchData]);
 
+
     useEffect(() => {
+
+
         const fetchWidgetsData = async () => {
             try {
                 const response = await axios.get<WebWidget[]>("/api/webwidgets", {
@@ -91,7 +93,6 @@ export default function Dashboard() {
                 return prevCount - 1;
             });
         }, 1000);
-
 
         return () => {
             clearInterval(countdownInterval);

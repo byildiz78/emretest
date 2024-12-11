@@ -108,10 +108,8 @@ export const useFilterStore = create<FilterStore>((set) => ({
                 to: today
             }
             const { settings  } = useSettingsStore();
-            console.log("settings", settings)
 
             const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
-            console.log(daystart)
             let startTime: string;
             let endTime: string;
       

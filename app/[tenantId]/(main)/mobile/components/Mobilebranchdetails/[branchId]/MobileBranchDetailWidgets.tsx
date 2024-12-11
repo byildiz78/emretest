@@ -21,7 +21,6 @@ export default function BranchDetailWidgets() {
       try {
         const response = await fetch('/api/branchdetailwidgets');
         const data = await response.json();
-        console.log('Widget Data:', data);
         setWidgets(data);
       } catch (error) {
         console.error('Error fetching widgets:', error);

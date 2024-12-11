@@ -1,4 +1,3 @@
-import { useNotifications } from "@/hooks/use-notifications";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Bell,
@@ -22,6 +21,10 @@ import { Notification, OrderDetail } from "@/types/tables";
 import { useOrderDetail } from "@/hooks/use-orderdetail";
 import { OrderDetailDialog } from "@/app/[tenantId]/(main)/dashboard/components/OrderDetailDialog";
 import { Card } from "@/components/ui/card";
+import { useFilterStore } from "@/stores/filters-store";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useExpo } from "@/hooks/use-expo";
 
 interface MobileNotificationsProps {
     isOpen: boolean;
@@ -29,7 +32,11 @@ interface MobileNotificationsProps {
 }
 
 export default function MobileNotifications({ isOpen, onClose }: MobileNotificationsProps) {
-    const { notifications, loading, error } = useNotifications();
+    const { selectedFilter} = useFilterStore();
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [loading, setLoading] = useState(true); 
+    const [error, setError] = useState<string | null>(null);
+    
     const {
         isOpen: isOrderDetailOpen,
         setIsOpen: setOrderDetailOpen,
@@ -37,6 +44,35 @@ export default function MobileNotifications({ isOpen, onClose }: MobileNotificat
         fetchOrderDetail,
     } = useOrderDetail();
 
+
+    useEffect(() => {
+        const fetchNotifications = async () => {
+            if(selectedFilter.branches.length > 0){
+                try {
+                    setLoading(true);
+                    setError(null)
+                    const response = await axios.post<Notification[]>('/api/notifications', {
+                       branches: selectedFilter.branches.map(item => item.BranchID) || [] 
+                    });
+    
+                    if(response.status === 200){
+                        setNotifications(response.data);
+                    }
+                } catch (err) {
+                    setError(err instanceof Error ? err.message : 'Bilinmeyen hata');
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+
+
+        fetchNotifications();
+
+        const interval = setInterval(fetchNotifications, 30000);
+        return () => clearInterval(interval);
+    }, [selectedFilter.branches]);
+    
     const getNotificationStyle = (type: Notification["type"]) => {
         switch (type) {
             case "sale":

@@ -87,7 +87,7 @@ export default async function handler(
             });
 
             // Send progress update for SQL generation
-            res.write('data: ' + JSON.stringify({ status: 'progress', message: 'SQL sorgusu oluşturuluyor...' }) + '\n\n');
+            res.write('data: ' + JSON.stringify({ status: 'progress', message: 'yanıt oluşturuluyor...' }) + '\n\n');
             res.flush?.();
 
             let aiResponse = '';

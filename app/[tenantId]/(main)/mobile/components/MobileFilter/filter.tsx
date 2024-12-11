@@ -197,14 +197,12 @@ export default function Header() {
       setTempEndTime(endTime);
 
       if (selectedFilter.date.from && selectedFilter.date.to) {
-        const fromDate = new Date(selectedFilter.date.from);
-        const toDate = new Date(selectedFilter.date.to);
 
         const [startHours, startMinutes] = startTime.split(':').map(Number);
         const [endHours, endMinutes] = endTime.split(':').map(Number);
 
-        fromDate.setHours(startHours, startMinutes, 0);
-        toDate.setHours(endHours, endMinutes, 59);
+        const fromDate = new Date(new Date().setHours(startHours, startMinutes, 0));
+        const toDate = addDays(new Date().setHours(endHours, endMinutes, 0), 1);
 
         if (tempStartDate) {
           const newTempStartDate = new Date(tempStartDate);
@@ -217,7 +215,7 @@ export default function Header() {
           newTempEndDate.setHours(endHours, endMinutes, 59);
           setTempEndDate(newTempEndDate);
         }
-
+        console.log(toZonedTime(fromDate, 'Europe/Istanbul'), toZonedTime(toDate, 'Europe/Istanbul'))
         setFilter({
           ...selectedFilter,
           date: {
@@ -225,6 +223,7 @@ export default function Header() {
             to: toZonedTime(toDate, 'Europe/Istanbul') 
           }
         });
+
       }
     }
   }, [settings]);
@@ -280,7 +279,6 @@ export default function Header() {
 
     const today = new Date(new Date().setHours(startHours, startMinutes, 0));
     const tomorrow = addDays(new Date().setHours(endHours, endMinutes, 0), 1);
-    console.log("today", today, "tomorrow", tomorrow)
     switch (value) {
       case "today":
         setTempStartDate(today);
@@ -293,31 +291,31 @@ export default function Header() {
         break;
       case "thisWeek":
         setTempStartDate(new Date(startOfWeek(today, { weekStartsOn: 1 }).setHours(startHours, startMinutes, 0)));
-        setTempEndDate(new Date(endOfWeek(today, { weekStartsOn: 1 }).setHours(endHours, endMinutes, 0)));
+        setTempEndDate(new Date(endOfWeek(today, { weekStartsOn: 2 }).setHours(endHours, endMinutes, 0)));
         break;
 
       case "lastWeek":
         const lastWeek = subWeeks(today, 1);
         setTempStartDate(new Date(startOfWeek(lastWeek, { weekStartsOn: 1 }).setHours(startHours, startMinutes, 0)));
-        setTempEndDate(new Date(endOfWeek(lastWeek, { weekStartsOn: 1 }).setHours(endHours, endMinutes, 0)));
+        setTempEndDate(new Date(endOfWeek(lastWeek, { weekStartsOn: 2 }).setHours(endHours, endMinutes, 0)));
         break;
       case "thisMonth":
         setTempStartDate(new Date(startOfMonth(today).setHours(startHours, startMinutes, 0)));
-        setTempEndDate(new Date(endOfMonth(today).setHours(endHours, endMinutes, 0)));
+        setTempEndDate(addDays(new Date(endOfMonth(today).setHours(endHours, endMinutes, 0)),1));
         break;
       case "lastMonth":
         const lastMonth = subMonths(today, 1);
         setTempStartDate(new Date(startOfMonth(lastMonth).setHours(startHours, startMinutes, 0)));
-        setTempEndDate(new Date(endOfMonth(lastMonth).setHours(endHours, endMinutes, 0)));
+        setTempEndDate(addDays(new Date(endOfMonth(lastMonth).setHours(endHours, endMinutes, 0)),1));
         break;
       case "thisYear":
         setTempStartDate(new Date(startOfYear(today).setHours(startHours, startMinutes, 0)));
-        setTempEndDate(new Date(endOfYear(today).setHours(endHours, endMinutes, 0)));
+        setTempEndDate(addDays(new Date(endOfYear(today).setHours(endHours, endMinutes, 0)),1));
         break;
       case "lastYear":
         const lastYear = subYears(today, 1);
         setTempStartDate(new Date(startOfYear(lastYear).setHours(startHours, startMinutes, 0)));
-        setTempEndDate(new Date(endOfYear(lastYear).setHours(endHours, endMinutes, 0)));
+        setTempEndDate(addDays(new Date(endOfYear(lastYear).setHours(endHours, endMinutes, 0)),1));
         break;
       case "lastSevenDays":
         setTempStartDate(subDays(today, 7));

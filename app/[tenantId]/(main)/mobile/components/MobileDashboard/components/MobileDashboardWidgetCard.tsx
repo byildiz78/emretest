@@ -108,7 +108,7 @@ export default function EnhancedWidgetCard({
 
     if (isLoading || !widgetData) {
         return (
-            <Card className="h-32 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card className="h-40 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4">
                 <div className={cn(
                     "h-full flex items-center justify-center bg-gradient-to-br backdrop-blur-sm",
                     colorSet.bg,
@@ -122,7 +122,7 @@ export default function EnhancedWidgetCard({
 
     if (error) {
         return (
-            <Card className="h-32 shadow-lg">
+            <Card className="h-40 shadow-lg mb-4">
                 <div className="h-full flex items-center justify-center text-red-500">
                     {error}
                 </div>
@@ -137,7 +137,7 @@ export default function EnhancedWidgetCard({
 
     return (
         <Card 
-            className="h-32 relative overflow-hidden group border-2 shadow-xl hover:shadow-2xl transition-all duration-300"
+            className="h-40 relative overflow-hidden group border-2 shadow-xl hover:shadow-2xl transition-all duration-300 mb-4"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
@@ -156,17 +156,36 @@ export default function EnhancedWidgetCard({
             >
                 {/* Header with Icon */}
                 <motion.div 
-                    className="flex items-start justify-between"
+                    className="flex items-start justify-between relative pb-2"
                     initial={false}
                     animate={{ y: isHovered ? -2 : 0 }}
                     transition={{ duration: 0.2 }}
                 >
-                    <h3 className={cn(
-                        "text-sm font-semibold tracking-wide",
-                        colorSet.text
-                    )}>
-                        {reportName}
-                    </h3>
+                    <div className="relative">
+                        <h3 className={cn(
+                            "text-base font-bold tracking-wide",
+                            colorSet.text
+                        )}>
+                            {reportName}
+                        </h3>
+                        <motion.div 
+                            className={cn(
+                                "absolute -bottom-1 left-0 right-0 h-[1.5px] rounded-full",
+                                colorSet.text
+                            )}
+                            initial={{ scaleX: 0, opacity: 0 }}
+                            animate={{ 
+                                scaleX: isHovered ? 1 : 0.3, 
+                                opacity: isHovered ? 1 : 0.5 
+                            }}
+                            transition={{ duration: 0.3 }}
+                            style={{ 
+                                transformOrigin: "left",
+                                background: `currentColor`,
+                                filter: "brightness(1.2)"
+                            }}
+                        />
+                    </div>
                     <motion.div 
                         className={cn(
                             "p-2 rounded-xl bg-white/60 dark:bg-black/60 backdrop-blur-sm",
@@ -183,9 +202,9 @@ export default function EnhancedWidgetCard({
                 {/* Main Value */}
                 <motion.div
                     className={cn(
-                        "text-3xl sm:text-4xl font-bold mt-2",
+                        "text-4xl sm:text-5xl font-bold mt-4",
                         "tracking-tight leading-none",
-                        "relative z-10",
+                        "relative z-10 flex justify-center items-center",
                         colorSet.text
                     )}
                     initial={{ y: 20, opacity: 0 }}

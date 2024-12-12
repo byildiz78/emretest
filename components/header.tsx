@@ -163,7 +163,7 @@ export default function Header() {
   const { language, setLanguage } = useLanguage();
   const t = translations[language as keyof typeof translations];
 
-  const { handleTabOpen } = useTab();
+  const {handleTabOpen } = useTab();
   useEffect(() => {
     if (settings.length > 0) {
       const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');

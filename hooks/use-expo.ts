@@ -1,3 +1,5 @@
+import { ExpoTokens } from '@/types/tables';
+import axios from 'axios';
 import { useState } from 'react';
 
 
@@ -9,21 +11,21 @@ export function useExpo() {
         try {
             setLoading(true);
             setError(null);
-            const response = await fetch('/api/expo/sendnotification', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({         
+            const response = await axios.post(
+                '/api/expo/sendnotification',
+                {
                     UserID,
                     title,
                     message,
                     sound,
                     priority
-                }),
-            });
+                },
+                {
+                    headers: { "Content-Type": "application/json" },
+                }
+            )
 
-            if (!response.ok) { throw new Error('Failed to send notification'); }
+            if (response.status !== 200) { throw new Error('Failed to send notification'); }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Bilinmeyen hata');
         } finally {

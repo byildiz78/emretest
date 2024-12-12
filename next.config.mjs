@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: false,
+    i18n: {
+      locales: ['en', 'tr'],
+      defaultLocale: 'tr',
+    },
     output: 'standalone',
     eslint: {
         ignoreDuringBuilds: true,

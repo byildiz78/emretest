@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { Dataset } from '../dataset';
-import { ExpoTokens } from '@/types/tables';
+import { Efr_Users, ExpoTokens } from '@/types/tables';
 
 export default async function handler(
     req: NextApiRequest,
@@ -15,19 +15,18 @@ export default async function handler(
         
         const query = `
             SELECT ExpoToken
-            FROM dm_ExpoTokens
-            WHERE dm_ExpoTokens.@UserID
+            FROM Efr_Users t
+            WHERE t.@UserID AND ExpoToken IS NOT NULL AND ExpoToken != ''
         `;
 
         const instance = Dataset.getInstance();
-        const result = await instance.executeQuery<ExpoTokens[]>({
+        const result = await instance.executeQuery<Efr_Users[]>({
             query,
-            parameters :{
+            parameters: {
                 UserID
             },
             req
         });
-
 
         const notificationPromises = result.map(async (record) => {
             if (!record.ExpoToken) return null;

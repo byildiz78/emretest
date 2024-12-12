@@ -126,6 +126,7 @@ export default function MobileFilter() {
     return { startTime: `${startHour}:00`, endTime: `${endHour}:59` };
   }, [daystart]);
 
+
   const applyFilters = () => {
     if (tempStartDate) {
       const [hours, minutes] = tempStartTime.split(':');

@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState} from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { WebWidget, WebWidgetData } from "@/types/tables";
 import { useFilterStore } from "@/stores/filters-store";
 import { useWidgetDataStore } from "@/stores/widget-data-store";
-import PulseLoader  from "react-spinners/PulseLoader";
+import PulseLoader from "react-spinners/PulseLoader";
 import NotificationPanel from "@/app/[tenantId]/(main)/dashboard/components/NotificationPanel";
 import { Bell, Store } from "lucide-react";
 import { motion } from "framer-motion";
@@ -68,8 +68,6 @@ export default function Dashboard() {
 
 
     useEffect(() => {
-
-
         const fetchWidgetsData = async () => {
             try {
                 const response = await axios.get<WebWidget[]>("/api/webwidgets", {
@@ -143,7 +141,7 @@ export default function Dashboard() {
                 <div className="p-3 space-y-4 md:space-y-6 pb-20">
                     {widgets.length <= 0 || widgets === null || widgets === undefined ? (
                         <div className="flex items-center justify-center min-h-[200px]">
-                             <PulseLoader color="#6366f1" size={18} margin={4} speedMultiplier={0.8} />
+                            <PulseLoader color="#6366f1" size={18} margin={4} speedMultiplier={0.8} />
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6 auto-rows-auto">

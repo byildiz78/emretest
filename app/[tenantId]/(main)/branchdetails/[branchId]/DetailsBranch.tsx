@@ -96,6 +96,70 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
     const [tempDateRange, setTempDateRange] = useState("today");
     const { settings } = useSettingsStore();
 
+    // Helper function to adjust date based on daystart
+    const adjustDateForDaystart = (date: Date, isEndDate: boolean = false) => {
+        const newDate = new Date(date);
+        const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
+        newDate.setHours(daystart, 0, 0, 0);
+        
+        // If daystart is after current hour and this is a start date, move back one day
+        if (!isEndDate && daystart > date.getHours()) {
+            newDate.setDate(newDate.getDate() - 1);
+        }
+        // If daystart is before or equal to current hour and this is an end date, move forward one day
+        else if (isEndDate && daystart <= date.getHours()) {
+            newDate.setDate(newDate.getDate() + 1);
+        }
+        return newDate;
+    };
+
+    // Helper function to get date range based on type
+    const getDateRange = (rangeType: string) => {
+        const today = new Date();
+        let start: Date;
+        let end: Date;
+
+        switch (rangeType) {
+            case "today":
+                start = adjustDateForDaystart(today);
+                end = adjustDateForDaystart(today, true);
+                break;
+            case "yesterday":
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+                start = adjustDateForDaystart(yesterday);
+                end = adjustDateForDaystart(yesterday, true);
+                break;
+            case "thisWeek":
+                start = adjustDateForDaystart(startOfWeek(today, { weekStartsOn: 1 }));
+                end = adjustDateForDaystart(endOfWeek(today, { weekStartsOn: 1 }), true);
+                break;
+            case "lastWeek":
+                const lastWeek = subWeeks(today, 1);
+                start = adjustDateForDaystart(startOfWeek(lastWeek, { weekStartsOn: 1 }));
+                end = adjustDateForDaystart(endOfWeek(lastWeek, { weekStartsOn: 1 }), true);
+                break;
+            case "thisMonth":
+                start = adjustDateForDaystart(startOfMonth(today));
+                end = adjustDateForDaystart(endOfMonth(today), true);
+                break;
+            case "lastMonth":
+                const lastMonth = subMonths(today, 1);
+                start = adjustDateForDaystart(startOfMonth(lastMonth));
+                end = adjustDateForDaystart(endOfMonth(lastMonth), true);
+                break;
+            case "thisYear":
+                start = adjustDateForDaystart(startOfYear(today));
+                end = adjustDateForDaystart(endOfYear(today), true);
+                break;
+            default:
+                start = adjustDateForDaystart(today);
+                end = adjustDateForDaystart(today, true);
+        }
+
+        return { start, end };
+    };
+
     // Şubeleri çek
     useEffect(() => {
         const fetchBranches = async () => {
@@ -125,31 +189,11 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
 
     // API istekleri için tarih aralığını ayarla
     useEffect(() => {
-        const today = new Date();
-        const date1 = new Date(today);
-        const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
-        let startTime: string;
-        let endTime: string;
-        
-        if (daystart === 0) {
-          startTime = "00:00";
-          endTime = "23:59";
-        } else {
-          const startHour = daystart.toString().padStart(2, '0');
-          startTime = `${startHour}:00`;
-          const endHour = ((daystart - 1 + 24) % 24).toString().padStart(2, '0');
-          endTime = `${endHour}:59`;
-        }
-        const [startHours, startMinutes] = startTime.split(':').map(Number);
-        const [endHours, endMinutes] = endTime.split(':').map(Number);
-
-        const date2 = new Date(today);
-        date1.setHours(startHours, startMinutes, 0);
-        date2.setHours(endHours, endMinutes, 59);
-
-        setStartDate(date1);
-        setEndDate(date2);
-    }, []);
+        const { start, end } = getDateRange("today");
+        setStartDate(start);
+        setEndDate(end);
+        setDateRange("today");
+    }, [settings]); // settings değiştiğinde tarihleri güncelle
 
     const handleApply = () => {
         if (!selectedBranch) return;
@@ -157,61 +201,8 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
         // Tarih aralığını güncelle
         setDateRange(tempDateRange);
 
-        // Tarih değerlerini ayarla
-        const today = new Date();
-        let newStartDate = startDate;
-        let newEndDate = endDate;
-
-        switch (tempDateRange) {
-            case "today":
-                newStartDate = new Date(today);
-                newStartDate.setHours(6, 0, 0, 0);
-                newEndDate = new Date(today);
-                newEndDate.setDate(newEndDate.getDate() + 1);
-                newEndDate.setHours(6, 0, 0, 0);
-                break;
-            case "yesterday":
-                const yesterday = new Date(today);
-                yesterday.setDate(yesterday.getDate() - 1);
-                newStartDate = new Date(yesterday);
-                newStartDate.setHours(6, 0, 0, 0);
-                newEndDate = new Date(today);
-                newEndDate.setHours(6, 0, 0, 0);
-                break;
-            case "thisWeek":
-                newStartDate = startOfWeek(today, { weekStartsOn: 1 });
-                newStartDate.setHours(6, 0, 0, 0);
-                newEndDate = endOfWeek(today, { weekStartsOn: 1 });
-                newEndDate.setHours(6, 0, 0, 0);
-                break;
-            case "lastWeek":
-                const lastWeek = subWeeks(today, 1);
-                newStartDate = startOfWeek(lastWeek, { weekStartsOn: 1 });
-                newStartDate.setHours(6, 0, 0, 0);
-                newEndDate = endOfWeek(lastWeek, { weekStartsOn: 1 });
-                newEndDate.setHours(6, 0, 0, 0);
-                break;
-            case "thisMonth":
-                newStartDate = startOfMonth(today);
-                newStartDate.setHours(6, 0, 0, 0);
-                newEndDate = endOfMonth(today);
-                newEndDate.setHours(6, 0, 0, 0);
-                break;
-            case "lastMonth":
-                const lastMonth = subMonths(today, 1);
-                newStartDate = startOfMonth(lastMonth);
-                newStartDate.setHours(6, 0, 0, 0);
-                newEndDate = endOfMonth(lastMonth);
-                newEndDate.setHours(6, 0, 0, 0);
-                break;
-            case "thisYear":
-                newStartDate = startOfYear(today);
-                newStartDate.setHours(6, 0, 0, 0);
-                newEndDate = endOfYear(today);
-                newEndDate.setHours(6, 0, 0, 0);
-                break;
-        }
-
+        // Yeni tarih aralığını al
+        const { start: newStartDate, end: newEndDate } = getDateRange(tempDateRange);
         setStartDate(newStartDate);
         setEndDate(newEndDate);
 

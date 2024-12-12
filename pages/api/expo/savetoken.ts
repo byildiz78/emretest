@@ -12,35 +12,43 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!userId || !token) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
-
-        const query = `
-        IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'dm_ExpoTokens')
-        BEGIN
-            CREATE TABLE dm_ExpoTokens (
-                AutoID int IDENTITY(1,1) PRIMARY KEY,
-                ExpoToken nvarchar(255),
-                UpdatedAt datetime2,
-                UserID nvarchar(50)
-            )
-        END;
-
-        MERGE dm_ExpoTokens AS target
-        USING (VALUES (@userId, @token, GETDATE())) AS source (UserID, ExpoToken, UpdatedAt)
-        ON target.UserID = source.UserID
-        WHEN MATCHED THEN
-            UPDATE SET 
-                ExpoToken = source.ExpoToken,
-                UpdatedAt = source.UpdatedAt
-        WHEN NOT MATCHED THEN
-            INSERT (UserID, ExpoToken, UpdatedAt)
-            VALUES (source.UserID, source.ExpoToken, source.UpdatedAt);
-        `;
-
-
         const instance = Dataset.getInstance();
 
-        const result = await instance.executeQuery({
-            query,
+
+        const createColumnsQuery = `
+                IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+                            WHERE TABLE_NAME = 'Efr_Users' 
+                            AND COLUMN_NAME = 'ExpoToken')
+                BEGIN
+                    ALTER TABLE Efr_Users
+                    ADD ExpoToken nvarchar(255)
+                END;
+
+                IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.COLUMNS 
+                            WHERE TABLE_NAME = 'Efr_Users' 
+                            AND COLUMN_NAME = 'ExpoTokenUpdatedAt')
+                BEGIN
+                    ALTER TABLE Efr_Users
+                    ADD ExpoTokenUpdatedAt datetime2
+                END;`;
+
+        await instance.executeQuery({
+            query: createColumnsQuery,
+            parameters:{
+                userId,
+                token
+            },
+            req
+        });
+        const updateQuery = `
+                UPDATE Efr_Users
+                SET ExpoToken = @token,
+                    ExpoTokenUpdatedAt = GETDATE()
+                WHERE UserID = @userId;`;
+
+
+        await instance.executeQuery({
+            query: updateQuery,
             parameters:{
                 userId,
                 token

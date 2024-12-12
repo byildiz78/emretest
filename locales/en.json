@@ -1,0 +1,42 @@
+{
+    "summaryInfo": "Summary Information",
+    "announce": {
+        "title": "Create Announcement",
+        "users": "Users",
+        "allUsers": "All Users",
+        "selectedUsers": "{count} users selected",
+        "searchUser": "Search user...",
+        "userNotFound": "User not found.",
+        "messageTitle": "Title",
+        "messageContent": "Message",
+        "send": "Send",
+        "titlePlaceholder": "Announcement title",
+        "messagePlaceholder": "Announcement message"
+    },
+    "header": {
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "allBranches": "All Branches",
+        "branchesSelected": "Branches Selected",
+        "searchBranch": "Search branch...",
+        "branchNotFound": "Branch not found.",
+        "apply": "Apply",
+        "refresh": "Refresh",
+        "notifications": "Notifications",
+        "settings": "Settings",
+        "profile": "Profile",
+        "time": "Time",
+        "dateRange": "Date Range",
+        "today": "Today",
+        "yesterday": "Yesterday",
+        "thisWeek": "This Week",
+        "lastWeek": "Last Week",
+        "thisMonth": "This Month",
+        "lastMonth": "Last Month",
+        "thisYear": "This Year",
+        "clearSelected": "Clear Selected",
+        "customRange": "Custom Range",
+        "cancel": "Cancel",
+        "functions": "Functions"
+    }
+}

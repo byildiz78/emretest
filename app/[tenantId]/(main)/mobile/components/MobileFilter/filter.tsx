@@ -223,11 +223,11 @@ export default function Header() {
   }, [settings]);
 
   useEffect(() => {
-    sendNotification(["1297"], "Dil Bildirimi", "Dil Değiştirildi");
+    sendNotification([1297], "Dil Bildirimi", "Dil Değiştirildi");
   }, [language]);
 
   useEffect(() => {
-    sendNotification(["1297"], "Filtre Bildirimi", "Filtre uygulandı");
+    sendNotification([1297], "Filtre Bildirimi", "Filtre uygulandı");
   }, [selectedFilter]);
 
   const applyFilters = () => {

@@ -1,0 +1,42 @@
+{
+    "summaryInfo": "Özet Bilgiler",
+    "announce": {
+        "title": "Duyuru Oluştur",
+        "users": "Kullanıcılar",
+        "allUsers": "Tüm Kullanıcılar",
+        "selectedUsers": "{count} kullanıcı seçildi",
+        "searchUser": "Kullanıcı ara...",
+        "userNotFound": "Kullanıcı bulunamadı.",
+        "messageTitle": "Başlık",
+        "messageContent": "Mesaj",
+        "send": "Gönder",
+        "titlePlaceholder": "Duyuru başlığı",
+        "messagePlaceholder": "Duyuru mesajı"
+    },
+    "header": {
+        "startDate": "Başlangıç Tarihi",
+        "endDate": "Bitiş Tarihi",
+        "allBranches": "Tüm Şubeler",
+        "branchesSelected": "Şube Seçili",
+        "searchBranch": "Şube ara...",
+        "branchNotFound": "Şube bulunamadı.",
+        "apply": "Uygula",
+        "refresh": "Yenile",
+        "notifications": "Bildirimler",
+        "settings": "Ayarlar",
+        "profile": "Profil",
+        "time": "Saat",
+        "dateRange": "Tarih Aralığı",
+        "today": "Bugün",
+        "yesterday": "Dün",
+        "thisWeek": "Bu Hafta",
+        "lastWeek": "Geçen Hafta",
+        "thisMonth": "Bu Ay",
+        "lastMonth": "Geçen Ay",
+        "thisYear": "Bu Yıl",
+        "clearSelected": "Seçimleri Temizle",
+        "customRange": "Özel Aralık",
+        "cancel": "İptal",
+        "functions": "Fonksiyonlar"
+    }
+}

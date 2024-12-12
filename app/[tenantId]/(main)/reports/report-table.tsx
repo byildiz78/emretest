@@ -42,9 +42,10 @@ const ReportTable = ({ report }: ReportPageProps) => {
     enableValue: true,
     enableRowGroup: true,
     enablePivot: true,
-    // Sayısal kolonlar için varsayılan toplama fonksiyonu
     aggFunc: 'sum',
+    flex: 1  // Sadece bunu ekleyelim
   }), []);
+
 
   const autoGroupColumnDef = useMemo(() => ({
     minWidth: 200,

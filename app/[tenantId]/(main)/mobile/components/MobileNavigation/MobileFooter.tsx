@@ -51,8 +51,8 @@ export function MobileFooter({ onNotificationsClick }: MobileFooterProps) {
     return (
         <>
             <Toaster />
-            <nav className="fixed bottom-0 left-0 right-0 z-50">
-                <div className="border-t bg-background/80 backdrop-blur-lg">
+            <nav className="fixed bottom-4 left-4 right-4 z-50">
+                <div className="border bg-background/80 backdrop-blur-lg rounded-xl shadow-lg">
                     <div className="flex items-center justify-around p-2">
                         {navItems.map((item) => {
                             const isActive = pathname === handleNavigation(item.href);

@@ -28,9 +28,9 @@ const navItems = [
         href: "/[tenantId]/mobile/notifications",
     },
     {
-        label: "Raporlar",
+        label: "Konuşarak Rapor",
         icon: BarChart3,
-        href: "/[tenantId]/mobile/reports",
+        href: "/[tenantId]/mobile/chatbot",
     },
 ];
 
@@ -51,7 +51,7 @@ export function MobileFooter({ onNotificationsClick }: MobileFooterProps) {
     return (
         <>
             <Toaster />
-            <nav className="fixed bottom-4 left-4 right-4 z-50">
+            <nav className="fixed bottom-2 left-4 right-4 z-50">
                 <div className="border bg-background/80 backdrop-blur-lg rounded-xl shadow-lg">
                     <div className="flex items-center justify-around p-2">
                         {navItems.map((item) => {

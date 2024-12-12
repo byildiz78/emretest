@@ -259,9 +259,19 @@ const ReportTable = ({ report }: ReportPageProps) => {
         setColumnDefs(cols);
         setRowData(response.data);
         setError(null);
+
+        // Kolonları otomatik boyutlandır
+        setTimeout(() => {
+          if (gridRef.current && gridRef.current.api) {
+            gridRef.current.api.autoSizeAllColumns();
+          }
+        }, 100);
       } else {
         setRowData([]);
-        setError('Veri bulunamadı');
+        setError(`${selectedFilter.date.from && selectedFilter.date.to ? 
+          `${new Date(selectedFilter.date.from).toLocaleDateString('tr-TR')} - ${new Date(selectedFilter.date.to).toLocaleDateString('tr-TR')}` 
+          : 'Seçili tarih aralığı'} ve ${selectedFilter.selectedBranches.length ? 
+          `${selectedFilter.selectedBranches.length} şube` : 'seçili şubeler'} için veri bulunamadı.`);
       }
     } catch (err) {
       setError('Bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.');
@@ -309,7 +319,29 @@ const ReportTable = ({ report }: ReportPageProps) => {
       `}</style>
       <div className={`ag-theme-quartz${theme === 'dark' ? '-dark' : ''} h-[calc(100vh-250px)] w-full`}>
         {error ? (
-          <div className="text-red-500 p-4">{error}</div>
+          <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="64"
+              height="64"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-muted-foreground/50"
+            >
+              <path d="M17.2 5H2.8a1.8 1.8 0 0 0-1.8 1.8v10.4a1.8 1.8 0 0 0 1.8 1.8h14.4a1.8 1.8 0 0 0 1.8-1.8V6.8A1.8 1.8 0 0 0 17.2 5Z" />
+              <path d="M23 7v10" />
+              <path d="M12 12H2" />
+              <path d="M7 8v8" />
+            </svg>
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-2">Veri Bulunamadı</h3>
+              <p className="text-sm text-muted-foreground">{error}</p>
+            </div>
+          </div>
         ) : (
           <AgGridReact
             ref={gridRef}

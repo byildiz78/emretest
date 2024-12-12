@@ -27,17 +27,20 @@ export default async function handler(
     res.setHeader('Connection', 'keep-alive');
 
     try {
-        const { branches, message, oldMessages } = req.body;
+        const { branches, message, oldMessages, ChatBotID } = req.body;
 
         // Send progress update for config fetch
         res.write('data: ' + JSON.stringify({ status: 'progress', message: 'Yapılandırma alınıyor...' }) + '\n\n');
         res.flush?.();
 
         const instance = Dataset.getInstance();
-        const query = `SELECT TOP 1 ChatbotRole, ChatbotContent FROM dm_ChatBot WHERE ChatBotID = '999' `;
+        const query = `SELECT TOP 1 ChatbotRole, ChatbotContent FROM dm_ChatBot WHERE ChatBotID = @ChatBotID`;
         const config = await instance.executeQuery<ChatBot[]>({
             query,
-            req
+            req,
+            params: {
+                ChatBotID
+            }
         });
 
         const chatbotConfig = config[0];

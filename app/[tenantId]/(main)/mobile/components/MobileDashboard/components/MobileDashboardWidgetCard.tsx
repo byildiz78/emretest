@@ -154,25 +154,28 @@ export default function WidgetCard({
                 transition={{ duration: 0.3 }}
             >
                 {/* Header with Icon */}
-                <div className="flex items-start justify-between">
-                    <h3 className={cn(
-                        "text-sm font-semibold",
-                        colorSet.text
-                    )}>
-                        {reportName}
-                    </h3>
+                <div className="flex items-start justify-between mb-3 pb-2 relative">
+                    <div className="relative">
+                        <h3 className={cn(
+                            "text-[15px] font-semibold leading-tight pb-1.5",
+                            colorSet.text
+                        )}>
+                            {reportName}
+                        </h3>
+                        <div className="absolute bottom-0 left-0 w-3/4 h-[2px] bg-gradient-to-r from-primary/60 to-transparent"></div>
+                    </div>
                     <div className={cn(
-                        "p-2 rounded-lg bg-white/60 dark:bg-black/60",
+                        "p-2.5 rounded-xl bg-white/80 dark:bg-black/50 backdrop-blur-sm shadow-sm",
                         colorSet.text
                     )}>
-                        <DynamicIcon iconName={reportIcon} className="h-6 w-6" />
+                        <DynamicIcon iconName={reportIcon} className="h-5 w-5" />
                     </div>
                 </div>
 
                 {/* Main Value */}
                 <motion.div
                     className={cn(
-                        "text-2xl font-bold mt-3",
+                        "text-2xl font-bold mt-3 flex items-center justify-center",
                         colorSet.text
                     )}
                     initial={{ y: 20, opacity: 0 }}

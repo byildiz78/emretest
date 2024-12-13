@@ -6,7 +6,7 @@ import { WebWidget, WebWidgetData } from "@/types/tables";
 import { useFilterStore } from "@/stores/filters-store";
 import { useWidgetDataStore } from "@/stores/widget-data-store";
 import PulseLoader from "react-spinners/PulseLoader";
-import { Store } from "lucide-react";
+import { Store, Building2 } from "lucide-react";
 import { motion } from "framer-motion";
 import BranchList from "./components/MobileDashboardBranchList";
 import WidgetCard from "./components/MobileDashboardWidgetCard";
@@ -134,14 +134,24 @@ export default function Dashboard() {
                 )}
 
                 {widgets.length > 0 && (
-                    <motion.div
-                        className="mt-4"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5 }}
-                    >
-                        <BranchList />
-                    </motion.div>
+                    <>
+                        <div className="flex items-center gap-4 mt-10 mb-6">
+                            <div className="h-[3px] flex-1 bg-gradient-to-r from-transparent via-border to-border"></div>
+                            <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-primary/5 border-2 border-primary/10">
+                                <Building2 className="w-5 h-5 text-primary" />
+                                <span className="text-base font-semibold text-primary">Şube Ciroları</span>
+                            </div>
+                            <div className="h-[3px] flex-1 bg-gradient-to-l from-transparent via-border to-border"></div>
+                        </div>
+                        <motion.div
+                            className="mt-4"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <BranchList />
+                        </motion.div>
+                    </>
                 )}
             </div>
         </div>

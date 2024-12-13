@@ -179,82 +179,86 @@ export default function MobileChatbotPage() {
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto">
-                <div className="max-w-2xl mx-auto px-4 py-4 space-y-4">
-                    {messages.length === 0 && (
-                        <div className="flex flex-col items-center justify-center h-full space-y-6 max-w-sm mx-auto px-4">
-                            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                                <Bot className="w-8 h-8 text-primary" />
-                            </div>
-                            <div className="space-y-4 text-center">
-                                <div>
-                                    <h2 className="text-xl font-semibold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
-                                        Merhaba! Size nasıl yardımcı olabilirim?
-                                    </h2>
-                                    <p className="text-sm text-muted-foreground mt-2">
-                                        Aşağıdaki örnek soruları sorabilir veya kendi sorunuzu yazabilirsiniz
-                                    </p>
-                                </div>
-                                <div className="space-y-3">
-                                    <p className="text-sm font-medium text-muted-foreground">Örnek sorular:</p>
-                                    <div className="grid gap-3">
-                                        <button
-                                            onClick={() => setInput("Son 7 günün satış raporu nedir?")}
-                                            className="flex items-center gap-3 p-3 text-left rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-colors group"
-                                        >
-                                            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                                                <Search className="w-4 h-4 text-primary" />
+                <div className="max-w-2xl mx-auto p-4">
+                    <div className="bg-white dark:bg-gray-900 rounded-xl border-2 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-sm">
+                        <div className="space-y-4 p-4">
+                            {messages.length === 0 && (
+                                <div className="flex flex-col items-center justify-center h-full space-y-6 max-w-sm mx-auto px-4">
+                                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <Bot className="w-8 h-8 text-primary" />
+                                    </div>
+                                    <div className="space-y-4 text-center">
+                                        <div>
+                                            <h2 className="text-xl font-semibold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+                                                Merhaba! Size nasıl yardımcı olabilirim?
+                                            </h2>
+                                            <p className="text-sm text-muted-foreground mt-2">
+                                                Aşağıdaki örnek soruları sorabilir veya kendi sorunuzu yazabilirsiniz
+                                            </p>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <p className="text-sm font-medium text-muted-foreground">Örnek sorular:</p>
+                                            <div className="grid gap-3">
+                                                <button
+                                                    onClick={() => setInput("Son 7 günün satış raporu nedir?")}
+                                                    className="flex items-center gap-3 p-3 text-left rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-colors group"
+                                                >
+                                                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                                                        <Search className="w-4 h-4 text-primary" />
+                                                    </div>
+                                                    <span className="text-sm">Son 7 günün satış raporu nedir?</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => setInput("Geçen aya göre satışlar nasıl?")}
+                                                    className="flex items-center gap-3 p-3 text-left rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-colors group"
+                                                >
+                                                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                                                        <TrendingUp className="w-4 h-4 text-primary" />
+                                                    </div>
+                                                    <span className="text-sm">Geçen aya göre satışlar nasıl?</span>
+                                                </button>
                                             </div>
-                                            <span className="text-sm">Son 7 günün satış raporu nedir?</span>
-                                        </button>
-                                        <button
-                                            onClick={() => setInput("Geçen aya göre satışlar nasıl?")}
-                                            className="flex items-center gap-3 p-3 text-left rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-colors group"
-                                        >
-                                            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                                                <TrendingUp className="w-4 h-4 text-primary" />
-                                            </div>
-                                            <span className="text-sm">Geçen aya göre satışlar nasıl?</span>
-                                        </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    )}
-                    {messages.map((message, index) => (
-                        <div
-                            key={index}
-                            className={cn(
-                                "flex gap-3 p-4 rounded-lg",
-                                message.role === 'assistant'
-                                    ? 'bg-primary/5 border border-primary/10'
-                                    : 'bg-muted/50'
                             )}
-                        >
-                            {message.role === 'assistant' ? (
-                                <Bot className="w-6 h-6 text-primary" />
-                            ) : (
-                                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                                    <span className="text-xs text-primary">S</span>
+                            {messages.map((message, index) => (
+                                <div
+                                    key={index}
+                                    className={cn(
+                                        "flex gap-3 p-4 rounded-lg",
+                                        message.role === 'assistant'
+                                            ? 'bg-primary/5 border border-primary/10'
+                                            : 'bg-muted/50'
+                                    )}
+                                >
+                                    {message.role === 'assistant' ? (
+                                        <Bot className="w-6 h-6 text-primary" />
+                                    ) : (
+                                        <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                                            <span className="text-xs text-primary">S</span>
+                                        </div>
+                                    )}
+                                    <div className="flex-1 space-y-2">
+                                        {message.content}
+                                    </div>
+                                </div>
+                            ))}
+                            {isLoading && (
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                    <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                                    {loadingMessage}
                                 </div>
                             )}
-                            <div className="flex-1 space-y-2">
-                                {message.content}
-                            </div>
-                        </div>
-                    ))}
-                    {isLoading && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                            {loadingMessage}
-                        </div>
-                    )}
 
-                    <div ref={messagesEndRef} />
+                            <div ref={messagesEndRef} />
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {/* Input */}
-            <form onSubmit={handleSubmit} className="p-4 bg-white dark:bg-gray-900 border-t">
+            <form onSubmit={handleSubmit} className="p-4 pb-20 bg-white dark:bg-gray-900 border-t">
                 <div className="max-w-2xl mx-auto flex gap-2">
                     <input
                         type="text"

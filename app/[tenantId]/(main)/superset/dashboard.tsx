@@ -55,6 +55,7 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
     const containerRef = useRef<HTMLDivElement>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [debug, setDebug] = useState<string>('');
     const { selectedFilter } = useFilterStore()
     if (!SUPERSET_BASE_URL) {
         return <div>Hata: Ayarlar Alınamadı</div>;
@@ -72,14 +73,17 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
         };
 
         let params: Record<string, string> = {};
+        if (selectedFilter.selectedBranches.length > 0) {
+            // Branch objelerinden BranchID'leri alıp virgülle birleştir
+            params.branchids = selectedFilter.selectedBranches.map(branch => branch.BranchID).join(',');
+        }
         if (selectedFilter.date.from) params.start_time = formatDate(selectedFilter.date.from);
         if (selectedFilter.date.to) params.end_time = formatDate(selectedFilter.date.to);
-        if (selectedFilter.selectedBranches.length > 0) params.branchids = selectedFilter.selectedBranches.join(',');
         if(standalone) params.standalone = standalone.toString();
         if(extraParams){
             return {...params, ...extraParams};
         }
-        return params
+        return params;
     };
 
     useEffect(() => {
@@ -108,6 +112,9 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
             const attemptLoad = async (): Promise<void> => {
                 try {
                     const guestToken = await getGuestToken(dashboardId);
+                    const urlParams = getFilterParams();
+                    console.log('Dashboard yüklenirken parametreler:', urlParams);
+                    
                     await embedDashboard({
                         id: dashboardId,
                         supersetDomain: SUPERSET_BASE_URL,
@@ -117,7 +124,7 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
                             hideTitle: true,
                             hideTab: false,
                             hideChartControls: false,
-                            urlParams: getFilterParams()
+                            urlParams: urlParams
                         }
                     });
 
@@ -165,6 +172,11 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
 
     return (
         <div className={`${styles.dashboardContainer} embedded-superset`} style={{ width: '100%', height: '100%', position: 'relative' }}>
+            {debug && (
+                <div style={{ position: 'absolute', top: 0, left: 0, background: 'white', padding: '10px', zIndex: 1000, maxWidth: '500px', overflow: 'auto' }}>
+                    <pre>{debug}</pre>
+                </div>
+            )}
             <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />
             {error && <div className="error-message">{error}</div>}
         </div>

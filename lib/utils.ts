@@ -44,7 +44,8 @@ export async function checkTenantDatabase(tenantId: string): Promise<DatabaseRes
     try {
         const instance = Dataset.getInstance();
         const databases = await instance.getDatabase<DatabaseResponse[]>();
-        const database = databases.find(item => item.id === tenantId);
+        console.log('Databases:', databases);
+        const database = databases.find(item => item.tenantId === tenantId);
         databaseCache.set(tenantId, { database, timestamp: Date.now() });
         return database;
     } catch (error) {

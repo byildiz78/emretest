@@ -4,6 +4,7 @@ import { NextApiRequest } from 'next';
 interface RequestOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
     body?: any;
+    headers?: any;
 }
 
 interface ExecuteParams {
@@ -17,6 +18,7 @@ interface ExecuteParams {
         [key: string]: string | number | undefined;
     };
     req?: NextApiRequest;
+    skipCache?: boolean
 }
 
 interface CacheEntry<T> {
@@ -38,10 +40,7 @@ export class Dataset {
     }
 
     private async datasetApi<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-        const { method = 'GET', body } = options;
-        const headers = {
-            'Content-Type': 'application/json',
-        };
+        const { method = 'GET', body, headers } = options;
 
         const requestOptions: RequestInit = {
             method,
@@ -55,7 +54,6 @@ export class Dataset {
         try {
             const response = await fetch(`${process.env.DATASET_API_BASE_URL}${endpoint}`, requestOptions);
             const responseText = await response.text();
-            
             let data;
             try {
                 data = responseText ? JSON.parse(responseText) : null;
@@ -64,6 +62,7 @@ export class Dataset {
                 console.error('Raw response:', responseText);
                 throw new Error('Invalid response format');
             }
+            console.log('data:', data);
     
             if (!response.ok) {
                 throw new Error(data?.message || 'Request failed');
@@ -77,7 +76,7 @@ export class Dataset {
     }
 
     public async executeQuery<T>(params: ExecuteParams): Promise<T> {
-        const { query, parameters = {}, tenantId: paramTenantId, req } = params;
+        const { query, parameters = {}, tenantId: paramTenantId, req, skipCache } = params;
         let tenantId = paramTenantId;
         if (params.req && req?.headers.referer) {
             try {
@@ -92,12 +91,16 @@ export class Dataset {
             const databaseId = database?.databaseId || params.databaseId || '3';
 
             if(databaseId !== undefined && databaseId !== null) {
-                return this.datasetApi<T>('/query/execute', {
+                return this.datasetApi<T>(`/${databaseId}/datamanagerquery`, {
                     method: 'POST',
                     body: {
-                        databaseId,
                         query,
-                        parameters
+                        parameters,
+                        skipCache
+                    },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${database?.apiKey}`
                     }
                 });
             }
@@ -108,10 +111,14 @@ export class Dataset {
         }
     }
 
-    public async getDatabase<T>(tenantId: string = ""): Promise<T> {
-        return this.datasetApi<T>(`/config/database/${tenantId}`);
+    public async getDatabase<T>(): Promise<T> {
+        return this.datasetApi<T>(`/database`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${process.env.DATASET_API_TOKEN}`
+            }
+        });
     }
-    
 }
 
 // Export singleton instance

@@ -47,20 +47,30 @@ export default function NotificationPanel() {
                     });
     
                     if(response.status === 200){
-                        setNotifications(response.data);
+                        console.log('API Response:', response.data); // Debug log
+                        if (Array.isArray(response.data)) {
+                            setNotifications(response.data);
+                        } else {
+                            console.error('API response is not an array:', response.data);
+                            setNotifications([]);
+                        }
                     }
                 } catch (err) {
+                    console.error('Error fetching notifications:', err);
                     setError(err instanceof Error ? err.message : 'Bilinmeyen hata');
+                    setNotifications([]); // Hata durumunda boş dizi
                 } finally {
                     setLoading(false);
                 }
+            } else {
+                setNotifications([]); // Şube seçili değilse boş dizi
             }
         };
 
-
         fetchNotifications();
 
-        const interval = setInterval(fetchNotifications, 30000);
+        const interval = setInterval(fetchNotifications, 90000);
+
         return () => clearInterval(interval);
     }, [selectedFilter.branches]);
 

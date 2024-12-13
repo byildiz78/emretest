@@ -38,27 +38,37 @@ export function NavUser({
     const pathname = usePathname();
 
     const Logout = async () => {
-        // Önce storage'ları temizle
-        document.cookie.split(";").forEach(function(c) { 
-            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-        });
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-
-        // Hemen yönlendir
-        const tenantId = pathname?.split('/')[1];
-        window.location.href = `/${tenantId}/login`;
-
-        // Arka planda API'yi çağır
         try {
+            // First make the API call
             await axios.get('/api/auth/logout', {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
+
+            // Then clear storage
+            // Clear cookies more effectively
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                const eqPos = cookie.indexOf("=");
+                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+            }
+
+            // Clear localStorage
+            localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user');
+
+            // Get tenant ID and redirect
+            const tenantId = pathname?.split('/')[1];
+            window.location.href = `/${tenantId}/login`;
         } catch (error) {
             console.error('Logout error:', error);
+            // Still redirect on error after clearing local storage
+            const tenantId = pathname?.split('/')[1];
+            window.location.href = `/${tenantId}/login`;
         }
     };
     return (

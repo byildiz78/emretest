@@ -94,7 +94,7 @@ export default function EnhancedWidgetCard({
             }
         } catch (err) {
             console.error(`Error fetching data for widget ${reportId}:`, err);
-            setError('Failed to fetch widget data');
+            setError('Veri Yüklenemedi');
         } finally {
             setIsLoading(false);
         }

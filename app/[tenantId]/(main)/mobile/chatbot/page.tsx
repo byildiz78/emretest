@@ -28,6 +28,52 @@ export default function MobileChatbotPage() {
         return value;
     };
 
+    const renderTableContent = (content: any[]) => {
+        if (!Array.isArray(content) || content.length === 0) return null;
+
+        const headers = Object.keys(content[0]);
+
+        return (
+            <div className="overflow-x-auto w-full">
+                <table className="min-w-full border-collapse bg-white dark:bg-gray-900">
+                    <thead>
+                        <tr>
+                            {headers.map((header, index) => (
+                                <th
+                                    key={index}
+                                    className="border px-4 py-2 bg-gray-50 dark:bg-gray-950 text-left text-sm font-medium text-gray-500 dark:text-gray-400"
+                                >
+                                    {header}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {content.map((row, rowIndex) => (
+                            <tr key={rowIndex} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                                {headers.map((header, colIndex) => (
+                                    <td
+                                        key={colIndex}
+                                        className="border px-4 py-2 text-sm text-gray-700 dark:text-gray-400"
+                                    >
+                                        {formatValue(row[header])}
+                                    </td>
+                                ))}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        );
+    };
+
+    const renderMessageContent = (content: any) => {
+        if (Array.isArray(content)) {
+            return renderTableContent(content);
+        }
+        return content;
+    };
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
@@ -44,15 +90,71 @@ export default function MobileChatbotPage() {
         setInput('');
         setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
         setIsLoading(true);
-        setLoadingMessage('Yanıt hazırlanıyor...');
+        setLoadingMessage('Başlatılıyor...');
 
         try {
-            const response = await axios.post('/api/chat', {
-                message: userMessage,
-                filter: selectedFilter
+            const response = await fetch('/api/ai/chatbot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    branches: (selectedFilter.selectedBranches.length === selectedFilter.branches.length || selectedFilter.selectedBranches.length === 0) 
+                        ? 'all' 
+                        : (selectedFilter.selectedBranches.length > 0 
+                        ? selectedFilter.selectedBranches.map(item => item.BranchID) 
+                        : selectedFilter.branches.map(item => item.BranchID) || []),
+                    message: userMessage,
+                    ChatBotID: '999',
+                    oldMessages: messages.map((item) => {
+                        if(item.role === 'user') {
+                            return "Kullanıcı: " + item.content;
+                        }else{
+                            return "Sen: " + item.content;
+                        }
+                    })
+                }),
             });
 
-            setMessages(prev => [...prev, { role: 'assistant', content: response.data }]);
+            const reader = response.body?.getReader();
+            if (!reader) throw new Error('Stream not available');
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = new TextDecoder().decode(value);
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        try {
+                            const data = JSON.parse(line.slice(6));
+                            
+                            if (data.status === 'progress') {
+                                setLoadingMessage(data.message);
+                            } else if (data.status === 'complete') {
+                                const assistantMessage = {
+                                    role: 'assistant',
+                                    content: renderMessageContent(data.data),
+                                };
+                                setMessages(prev => [...prev, assistantMessage]);
+                                setIsLoading(false);
+                            } else if (data.status === 'error') {
+                                const errorMessage = {
+                                    role: 'assistant',
+                                    content: data.error,
+                                };
+                                setMessages(prev => [...prev, errorMessage]);
+                                setIsLoading(false);
+                            }
+                        } catch (e) {
+                            console.error('Error parsing SSE data:', e);
+                        }
+                    }
+                }
+            }
+
         } catch (error) {
             console.error('Error:', error);
             setMessages(prev => [...prev, {
@@ -113,44 +215,33 @@ export default function MobileChatbotPage() {
                                             </div>
                                             <span className="text-sm">Geçen aya göre satışlar nasıl?</span>
                                         </button>
-                                        <button
-                                            onClick={() => setInput("En çok satılan ürünler hangileri?")}
-                                            className="flex items-center gap-3 p-3 text-left rounded-xl bg-primary/5 hover:bg-primary/10 border border-primary/10 transition-colors group"
-                                        >
-                                            <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                                                <Database className="w-4 h-4 text-primary" />
-                                            </div>
-                                            <span className="text-sm">En çok satılan ürünler hangileri?</span>
-                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     )}
-                
                     {messages.map((message, index) => (
                         <div
                             key={index}
                             className={cn(
-                                "flex w-full",
-                                message.role === 'user' ? "justify-end" : "justify-start"
+                                "flex gap-3 p-4 rounded-lg",
+                                message.role === 'assistant'
+                                    ? 'bg-primary/5 border border-primary/10'
+                                    : 'bg-muted/50'
                             )}
                         >
-                            <div
-                                className={cn(
-                                    "max-w-[85%] rounded-2xl px-4 py-2",
-                                    message.role === 'user'
-                                        ? "bg-primary text-primary-foreground"
-                                        : "bg-muted"
-                                )}
-                            >
-                                <div className="prose prose-sm dark:prose-invert">
-                                    {message.content}
+                            {message.role === 'assistant' ? (
+                                <Bot className="w-6 h-6 text-primary" />
+                            ) : (
+                                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <span className="text-xs text-primary">S</span>
                                 </div>
+                            )}
+                            <div className="flex-1 space-y-2">
+                                {message.content}
                             </div>
                         </div>
                     ))}
-
                     {isLoading && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <div className="w-5 h-5 rounded-full border-2 border-primary border-t-transparent animate-spin" />

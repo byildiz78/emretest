@@ -21,18 +21,23 @@ interface NavItem {
     onClick?: () => void;
 }
 
-const ReportItemWithTooltip = ({ title, icon: Icon }: { title: string; icon?: LucideIcon }) => (
-    <TooltipProvider>
-        <Tooltip delayDuration={300}>
+const ReportItemWithTooltip = ({ title, icon: Icon }: { title: string; icon: LucideIcon }) => (
+    <TooltipProvider delayDuration={300}>
+        <Tooltip>
             <TooltipTrigger asChild>
-                <div className="flex items-center gap-2 w-full">
+                <div className="flex items-center gap-2 w-full relative group">
                     {Icon && <Icon className="h-4 w-4 flex-shrink-0" />}
-                    <div className="flex items-center gap-1 min-w-0 flex-1">
-                        <span className="truncate">{title}</span>
-                    </div>
+                    <span className="flex-1 truncate text-sm group-hover:text-clip group-hover:whitespace-normal">
+                        {title}
+                    </span>
                 </div>
             </TooltipTrigger>
-            <TooltipContent side="right" className="max-w-[300px] break-words">
+            <TooltipContent 
+                side="right" 
+                className="max-w-[300px] break-words z-50 bg-popover shadow-md px-3 py-1.5 text-sm rounded-md"
+                sideOffset={5}
+                alignOffset={-5}
+            >
                 {title}
             </TooltipContent>
         </Tooltip>
@@ -66,7 +71,23 @@ const RecursiveMenuItem = ({
                         ) : (
                             <>
                                 {item.icon && <item.icon className="h-4 w-4 flex-shrink-0" />}
-                                <span className="flex-1 truncate">{item.title}</span>
+                                <TooltipProvider delayDuration={300}>
+                                    <Tooltip>
+                                        <TooltipTrigger asChild>
+                                            <span className="flex-1 truncate text-sm relative group">
+                                                {item.title}
+                                            </span>
+                                        </TooltipTrigger>
+                                        <TooltipContent 
+                                            side="right" 
+                                            className="max-w-[300px] break-words z-50 bg-popover shadow-md px-3 py-1.5 text-sm rounded-md"
+                                            sideOffset={5}
+                                            alignOffset={-5}
+                                        >
+                                            {item.title}
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
                             </>
                         )}
                     </SidebarMenuButton>

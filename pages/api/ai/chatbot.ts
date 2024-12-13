@@ -35,111 +35,125 @@ export default async function handler(
 
         const instance = Dataset.getInstance();
         const query = `SELECT TOP 1 ChatbotRole, ChatbotContent FROM dm_ChatBot WHERE ChatBotID = @ChatBotID`;
-        const config = await instance.executeQuery<ChatBot[]>({
-            query,
-            req,
-            params: {
-                ChatBotID
-            }
-        });
-
-        const chatbotConfig = config[0];
-        if (!chatbotConfig) {
-            return res.status(404).json({ error: 'Chatbot configuration not found' });
-        }
-
-        // Send progress update for AI processing
-        res.write('data: ' + JSON.stringify({ status: 'progress', message: 'Sorgunuz AI tarafından işleniyor...' }) + '\n\n');
-        res.flush?.();
-
-        const parameters = {
-            BranchID: branches
-        };
-
-        const messages: ChatCompletionMessageParam[] = [
-            {
-                role: chatbotConfig.ChatbotRole as 'system' | 'user' | 'assistant',
-                content: `${chatbotConfig.ChatbotContent}.  SQL Parametreleri: ${JSON.stringify(parameters)}" `
-            }
-        ];
-
-        let oldmesgs = '';
-        try{
-            oldmesgs = oldMessages.join('\n')
-            messages.push({
-                role: 'user',
-                content: `Geçmiş Mesajlar: ` + oldmesgs 
-            })
-    
-        }catch(error){
-        }
-
-        messages.push({
-            role: 'user',
-            content: message
-        })
+        console.log('Fetching chatbot config with ID:', ChatBotID);
         try {
-            const response = await client.chat.completions.create({
-                model: 'deepseek-chat',
-                messages,
-                stream: true,
-                temperature: 0.7,
-                max_tokens: 2000
+            const config = await instance.executeQuery<ChatBot[]>({
+                query,
+                req,
+                parameters: {
+                    ChatBotID: ChatBotID.toString()
+                }
             });
 
-            // Send progress update for SQL generation
-            res.write('data: ' + JSON.stringify({ status: 'progress', message: 'yanıt oluşturuluyor...' }) + '\n\n');
+            console.log('Chatbot config result:', config);
+
+            const chatbotConfig = config[0];
+            if (!chatbotConfig) {
+                console.error('No chatbot config found for ID:', ChatBotID);
+                return res.status(404).json({ error: 'Chatbot configuration not found' });
+            }
+
+            // Send progress update for AI processing
+            res.write('data: ' + JSON.stringify({ status: 'progress', message: 'Sorgunuz AI tarafından işleniyor...' }) + '\n\n');
             res.flush?.();
 
-            let aiResponse = '';
-            for await (const part of response) {
-                const content = part.choices[0]?.delta?.content || '';
-                aiResponse += content;
-            }
-            if(aiResponse.toString().includes('ONLY_SQL')){
-                aiResponse = aiResponse
-                .replace('ONLY_SQL', '')
-                .replace(/```sql/g, '')
-                .replace(/```/g, '')
-                .replace(/\\n/g, '\n')
-                .trim();
+            const parameters = {
+                BranchID: branches
+            };
 
-                if (!aiResponse.toString().includes('SELECT')) {
-                    res.write('data: ' + JSON.stringify({ 
-                        status: 'error',
-                        error: aiResponse
-                    }) + '\n\n');
-    
-                    res.flush?.();
-                    res.end();
-    
+            const messages: ChatCompletionMessageParam[] = [
+                {
+                    role: chatbotConfig.ChatbotRole as 'system' | 'user' | 'assistant',
+                    content: `${chatbotConfig.ChatbotContent}.  SQL Parametreleri: ${JSON.stringify(parameters)}" `
                 }
-    
-                // Send progress update for database query
-                res.write('data: ' + JSON.stringify({ status: 'progress', message: 'Veritabanı sorgusu çalıştırılıyor...' }) + '\n\n');
-                res.flush?.();
-    
-                const result = await instance.executeQuery<any[]>({
-                    query: aiResponse,
-                    req
-                });
-    
-                // Send final result
-                res.write('data: ' + JSON.stringify({ status: 'complete', data: result }) + '\n\n');
-                res.flush?.();
-            }else{
-                res.write('data: ' + JSON.stringify({ status: 'complete', data: aiResponse }) + '\n\n');
+            ];
 
+            let oldmesgs = '';
+            try{
+                oldmesgs = oldMessages.join('\n')
+                messages.push({
+                    role: 'user',
+                    content: `Geçmiş Mesajlar: ` + oldmesgs 
+                })
+        
+            }catch(error){
             }
 
+            messages.push({
+                role: 'user',
+                content: message
+            })
+            try {
+                const response = await client.chat.completions.create({
+                    model: 'deepseek-chat',
+                    messages,
+                    stream: true,
+                    temperature: 0.7,
+                    max_tokens: 2000
+                });
 
-            res.end();
+                // Send progress update for SQL generation
+                res.write('data: ' + JSON.stringify({ status: 'progress', message: 'yanıt oluşturuluyor...' }) + '\n\n');
+                res.flush?.();
 
+                let aiResponse = '';
+                for await (const part of response) {
+                    const content = part.choices[0]?.delta?.content || '';
+                    aiResponse += content;
+                }
+                if(aiResponse.toString().includes('ONLY_SQL')){
+                    aiResponse = aiResponse
+                    .replace('ONLY_SQL', '')
+                    .replace(/```sql/g, '')
+                    .replace(/```/g, '')
+                    .replace(/\\n/g, '\n')
+                    .trim();
+
+                    if (!aiResponse.toString().includes('SELECT')) {
+                        res.write('data: ' + JSON.stringify({ 
+                            status: 'error',
+                            error: aiResponse
+                        }) + '\n\n');
+        
+                        res.flush?.();
+                        res.end();
+        
+                    }
+        
+                    // Send progress update for database query
+                    res.write('data: ' + JSON.stringify({ status: 'progress', message: 'Veritabanı sorgusu çalıştırılıyor...' }) + '\n\n');
+                    res.flush?.();
+        
+                    const result = await instance.executeQuery<any[]>({
+                        query: aiResponse,
+                        req
+                    });
+        
+                    // Send final result
+                    res.write('data: ' + JSON.stringify({ status: 'complete', data: result }) + '\n\n');
+                    res.flush?.();
+                }else{
+                    res.write('data: ' + JSON.stringify({ status: 'complete', data: aiResponse }) + '\n\n');
+
+                }
+
+
+                res.end();
+
+            } catch (error) {
+                console.error('AI processing error:', error);
+                res.write('data: ' + JSON.stringify({ 
+                    status: 'error',
+                    error: error instanceof Error ? error.message : 'AI processing error'
+                }) + '\n\n');
+                res.flush?.();
+                res.end();
+            }
         } catch (error) {
-            console.error('AI processing error:', error);
+            console.error('Error fetching chatbot config:', error);
             res.write('data: ' + JSON.stringify({ 
                 status: 'error',
-                error: error instanceof Error ? error.message : 'AI processing error'
+                error: error instanceof Error ? error.message : 'Error fetching chatbot config'
             }) + '\n\n');
             res.flush?.();
             res.end();

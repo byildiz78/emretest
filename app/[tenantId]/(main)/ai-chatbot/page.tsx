@@ -92,6 +92,7 @@ const AIChatbotPage = () => {
                         ? selectedFilter.selectedBranches.map(item => item.BranchID) 
                         : selectedFilter.branches.map(item => item.BranchID) || []),
                     message: tempInputText,
+                    ChatBotID: '999', // String olarak gönderiyoruz
                     oldMessages: messages.map((item) => {
                         if(item.role === 'user') {
                             return "Kullanıcı: " +  item.content;

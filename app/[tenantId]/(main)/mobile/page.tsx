@@ -18,9 +18,9 @@ const MobilePage = () => {
         }
     }, []);
     return (
-        <div className="w-full">
+        <div className="w-full min-w-full">
             <Filter />
-            <div>
+            <div className="w-full min-w-full px-4">
                 <Dashboard />
                 <MobileFooter onNotificationsClick={() => setIsNotificationsOpen(true)} />
                 <MobileNotifications 

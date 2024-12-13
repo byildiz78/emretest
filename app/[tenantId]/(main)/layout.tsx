@@ -11,9 +11,10 @@ export default function TenantLayout({
 	return (
 		<SettingsProvider>
 			<SidebarProvider>
-				{children}
+				<div className="w-full min-w-full">
+					{children}
+				</div>
 			</SidebarProvider>
 		</SettingsProvider>
-
 	);
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import ScaleLoader from "react-spinners/ScaleLoader";
 import * as LucideIcons from "lucide-react";
 import axios from "axios";
@@ -36,14 +36,14 @@ const gradientColors = [
     }
 ];
 
-const DynamicIcon = ({ iconName, className }) => {
+const DynamicIcon = ({ iconName, className }: { iconName: string, className: string }) => {
     if (!iconName) return null;
-    const IconComponent = LucideIcons[iconName];
+    const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons];
     if (!IconComponent) return null;
     return <IconComponent className={className} />;
 };
 
-const formatNumberIntl = (value) => {
+const formatNumberIntl = (value: number | string | null | undefined): string => {
     if (value === null || value === undefined) return '0';
     if (typeof value === 'string') {
         const num = parseFloat(value);
@@ -52,7 +52,7 @@ const formatNumberIntl = (value) => {
     return value.toLocaleString('tr-TR');
 };
 
-const formatMainValue = (value) => {
+const formatMainValue = (value: number | string | null | undefined): string => {
     if (value === null || value === undefined) return '0';
     if (typeof value === 'string') {
         const num = parseFloat(value);
@@ -61,16 +61,22 @@ const formatMainValue = (value) => {
     return Math.floor(value).toLocaleString('tr-TR', { maximumFractionDigits: 0 });
 };
 
-export default function EnhancedWidgetCard({
+interface WidgetCardProps {
+    reportId: number;
+    reportName: string;
+    reportIcon: string;
+    columnIndex?: number;
+}
+
+export default function WidgetCard({
     reportId,
     reportName,
     reportIcon,
     columnIndex = 0,
-}) {
-    const [widgetData, setWidgetData] = useState(null);
+}: WidgetCardProps) {
+    const [widgetData, setWidgetData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [isHovered, setIsHovered] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const { selectedFilter } = useFilterStore();
     const colorSet = gradientColors[columnIndex % gradientColors.length];
 
@@ -108,9 +114,9 @@ export default function EnhancedWidgetCard({
 
     if (isLoading || !widgetData) {
         return (
-            <Card className="h-40 shadow-lg hover:shadow-xl transition-shadow duration-300 mb-4">
+            <Card className="h-32 shadow-lg hover:shadow-xl transition-shadow">
                 <div className={cn(
-                    "h-full flex items-center justify-center bg-gradient-to-br backdrop-blur-sm",
+                    "h-full flex items-center justify-center bg-gradient-to-br",
                     colorSet.bg,
                     colorSet.border
                 )}>
@@ -122,7 +128,7 @@ export default function EnhancedWidgetCard({
 
     if (error) {
         return (
-            <Card className="h-40 shadow-lg mb-4">
+            <Card className="h-32 shadow-lg">
                 <div className="h-full flex items-center justify-center text-red-500">
                     {error}
                 </div>
@@ -136,115 +142,62 @@ export default function EnhancedWidgetCard({
                       widgetData.reportValue2 !== "0";
 
     return (
-        <Card 
-            className="h-40 relative overflow-hidden group border-2 shadow-xl hover:shadow-2xl transition-all duration-300 mb-4"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
+        <Card className="h-32 relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
             <motion.div
                 className={cn(
-                    "h-full bg-gradient-to-br p-4 relative backdrop-blur-sm",
+                    "h-full bg-gradient-to-br p-4 relative",
                     colorSet.bg,
                     colorSet.border
                 )}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3 }}
-                style={{
-                    boxShadow: "0 12px 36px -12px rgba(0, 0, 0, 0.2)",
-                }}
             >
                 {/* Header with Icon */}
-                <motion.div 
-                    className="flex items-start justify-between relative pb-2"
-                    initial={false}
-                    animate={{ y: isHovered ? -2 : 0 }}
-                    transition={{ duration: 0.2 }}
-                >
-                    <div className="relative">
-                        <h3 className={cn(
-                            "text-base font-bold tracking-wide",
-                            colorSet.text
-                        )}>
-                            {reportName}
-                        </h3>
-                        <motion.div 
-                            className={cn(
-                                "absolute -bottom-1 left-0 right-0 h-[1.5px] rounded-full",
-                                colorSet.text
-                            )}
-                            initial={{ scaleX: 0, opacity: 0 }}
-                            animate={{ 
-                                scaleX: isHovered ? 1 : 0.3, 
-                                opacity: isHovered ? 1 : 0.5 
-                            }}
-                            transition={{ duration: 0.3 }}
-                            style={{ 
-                                transformOrigin: "left",
-                                background: `currentColor`,
-                                filter: "brightness(1.2)"
-                            }}
-                        />
-                    </div>
-                    <motion.div 
-                        className={cn(
-                            "p-2 rounded-xl bg-white/60 dark:bg-black/60 backdrop-blur-sm",
-                            "shadow-lg transition-all duration-300",
-                            colorSet.text
-                        )}
-                        whileHover={{ scale: 1.05 }}
-                        animate={{ rotate: isHovered ? 5 : 0 }}
-                    >
+                <div className="flex items-start justify-between">
+                    <h3 className={cn(
+                        "text-sm font-semibold",
+                        colorSet.text
+                    )}>
+                        {reportName}
+                    </h3>
+                    <div className={cn(
+                        "p-2 rounded-lg bg-white/60 dark:bg-black/60",
+                        colorSet.text
+                    )}>
                         <DynamicIcon iconName={reportIcon} className="h-6 w-6" />
-                    </motion.div>
-                </motion.div>
+                    </div>
+                </div>
 
                 {/* Main Value */}
                 <motion.div
                     className={cn(
-                        "text-4xl sm:text-5xl font-bold mt-4",
-                        "tracking-tight leading-none",
-                        "relative z-10 flex justify-center items-center",
+                        "text-2xl font-bold mt-3",
                         colorSet.text
                     )}
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <motion.span
-                        initial={false}
-                        animate={{ scale: isHovered ? 1.05 : 1 }}
-                        transition={{ duration: 0.2 }}
-                        className="inline-block transform-gpu"
-                    >
-                        {formatMainValue(widgetData.reportValue1)}
-                    </motion.span>
+                    {formatMainValue(widgetData.reportValue1)}
                 </motion.div>
 
                 {/* Secondary Value Tag */}
-                <AnimatePresence>
-                    {showValue2 && (
-                        <motion.div
-                            className="absolute bottom-4 right-4"
-                            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                            transition={{ 
-                                duration: 0.3,
-                                delay: 0.1
-                            }}
-                        >
-                            <span className={cn(
-                                "px-4 py-1.5 rounded-full text-sm font-semibold",
-                                "shadow-lg backdrop-blur-sm",
-                                "border-2 border-white/20",
-                                colorSet.badge
-                            )}>
-                                {formatNumberIntl(widgetData.reportValue2)}
-                            </span>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                {showValue2 && (
+                    <motion.div
+                        className="absolute bottom-4 right-4"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                    >
+                        <span className={cn(
+                            "px-2 py-1 rounded-md text-sm font-medium shadow-sm",
+                            colorSet.badge
+                        )}>
+                            {formatNumberIntl(widgetData.reportValue2)}
+                        </span>
+                    </motion.div>
+                )}
             </motion.div>
         </Card>
     );

@@ -1,19 +1,15 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import { WebWidget, WebWidgetData } from "@/types/tables";
 import { useFilterStore } from "@/stores/filters-store";
 import { useWidgetDataStore } from "@/stores/widget-data-store";
 import PulseLoader from "react-spinners/PulseLoader";
-import { Bell, Store } from "lucide-react";
+import { Store } from "lucide-react";
 import { motion } from "framer-motion";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import WidgetCard from "./components/MobileDashboardWidgetCard";
 import BranchList from "./components/MobileDashboardBranchList";
-import NotificationPanel from "./components/MobileDashboardNotificationPanel";
-import { useToast } from "@/components/ui/toast/use-toast";
+import WidgetCard from "./components/MobileDashboardWidgetCard";
 
 const REFRESH_INTERVAL = 90000; // 90 seconds in milliseconds
 
@@ -59,8 +55,6 @@ export default function Dashboard() {
         }
     }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, setBranchDatas]);
 
-
-    
     useEffect(() => {
         fetchData();
         const intervalId = setInterval(() => {
@@ -69,10 +63,7 @@ export default function Dashboard() {
         return () => clearInterval(intervalId);
     }, [fetchData]);
 
-
     useEffect(() => {
-
-
         const fetchWidgetsData = async () => {
             try {
                 const response = await axios.get<WebWidget[]>("/api/webwidgets", {
@@ -81,12 +72,10 @@ export default function Dashboard() {
                     },
                 });
                 setWidgets(response.data);
-
             } catch (error) {
                 console.error("Error fetching initial data:", error);
             }
         };
-
 
         fetchWidgetsData();
 
@@ -105,109 +94,55 @@ export default function Dashboard() {
     }, []);
 
     return (
-        <div className="h-full flex">
-            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-transparent 
-                [&::-webkit-scrollbar]:w-2
-                [&::-webkit-scrollbar-thumb]:bg-gray-300/50
-                [&::-webkit-scrollbar-thumb]:rounded-full
-                [&::-webkit-scrollbar-track]:bg-transparent
-                dark:[&::-webkit-scrollbar-thumb]:bg-gray-700/50
-                hover:[&::-webkit-scrollbar-thumb]:bg-gray-300/80
-                dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700/80"
-            >
-                <div className="flex justify-between items-center py-3 px-3 bg-background/95 backdrop-blur-sm border-b border-border/60 sticky top-0 z-10">
-                    <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                        <Store className="h-5 w-5" />
-                        Özet Bilgiler
-                    </h2>
-                    <div className="bg-card/95 backdrop-blur-sm border border-border/60 rounded-lg px-3 py-2 text-sm text-muted-foreground text-start flex items-center gap-2 group">
-                        <div className="duration-[8000ms] text-blue-500 group-hover:text-blue-600 [animation:spin_6s_linear_infinite]">
-                            <svg
-                                className="h-4 w-4"
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M5 22h14" />
-                                <path d="M5 2h14" />
-                                <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
-                                <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
-                            </svg>
-                        </div>
-                        <span className="font-medium w-4 text-center">{countdown}</span>
-                        <span>saniye</span>
+        <div className="flex flex-col h-full min-h-0">
+            <div className="flex justify-between items-center py-3 px-4 bg-background/95 backdrop-blur-sm border-b sticky top-0 z-10">
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                    <Store className="h-5 w-5" />
+                    Özet Bilgiler
+                </h2>
+                <div className="bg-card/95 backdrop-blur-sm border rounded-lg px-3 py-2 text-sm text-muted-foreground flex items-center gap-2">
+                    <motion.div className="text-blue-500" animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }}>
+                        <svg className="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M5 22h14" />
+                            <path d="M5 2h14" />
+                            <path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22" />
+                            <path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2" />
+                        </svg>
+                    </motion.div>
+                    <span className="font-medium w-4 text-center">{countdown}</span>
+                    <span>saniye</span>
+                </div>
+            </div>
+
+            <div className="p-4 space-y-4">
+                {widgets.length <= 0 || widgets === null || widgets === undefined ? (
+                    <div className="flex items-center justify-center min-h-[200px]">
+                        <PulseLoader color="#6366f1" size={18} margin={4} speedMultiplier={0.8} />
                     </div>
-                </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-4">
+                        {widgets.map((widget, index) => (
+                            <WidgetCard
+                                key={widget.AutoID}
+                                reportId={widget.ReportID}
+                                reportName={widget.ReportName}
+                                reportIcon={widget.ReportIcon}
+                                columnIndex={index % 4}
+                            />
+                        ))}
+                    </div>
+                )}
 
-                <div className="p-3 space-y-4 md:space-y-6 pb-20">
-                    {widgets.length <= 0 || widgets === null || widgets === undefined ? (
-                        <div className="flex items-center justify-center min-h-[200px]">
-                             <PulseLoader color="#6366f1" size={18} margin={4} speedMultiplier={0.8} />
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6 auto-rows-auto">
-                            {widgets.map((widget, index) => (
-                                <WidgetCard reportId={widget.ReportID} key={widget.AutoID} reportName={widget.ReportName}
-                                    reportIcon={widget.ReportIcon}
-                                    {...widget}
-                                    columnIndex={index % 3} />
-                            ))}
-                        </div>
-                    )}
-
-                    {widgets.length > 0 && (
-                        <motion.div
-                            className="space-y-6"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                        >
-                            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                                <Store className="h-5 w-5" />
-                                Cirolar
-                            </h2>
-                            <BranchList />
-                        </motion.div>
-                    )}
-                </div>
-            </div>
-
-            <div className="hidden lg:block w-[300px] border-l border-border/60 bg-background/95 backdrop-blur-sm">
-                <div className="h-full p-3 overflow-y-auto
-                [&::-webkit-scrollbar]:w-2
-                        [&::-webkit-scrollbar-thumb]:bg-gray-300/50
-                        [&::-webkit-scrollbar-thumb]:rounded-full
-                        [&::-webkit-scrollbar-track]:bg-transparent
-                        dark:[&::-webkit-scrollbar-thumb]:bg-gray-700/50
-                        hover:[&::-webkit-scrollbar-thumb]:bg-gray-300/80
-                        dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700/80">
-                    <NotificationPanel />
-                </div>
-            </div>
-
-            <div className="fixed bottom-4 right-4 lg:hidden z-40">
-                <Sheet>
-                    <SheetTrigger asChild>
-                        <Button size="icon" className="rounded-full h-12 w-12">
-                            <div className="relative">
-                                <Bell className="h-5 w-5" />
-                                <span className="absolute -top-1 -right-1 h-3 w-3 bg-red-500 rounded-full animate-pulse" />
-                            </div>
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent
-                        side="right"
-                        className="w-[90%] max-w-[400px] p-0 sm:w-[400px]"
+                {widgets.length > 0 && (
+                    <motion.div
+                        className="mt-4"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
                     >
-                        <NotificationPanel />
-                    </SheetContent>
-                </Sheet>
+                        <BranchList />
+                    </motion.div>
+                )}
             </div>
         </div>
     );

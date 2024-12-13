@@ -10,16 +10,14 @@ import {
   Sun,
   Moon,
   Palette,
-  Languages,
   Bell,
   Settings,
-  User,
   Trash2,
   CheckCircle2,
   Filter,
   Workflow,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import React from "react";
 import {
   Command,
   CommandEmpty,
@@ -67,6 +65,8 @@ import { useSettingsStore } from "@/stores/settings-store";
 import { toZonedTime } from "date-fns-tz";
 import { useExpo } from "@/hooks/use-expo";
 import { useTab } from "@/hooks/use-tab";
+
+import "flag-icons/css/flag-icons.min.css";
 
 const translations = {
   tr: {
@@ -150,21 +150,21 @@ const translations = {
 };
 
 export default function Header() {
-  const [desktopBranchOpen, setDesktopBranchOpen] = useState(false);
-  const [mobileBranchOpen, setMobileBranchOpen] = useState(false);
-  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+  const [desktopBranchOpen, setDesktopBranchOpen] = React.useState(false);
+  const [mobileBranchOpen, setMobileBranchOpen] = React.useState(false);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = React.useState(false);
   const { selectedFilter, setFilter, handleStartDateSelect, handleEndDateSelect } = useFilterStore();
   const { settings } = useSettingsStore();
-  const [tempStartTime, setTempStartTime] = useState<string>("00:00");
-  const [tempEndTime, setTempEndTime] = useState<string>("23:59");
-  const [tempStartDate, setTempStartDate] = useState<Date | undefined>(selectedFilter.date.from);
-  const [tempEndDate, setTempEndDate] = useState<Date | undefined>(selectedFilter.date.to);
+  const [tempStartTime, setTempStartTime] = React.useState<string>("00:00");
+  const [tempEndTime, setTempEndTime] = React.useState<string>("23:59");
+  const [tempStartDate, setTempStartDate] = React.useState<Date | undefined>(selectedFilter.date.from);
+  const [tempEndDate, setTempEndDate] = React.useState<Date | undefined>(selectedFilter.date.to);
   const { setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const t = translations[language as keyof typeof translations];
 
   const {handleTabOpen } = useTab();
-  useEffect(() => {
+  React.useEffect(() => {
     if (settings.length > 0) {
       const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
 
@@ -214,7 +214,7 @@ export default function Header() {
       }
     }
   }, [settings]);
-  const [pendingBranches, setPendingBranches] = useState(
+  const [pendingBranches, setPendingBranches] = React.useState(
     selectedFilter.selectedBranches
   );
 
@@ -355,7 +355,7 @@ export default function Header() {
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {tempStartDate
-                      ? formatDateTimeYMDHI(tempStartDate)
+                      ? formatDateTimeDMYHI(tempStartDate)
                       : t.startDate}
                   </Button>
                 </PopoverTrigger>
@@ -414,7 +414,7 @@ export default function Header() {
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {tempEndDate
-                      ? formatDateTimeYMDHI(tempEndDate)
+                      ? formatDateTimeDMYHI(tempEndDate)
                       : t.endDate}
                   </Button>
                 </PopoverTrigger>
@@ -598,6 +598,54 @@ export default function Header() {
                 <Button
                   variant="ghost"
                   size="icon"
+                  className="hover:bg-accent/50 transition-colors duration-300 w-[48px] h-[48px] p-0 relative"
+                >
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    {language === "tr" && (
+                      <span className="fi fi-tr text-2xl" />
+                    )}
+                    {language === "en" && (
+                      <span className="fi fi-gb text-2xl" />
+                    )}
+                    {language === "ar" && (
+                      <span className="fi fi-sa text-2xl" />
+                    )}
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="bg-background/95 backdrop-blur-md border-border/50 shadow-xl w-48"
+              >
+                <DropdownMenuItem
+                  onClick={() => setLanguage("tr")}
+                  className="cursor-pointer flex items-center gap-4 p-4"
+                >
+                  <span className="fi fi-tr text-2xl" />
+                  <span className="text-lg">Türkçe</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setLanguage("en")}
+                  className="cursor-pointer flex items-center gap-4 p-4"
+                >
+                  <span className="fi fi-gb text-2xl" />
+                  <span className="text-lg">English</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setLanguage("ar")}
+                  className="cursor-pointer flex items-center gap-4 p-4"
+                >
+                  <span className="fi fi-sa text-2xl" />
+                  <span className="text-lg">العربية</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className="hover:bg-accent/50 transition-colors duration-300"
                 >
                   <Palette className="h-5 w-5" />
@@ -624,42 +672,6 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="hover:bg-accent/50 transition-colors duration-300"
-                >
-                  <Languages className="h-5 w-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                className="bg-background/95 backdrop-blur-md border-border/50 shadow-xl"
-              >
-                <DropdownMenuItem
-                  onClick={() => setLanguage("tr")}
-                  className="cursor-pointer"
-                >
-                  Türkçe
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setLanguage("en")}
-                  className="cursor-pointer"
-                >
-                  English
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setLanguage("ar")}
-                  className="cursor-pointer"
-                >
-                  العربية
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* fsdsdf */}
             <Button
               variant="ghost"
               size="icon"
@@ -687,16 +699,6 @@ export default function Header() {
               <Settings className="h-5 w-5" />
             </Button>
 
-
-
-            {/* skdljfsd */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-accent/50 transition-colors duration-300"
-            >
-              <User className="h-5 w-5" />
-            </Button>
           </div>
         </div>
 
@@ -724,7 +726,7 @@ export default function Header() {
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {tempStartDate
-                    ? formatDateTimeYMDHI(tempStartDate)
+                    ? formatDateTimeDMYHI(tempStartDate)
                     : t.startDate}
                 </Button>
               </PopoverTrigger>
@@ -776,7 +778,7 @@ export default function Header() {
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {tempEndDate
-                    ? formatDateTimeYMDHI(tempEndDate)
+                    ? formatDateTimeDMYHI(tempEndDate)
                     : t.endDate}
                 </Button>
               </PopoverTrigger>

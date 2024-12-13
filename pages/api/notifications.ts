@@ -55,125 +55,103 @@ export default async function handler(
     }
     const { branches } = req.body;
 
-
+console.log(branches)
     try {
 
         const query = `
-
-            SELECT TOP 10 * FROM (
-
-    -- İlk olarak belirtilen OrderKey'lere sahip kayıtları al
-
-    SELECT 
-
-        row.AutoID as autoId,
-
-        row.LogKey as logKey,
-
-        row.BranchID as branchId,
-
-        CONVERT(VARCHAR, row.OrderDateTime, 120) as orderDateTime,
-
-        row.OrderKey as orderKey,
-
-        row.UserName as userName,
-
-        row.VoidAmount as voidAmount,
-
-        row.DiscountAmount as discountAmount,
-
-        row.AmountDue as amountDue,
-
-        CONVERT(VARCHAR, row.DeliveryTime, 120) as deliveryTime,
-
-        row.LogTitle as logTitle,
-
-        row.LogDetail as logDetail,
-
-        CONVERT(VARCHAR, row.AddDateTime, 120) as addDateTime,
-
-        row.DeviceSended as deviceSended,
-
-        br.BranchName as branchName,
-
+       WITH RankedData AS (
+    -- Cancel ve Discount kayıtları
+    SELECT DISTINCT
+        h.AutoID,
+        h.OrderKey,
+        h.BranchID,
+        h.OrderDateTime,
         CASE 
-
-            WHEN row.LogTitle = 'Çek Tutar' THEN 'sale'
-
-            WHEN row.LogTitle LIKE '%İndirim%' THEN 'discount'
-
-            WHEN row.LogTitle LIKE '%İptal%' THEN 'cancel'
-
-            ELSE 'alert'
-
-        END as type
-
-    FROM dbo.infiniaActivityLogs AS row WITH (NOLOCK)
-
-    LEFT JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = row.BranchID
-
-    WHERE row.OrderKey IN ('73D9682F-4AD6-4E44-B4DA-65CEEC27988A','F6469277-353D-42BA-AE37-F771E12D5E05')
-
+            WHEN EXISTS (
+                SELECT 1 
+                FROM OrderTransactions t WITH (NOLOCK)
+                WHERE t.OrderKey = h.OrderKey 
+                AND t.LineDeleted = 1
+            ) THEN (
+                SELECT SUM(t.ExtendedPrice)
+                FROM OrderTransactions t WITH (NOLOCK)
+                WHERE t.OrderKey = h.OrderKey 
+                AND t.LineDeleted = 1
+            )
+            WHEN h.LineDeleted = 1 THEN h.AmountDue
+            ELSE 0
+        END as Tutar,
+        'cancel' as type,
+        1 as TurSirasi,
+        ROW_NUMBER() OVER (PARTITION BY 'İptal' ORDER BY h.OrderDateTime DESC) as RowNum
+    FROM OrderHeaders h WITH (NOLOCK)
+    WHERE h.@BranchID
+    AND (
+        h.LineDeleted = 1 
+        OR EXISTS (
+            SELECT 1 
+            FROM OrderTransactions t WITH (NOLOCK)
+            WHERE t.OrderKey = h.OrderKey 
+            AND t.LineDeleted = 1
+        )
+    )
 
     UNION ALL
 
+    SELECT DISTINCT
+        h.AutoID,
+        h.OrderKey,
+        h.BranchID,
+        h.OrderDateTime,
+        h.DiscountTotalAmount as Tutar,
+        'discount' as type,
+        1 as TurSirasi,
+        ROW_NUMBER() OVER (PARTITION BY 'İndirim' ORDER BY h.OrderDateTime DESC) as RowNum
+    FROM OrderHeaders h WITH (NOLOCK)
+    WHERE h.@BranchID
+    AND h.LineDeleted = 0
+    AND h.DiscountTotalAmount > 0
 
-    -- Sonra diğer kayıtlardan top 8'i al
+    UNION ALL
 
-    SELECT TOP 8
+    SELECT DISTINCT
+        h.AutoID,
+        h.OrderKey,
+        h.BranchID,
+        h.OrderDateTime,
+        h.AmountDue as Tutar,
+        'sale' as type,
+        2 as TurSirasi,
+        ROW_NUMBER() OVER (PARTITION BY 'Satış' ORDER BY h.OrderDateTime DESC) as RowNum
+    FROM OrderHeaders h WITH (NOLOCK)
+    WHERE h.@BranchID
+    AND h.LineDeleted = 0
+)
+SELECT 
+    rd.AutoID as autoId,
+    rd.OrderKey as orderKey,
+    rd.BranchID as branchId,
+    CONVERT(VARCHAR, rd.OrderDateTime, 120) as orderDateTime,
+    rd.Tutar as amountDue,
+    rd.type,
+    br.BranchName as branchName
+FROM (
+    -- İlk 10 cancel/discount
+    SELECT TOP 10 *
+    FROM RankedData
+    WHERE TurSirasi = 1 AND RowNum <= 10
+    ORDER BY OrderDateTime DESC
 
-        row.AutoID as autoId,
+    UNION ALL
 
-        row.LogKey as logKey,
-
-        row.BranchID as branchId,
-
-        CONVERT(VARCHAR, row.OrderDateTime, 120) as orderDateTime,
-
-        row.OrderKey as orderKey,
-
-        row.UserName as userName,
-
-        row.VoidAmount as voidAmount,
-
-        row.DiscountAmount as discountAmount,
-
-        row.AmountDue as amountDue,
-
-        CONVERT(VARCHAR, row.DeliveryTime, 120) as deliveryTime,
-
-        row.LogTitle as logTitle,
-
-        row.LogDetail as logDetail,
-
-        CONVERT(VARCHAR, row.AddDateTime, 120) as addDateTime,
-
-        row.DeviceSended as deviceSended,
-
-        br.BranchName as branchName,
-
-        CASE 
-
-            WHEN row.LogTitle = 'Çek Tutar' THEN 'sale'
-
-            WHEN row.LogTitle LIKE '%İndirim%' THEN 'discount'
-
-            WHEN row.LogTitle LIKE '%İptal%' THEN 'cancel'
-
-            ELSE 'alert'
-
-        END as type
-
-    FROM dbo.infiniaActivityLogs AS row WITH (NOLOCK)
-
-    LEFT JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = row.BranchID
-
-    WHERE row.OrderKey NOT IN ('73D9682F-4AD6-4E44-B4DA-65CEEC27988A','F6469277-353D-42BA-AE37-F771E12D5E05')
-        AND row.@BranchID
-) AS combined
-
-ORDER BY orderDateTime DESC
-
+    -- İlk 10 sale
+    SELECT TOP 10 *
+    FROM RankedData
+    WHERE TurSirasi = 2 AND RowNum <= 10
+    ORDER BY OrderDateTime DESC
+) rd
+LEFT JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = rd.BranchID
+ORDER BY rd.TurSirasi, rd.OrderDateTime DESC;
         `;
 
         const instance = Dataset.getInstance();

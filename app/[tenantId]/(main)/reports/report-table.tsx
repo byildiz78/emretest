@@ -19,6 +19,9 @@ interface ColumnDef {
   sortable: boolean;
   aggFunc?: string;
   valueFormatter?: (params: any) => string;
+  minWidth?: number;
+  flex?: number;
+  suppressSizeToFit?: boolean;
 }
 
 interface BranchItem {
@@ -43,9 +46,9 @@ const ReportTable = ({ report }: ReportPageProps) => {
     enableRowGroup: true,
     enablePivot: true,
     aggFunc: 'sum',
-    flex: 1  // Sadece bunu ekleyelim
+    minWidth: 200,
+    flex: 1
   }), []);
-
 
   const autoGroupColumnDef = useMemo(() => ({
     minWidth: 200,
@@ -98,18 +101,18 @@ const ReportTable = ({ report }: ReportPageProps) => {
 
   const gridTheme = useMemo(() => 
     theme === 'dark' ? {
-      accentColor: "#15BDE8",
-      backgroundColor: "#0C0C0D",
-      borderColor: "#ffffff00",
+      accentColor: "#032B44",
+      backgroundColor: "#030F1E",
+      borderColor: "#020B1A",
       borderRadius: 20,
       browserColorScheme: "dark",
       cellHorizontalPaddingScale: 1,
-      chromeBackgroundColor: "#0C0C0D",
+      chromeBackgroundColor: "#030F1E",
       columnBorder: false,
       fontFamily: "Roboto",
       fontSize: 16,
       foregroundColor: "#BBBEC9",
-      headerBackgroundColor: "#182226",
+      headerBackgroundColor: "#020B1A",
       headerFontSize: 14,
       headerFontWeight: 500,
       headerTextColor: "#FFFFFF",
@@ -121,7 +124,12 @@ const ReportTable = ({ report }: ReportPageProps) => {
       spacing: 8,
       wrapperBorder: false,
       wrapperBorderRadius: 0,
-      rowHoverColor: "#1E2A30",
+      rowHoverColor: "#0D2344",
+      chipBackgroundColor: "#030F1E",
+      menuBackgroundColor: "#030F1E",
+      popupBackgroundColor: "#030F1E",
+      toolPanelBackgroundColor: "#030F1E",
+      selectedRowBackgroundColor: "#0D2344"
     } : {
       accentColor: "#15BDE8",
       borderRadius: 20,
@@ -209,6 +217,42 @@ const ReportTable = ({ report }: ReportPageProps) => {
     return [totals];
   }, [rowData]);
 
+  const createColumnDefs = (firstRow: any) => {
+    const keys = Object.keys(firstRow);
+    const baseWidth = Math.max(250, Math.floor(window.innerWidth / (keys.length + 1)));
+    
+    return keys.map(key => {
+      const value = firstRow[key];
+      let colDef: ColumnDef = {
+        field: key,
+        headerName: key,
+        filter: true,
+        sortable: true,
+        minWidth: 200,
+        flex: 1
+      };
+
+      if (isNumeric(value)) {
+        colDef.aggFunc = 'sum';
+        colDef.valueFormatter = (params: any) => {
+          if (params.value === null || params.value === undefined) return '';
+          return new Intl.NumberFormat('tr-TR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          }).format(params.value);
+        };
+      }
+      else if (isDate(value)) {
+        colDef.valueFormatter = (params: any) => {
+          if (params.value === null || params.value === undefined) return '';
+          return formatDate(params.value);
+        };
+      }
+
+      return colDef;
+    });
+  };
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -226,46 +270,10 @@ const ReportTable = ({ report }: ReportPageProps) => {
       if (response.data?.length > 0) {
         // İlk satırı kullanarak kolon tiplerini tespit et
         const firstRow = response.data[0];
-        const cols = Object.keys(firstRow).map(key => {
-          const value = firstRow[key];
-          let colDef: ColumnDef = {
-            field: key,
-            headerName: key,
-            filter: true,
-            sortable: true
-          };
-
-          // Sayısal alan kontrolü
-          if (isNumeric(value)) {
-            colDef.aggFunc = 'sum';
-            colDef.valueFormatter = (params: any) => {
-              if (params.value === null || params.value === undefined) return '';
-              return new Intl.NumberFormat('tr-TR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              }).format(params.value);
-            };
-          }
-          // Tarih alanı kontrolü
-          else if (isDate(value)) {
-            colDef.valueFormatter = (params: any) => {
-              if (params.value === null || params.value === undefined) return '';
-              return formatDate(params.value);
-            };
-          }
-
-          return colDef;
-        });
+        const cols = createColumnDefs(firstRow);
         setColumnDefs(cols);
         setRowData(response.data);
         setError(null);
-
-        // Kolonları otomatik boyutlandır
-        setTimeout(() => {
-          if (gridRef.current && gridRef.current.api) {
-            gridRef.current.api.autoSizeAllColumns();
-          }
-        }, 100);
       } else {
         setRowData([]);
         setError(`${selectedFilter.date.from && selectedFilter.date.to ? 
@@ -280,6 +288,24 @@ const ReportTable = ({ report }: ReportPageProps) => {
       setLoading(false);
     }
   };
+
+  const onGridReady = (params: any) => {
+    if (params.columnApi && columnDefs.length > 0) {
+      params.api.sizeColumnsToFit();
+    }
+  };
+
+  // Window resize event'ini dinleyelim
+  useEffect(() => {
+    const handleResize = () => {
+      if (gridRef.current && gridRef.current.api) {
+        gridRef.current.api.sizeColumnsToFit();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (report?.ReportID) {
@@ -300,21 +326,61 @@ const ReportTable = ({ report }: ReportPageProps) => {
     <div className="flex flex-col gap-4">
       <style jsx global>{`
         .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-row-odd {
-          background-color: ${theme === 'dark' ? '#141619' : '#ffffff'};
+          background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
         }
         .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-row-even {
-          background-color: ${theme === 'dark' ? '#0C0C0D' : '#f8f8f8'};
+          background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
         }
         .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-row-hover {
-          background-color: ${theme === 'dark' ? '#1E2A30' : '#f5f5f5'} !important;
+          background-color: ${theme === 'dark' ? '#0D2344' : '#f8f8f8'} !important;
         }
         .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-row-group {
           font-weight: bold;
         }
         .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-row-total {
-          background-color: ${theme === 'dark' ? '#182226' : '#f0f0f0'};
+          background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
           font-weight: bold;
-          border-top: 2px solid ${theme === 'dark' ? '#2d3748' : '#e2e8f0'};
+          border-top: 2px solid ${theme === 'dark' ? '#020B1A' : '#e6e6e6'};
+        }
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} {
+          --ag-background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
+          --ag-odd-row-background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
+          --ag-header-background-color: ${theme === 'dark' ? '#020B1A' : '#ffffff'};
+          --ag-row-border-color: ${theme === 'dark' ? '#020B1A' : '#e6e6e6'};
+          --ag-border-color: ${theme === 'dark' ? '#020B1A' : '#e6e6e6'};
+          --ag-side-bar-background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
+          --ag-control-panel-background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
+          --ag-range-selection-background-color: ${theme === 'dark' ? '#0D2344' : '#f8f8f8'};
+          --ag-selected-row-background-color: ${theme === 'dark' ? '#0D2344' : '#f8f8f8'};
+          --ag-row-hover-color: ${theme === 'dark' ? '#0D2344' : '#f8f8f8'};
+          --ag-column-hover-color: ${theme === 'dark' ? '#0D2344' : '#f8f8f8'};
+          --ag-input-focus-box-shadow: none;
+          --ag-input-focus-border-color: #15BDE8;
+        }
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-side-bar {
+          background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
+          border-left: 1px solid ${theme === 'dark' ? '#020B1A' : '#e6e6e6'};
+        }
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-tool-panel-wrapper,
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-header,
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-group,
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-group-level-0,
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-group-level-1,
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-ltr .ag-filter-toolpanel-group-level-1,
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-instance-filter,
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-group-title-bar {
+          background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
+          border-color: ${theme === 'dark' ? '#020B1A' : '#e6e6e6'};
+        }
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-header-cell {
+          white-space: nowrap !important;
+          overflow: visible !important;
+          text-overflow: clip !important;
+        }
+        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-header-cell-text {
+          overflow: visible !important;
+          text-overflow: clip !important;
+          white-space: nowrap !important;
         }
       `}</style>
       <div className={`ag-theme-quartz${theme === 'dark' ? '-dark' : ''} h-[calc(100vh-250px)] w-full`}>
@@ -366,6 +432,7 @@ const ReportTable = ({ report }: ReportPageProps) => {
             suppressAggFuncInHeader={true}
             groupDisplayType="multipleColumns"
             pinnedBottomRowData={pinnedBottomRowData}
+            onGridReady={onGridReady}
           />
         )}
       </div>

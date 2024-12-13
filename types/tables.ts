@@ -224,10 +224,9 @@ export type ProjectSettings = {
 }
 
 export type DatabaseResponse = {
-    id: string;
     databaseId: string;
-    server: string;
-    database: string;
+    tenantId: string;
+    apiKey: string;
 }
 
 export type ExpoTokens = {

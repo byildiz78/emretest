@@ -11,6 +11,7 @@ import { ReportPageProps } from './types';
 import { useFilterStore } from '@/stores/filters-store';
 import { useTheme } from '@/providers/theme-provider';
 import type { SideBarDef } from 'ag-grid-community';
+import { LoadingOverlay } from '@/components/loading-overlay';
 
 interface ColumnDef {
   field: string;
@@ -34,6 +35,7 @@ const ReportTable = ({ report }: ReportPageProps) => {
   const [rowData, setRowData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState(0);
   const { selectedFilter } = useFilterStore();
   const { theme } = useTheme();
 
@@ -99,58 +101,6 @@ const ReportTable = ({ report }: ReportPageProps) => {
     },
   }), []);
 
-  const gridTheme = useMemo(() => 
-    theme === 'dark' ? {
-      accentColor: "#032B44",
-      backgroundColor: "#030F1E",
-      borderColor: "#020B1A",
-      borderRadius: 20,
-      browserColorScheme: "dark",
-      cellHorizontalPaddingScale: 1,
-      chromeBackgroundColor: "#030F1E",
-      columnBorder: false,
-      fontFamily: "Roboto",
-      fontSize: 16,
-      foregroundColor: "#BBBEC9",
-      headerBackgroundColor: "#020B1A",
-      headerFontSize: 14,
-      headerFontWeight: 500,
-      headerTextColor: "#FFFFFF",
-      headerVerticalPaddingScale: 0.9,
-      iconSize: 20,
-      rowBorder: false,
-      rowVerticalPaddingScale: 1.2,
-      sidePanelBorder: false,
-      spacing: 8,
-      wrapperBorder: false,
-      wrapperBorderRadius: 0,
-      rowHoverColor: "#0D2344",
-      chipBackgroundColor: "#030F1E",
-      menuBackgroundColor: "#030F1E",
-      popupBackgroundColor: "#030F1E",
-      toolPanelBackgroundColor: "#030F1E",
-      selectedRowBackgroundColor: "#0D2344"
-    } : {
-      accentColor: "#15BDE8",
-      borderRadius: 20,
-      cellHorizontalPaddingScale: 1,
-      columnBorder: false,
-      fontFamily: "Roboto",
-      fontSize: 16,
-      headerFontSize: 14,
-      headerFontWeight: 500,
-      headerVerticalPaddingScale: 0.9,
-      iconSize: 20,
-      rowBorder: false,
-      rowVerticalPaddingScale: 1.2,
-      sidePanelBorder: false,
-      spacing: 8,
-      wrapperBorder: false,
-      wrapperBorderRadius: 0,
-      rowHoverColor: "#f5f5f5",
-    },
-  [theme]);
-
   const getRowClass = (params: any) => {
     if (params.node.rowPinned === 'bottom') return 'ag-row-total';
     return params.node.rowIndex % 2 === 0 ? 'ag-row-even' : 'ag-row-odd';
@@ -172,13 +122,13 @@ const ReportTable = ({ report }: ReportPageProps) => {
 
   const formatDate = (value: any) => {
     if (!value) return '';
-    const date = new Date(value);
     
-    // Determine if it's a date with time
-    const isLongDate = hasTimeComponent(value.toString());
+    const date = new Date(value);
+    if (isNaN(date.getTime())) return value; // Return original value if invalid date
+    
+    const isLongDate = typeof value === 'string' && value.includes('T');
     
     if (isLongDate) {
-      // Format with date and time
       return new Intl.DateTimeFormat('tr-TR', {
         day: '2-digit',
         month: '2-digit',
@@ -189,7 +139,6 @@ const ReportTable = ({ report }: ReportPageProps) => {
         hour12: false
       }).format(date);
     } else {
-      // Format date only
       return new Intl.DateTimeFormat('tr-TR', {
         day: '2-digit',
         month: '2-digit',
@@ -256,10 +205,21 @@ const ReportTable = ({ report }: ReportPageProps) => {
   const fetchData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      // İlk üç adımı hızlıca geç
+      setCurrentStep(0);
+      await new Promise(resolve => setTimeout(resolve, 200));
+      setCurrentStep(1);
+      await new Promise(resolve => setTimeout(resolve, 200));
+      setCurrentStep(2);
+      await new Promise(resolve => setTimeout(resolve, 200));
+      setCurrentStep(3);
+
       const branchIds = selectedFilter.selectedBranches.length > 0
         ? selectedFilter.selectedBranches.map((item: BranchItem) => item.BranchID)
         : selectedFilter.branches.map((item: BranchItem) => item.BranchID);
-
+      
       const response = await axios.post('/api/reports-table', {
         date1: selectedFilter.date.from,
         date2: selectedFilter.date.to,
@@ -268,12 +228,10 @@ const ReportTable = ({ report }: ReportPageProps) => {
       });
 
       if (response.data?.length > 0) {
-        // İlk satırı kullanarak kolon tiplerini tespit et
         const firstRow = response.data[0];
         const cols = createColumnDefs(firstRow);
         setColumnDefs(cols);
         setRowData(response.data);
-        setError(null);
       } else {
         setRowData([]);
         setError(`${selectedFilter.date.from && selectedFilter.date.to ? 
@@ -281,7 +239,7 @@ const ReportTable = ({ report }: ReportPageProps) => {
           : 'Seçili tarih aralığı'} ve ${selectedFilter.selectedBranches.length ? 
           `${selectedFilter.selectedBranches.length} şube` : 'seçili şubeler'} için veri bulunamadı.`);
       }
-    } catch (err) {
+    } catch (error: any) {
       setError('Bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.');
       setRowData([]);
     } finally {
@@ -313,77 +271,19 @@ const ReportTable = ({ report }: ReportPageProps) => {
     }
   }, [report?.ReportID, selectedFilter.date.from, selectedFilter.date.to, selectedFilter.selectedBranches]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-        <span className="ml-3">Yükleniyor...</span>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col gap-4">
-      <style jsx global>{`
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-row-odd {
-          background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
-        }
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-row-even {
-          background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
-        }
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-row-hover {
-          background-color: ${theme === 'dark' ? '#0D2344' : '#f8f8f8'} !important;
-        }
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-row-group {
-          font-weight: bold;
-        }
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-row-total {
-          background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
-          font-weight: bold;
-          border-top: 2px solid ${theme === 'dark' ? '#020B1A' : '#e6e6e6'};
-        }
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} {
-          --ag-background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
-          --ag-odd-row-background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
-          --ag-header-background-color: ${theme === 'dark' ? '#020B1A' : '#ffffff'};
-          --ag-row-border-color: ${theme === 'dark' ? '#020B1A' : '#e6e6e6'};
-          --ag-border-color: ${theme === 'dark' ? '#020B1A' : '#e6e6e6'};
-          --ag-side-bar-background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
-          --ag-control-panel-background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
-          --ag-range-selection-background-color: ${theme === 'dark' ? '#0D2344' : '#f8f8f8'};
-          --ag-selected-row-background-color: ${theme === 'dark' ? '#0D2344' : '#f8f8f8'};
-          --ag-row-hover-color: ${theme === 'dark' ? '#0D2344' : '#f8f8f8'};
-          --ag-column-hover-color: ${theme === 'dark' ? '#0D2344' : '#f8f8f8'};
-          --ag-input-focus-box-shadow: none;
-          --ag-input-focus-border-color: #15BDE8;
-        }
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-side-bar {
-          background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
-          border-left: 1px solid ${theme === 'dark' ? '#020B1A' : '#e6e6e6'};
-        }
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-tool-panel-wrapper,
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-header,
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-group,
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-group-level-0,
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-group-level-1,
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-ltr .ag-filter-toolpanel-group-level-1,
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-instance-filter,
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-filter-toolpanel-group-title-bar {
-          background-color: ${theme === 'dark' ? '#030F1E' : '#ffffff'};
-          border-color: ${theme === 'dark' ? '#020B1A' : '#e6e6e6'};
-        }
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-header-cell {
-          white-space: nowrap !important;
-          overflow: visible !important;
-          text-overflow: clip !important;
-        }
-        .ag-theme-quartz${theme === 'dark' ? '-dark' : ''} .ag-header-cell-text {
-          overflow: visible !important;
-          text-overflow: clip !important;
-          white-space: nowrap !important;
-        }
-      `}</style>
-      <div className={`ag-theme-quartz${theme === 'dark' ? '-dark' : ''} h-[calc(100vh-250px)] w-full`}>
+    <>
+      {loading && <LoadingOverlay currentStep={currentStep} />}
+      <div
+        className={`ag-theme-quartz w-full h-[calc(100vh-12rem)] ${theme === 'dark' && 'ag-theme-quartz-dark'}`}
+        style={{
+          '--ag-background-color': theme === 'dark' ? '#030F1E' : '#ffffff',
+          '--ag-odd-row-background-color': theme === 'dark' ? '#030F1E' : '#ffffff',
+          '--ag-header-background-color': theme === 'dark' ? '#020B1A' : '#ffffff',
+          '--ag-row-border-color': theme === 'dark' ? '#020B1A' : '#e6e6e6',
+          '--ag-border-color': theme === 'dark' ? '#020B1A' : '#e6e6e6'
+        } as React.CSSProperties}
+      >
         {error ? (
           <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground">
             <svg
@@ -433,11 +333,12 @@ const ReportTable = ({ report }: ReportPageProps) => {
             groupDisplayType="multipleColumns"
             pinnedBottomRowData={pinnedBottomRowData}
             onGridReady={onGridReady}
+            suppressLoadingOverlay={true}
           />
         )}
       </div>
       <div id="myChart" className="w-full h-[400px]" />
-    </div>
+    </>
   );
 };
 

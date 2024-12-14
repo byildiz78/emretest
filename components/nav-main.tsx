@@ -67,7 +67,9 @@ const RecursiveMenuItem = ({
                 >
                     <SidebarMenuButton className="w-full group hover:bg-accent hover:text-accent-foreground">
                         {level > 0 ? (
-                            <ReportItemWithTooltip title={item.title} icon={item.icon} />
+                            <div className="py-1.5 hover:py-2.5">
+                                <ReportItemWithTooltip title={item.title} icon={item.icon} />
+                            </div>
                         ) : (
                             <>
                                 {item.icon && <item.icon className="h-4 w-4 flex-shrink-0" />}

@@ -12,51 +12,34 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useParams } from 'next/navigation';
 
-export function SettingsMenu() {
+interface SettingsMenuProps {
+  settings: {
+    minDiscountAmount: number | null;
+    minCancelAmount: number | null;
+    minSaleAmount: number | null;
+  } | null;
+  onSettingsChange: (newSettings: any) => void;
+  onSave: (settings: any) => Promise<void>;
+}
+
+export function SettingsMenu({ settings, onSettingsChange, onSave }: SettingsMenuProps) {
   const params = useParams();
-  const [settings, setSettings] = useState({
-    minDiscountAmount: null,
-    minCancelAmount: null,
-    minSaleAmount: null,
-  });
-
-  useEffect(() => {
-    const fetchSettings = async () => {
-      try {
-        const response = await fetch(`/api/${params.tenantId}/api/get-user-settings`);
-        if (response.ok) {
-          const data = await response.json();
-          setSettings(data);
-        }
-      } catch (error) {
-        console.error('Error fetching settings:', error);
-      }
-    };
-
-    fetchSettings();
-  }, [params.tenantId]);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
+    if (!settings) return;
+    
     try {
-      const response = await fetch(`/api/${params.tenantId}/api/update-user-settings`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(settings),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to update settings');
-      }
-
-      const event = new CustomEvent('settingsUpdated', { detail: settings });
-      window.dispatchEvent(event);
-
+      setIsSaving(true);
+      await onSave(settings);
     } catch (error) {
-      console.error('Error updating settings:', error);
+      console.error('Error saving settings:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
+
+  if (!settings) return null;
 
   return (
     <Popover>
@@ -82,10 +65,10 @@ export function SettingsMenu() {
                 className="col-span-2"
                 value={settings.minDiscountAmount ?? ''}
                 onChange={(e) =>
-                  setSettings((prev) => ({
-                    ...prev,
+                  onSettingsChange({
+                    ...settings,
                     minDiscountAmount: e.target.value === '' ? null : Number(e.target.value),
-                  }))
+                  })
                 }
                 placeholder="Limit yok"
               />
@@ -98,10 +81,10 @@ export function SettingsMenu() {
                 className="col-span-2"
                 value={settings.minCancelAmount ?? ''}
                 onChange={(e) =>
-                  setSettings((prev) => ({
-                    ...prev,
+                  onSettingsChange({
+                    ...settings,
                     minCancelAmount: e.target.value === '' ? null : Number(e.target.value),
-                  }))
+                  })
                 }
                 placeholder="Limit yok"
               />
@@ -114,16 +97,18 @@ export function SettingsMenu() {
                 className="col-span-2"
                 value={settings.minSaleAmount ?? ''}
                 onChange={(e) =>
-                  setSettings((prev) => ({
-                    ...prev,
+                  onSettingsChange({
+                    ...settings,
                     minSaleAmount: e.target.value === '' ? null : Number(e.target.value),
-                  }))
+                  })
                 }
                 placeholder="Limit yok"
               />
             </div>
           </div>
-          <Button onClick={handleSave}>Kaydet</Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Kaydediliyor...' : 'Kaydet'}
+          </Button>
         </div>
       </PopoverContent>
     </Popover>

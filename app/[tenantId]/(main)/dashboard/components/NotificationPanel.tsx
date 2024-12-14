@@ -35,6 +35,11 @@ export default function NotificationPanel() {
         minCancelAmount: number | null;
         minSaleAmount: number | null;
     } | null>(null);
+    const [tempSettings, setTempSettings] = useState<{
+        minDiscountAmount: number | null;
+        minCancelAmount: number | null;
+        minSaleAmount: number | null;
+    } | null>(null);
 
     const {
         isOpen,
@@ -52,25 +57,28 @@ export default function NotificationPanel() {
                 const response = await axios.get(`/api/get-user-settings`);
                 if (response.status === 200) {
                     const data = response.data;
-                    setSettings({
+                    const newSettings = {
                         minDiscountAmount: data.minDiscountAmount ?? 0,
                         minCancelAmount: data.minCancelAmount ?? 0,
                         minSaleAmount: data.minSaleAmount ?? 0
-                    });
+                    };
+                    setSettings(newSettings);
+                    setTempSettings(newSettings);
                 }
             } catch (error) {
                 console.error('Error fetching settings:', error);
-                // Hata durumunda varsayılan değerleri kullan
-                setSettings({
+                const defaultSettings = {
                     minDiscountAmount: 0,
                     minCancelAmount: 0,
                     minSaleAmount: 0
-                });
+                };
+                setSettings(defaultSettings);
+                setTempSettings(defaultSettings);
             }
         };
 
         fetchSettings();
-    },[]);
+    }, []);
 
     // Fetch notifications only after settings are loaded
     useEffect(() => {
@@ -112,23 +120,17 @@ export default function NotificationPanel() {
         return () => clearInterval(interval);
     }, [selectedFilter.branches, settings]);
 
-    // Listen for settings updates
-    useEffect(() => {
-        const handleSettingsUpdate = (event: CustomEvent) => {
-            const newSettings = event.detail;
-            setSettings({
-                minDiscountAmount: newSettings.minDiscountAmount ?? 0,
-                minCancelAmount: newSettings.minCancelAmount ?? 0,
-                minSaleAmount: newSettings.minSaleAmount ?? 0
-            });
-        };
-
-        window.addEventListener('settingsUpdated', handleSettingsUpdate as EventListener);
-
-        return () => {
-            window.removeEventListener('settingsUpdated', handleSettingsUpdate as EventListener);
-        };
-    }, []);
+    // Listen for settings updates from SettingsMenu
+    const handleSettingsSave = async (newSettings: any) => {
+        try {
+            const response = await axios.post(`/api/update-user-settings`, newSettings);
+            if (response.status === 200) {
+                setSettings(newSettings); // Update main settings only after successful save
+            }
+        } catch (error) {
+            console.error('Error updating settings:', error);
+        }
+    };
 
     const getNotificationStyle = (type: Notification["type"]) => {
         switch (type) {
@@ -192,7 +194,7 @@ export default function NotificationPanel() {
     }
 
     return (
-        <div className="space-y-4">
+        <div className="h-full w-full">
             <div className="w-full max-w-md mx-auto">
                 <div className="bg-background/95 backdrop-blur-sm sticky top-0 z-10 pb-3">
                     <div className="flex items-center justify-between p-3">
@@ -211,11 +213,11 @@ export default function NotificationPanel() {
                             className="text-xs text-muted-foreground">
                             Canlı
                         </motion.div>
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-2">
-                            </div>
-                            <SettingsMenu />
-                        </div>
+                        <SettingsMenu 
+                            settings={tempSettings} 
+                            onSettingsChange={setTempSettings}
+                            onSave={handleSettingsSave}
+                        />
                     </div>
 
                     <div className="flex gap-1.5 px-3 mt-2">

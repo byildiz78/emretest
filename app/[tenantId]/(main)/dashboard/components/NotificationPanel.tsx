@@ -22,12 +22,19 @@ import { OrderDetailDialog } from "./OrderDetailDialog";
 import { useEffect, useState } from "react";
 import { useFilterStore } from "@/stores/filters-store";
 import axios from "axios";
+import { SettingsMenu } from "@/components/notifications/settings-menu";
+import { useParams } from "next/navigation";
 
 export default function NotificationPanel() {
-    const { selectedFilter} = useFilterStore();
+    const { selectedFilter } = useFilterStore();
     const [notifications, setNotifications] = useState<Notification[]>([]);
-    const [loading, setLoading] = useState(true); 
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [settings, setSettings] = useState<{
+        minDiscountAmount: number | null;
+        minCancelAmount: number | null;
+        minSaleAmount: number | null;
+    } | null>(null);
 
     const {
         isOpen,
@@ -36,18 +43,50 @@ export default function NotificationPanel() {
         fetchOrderDetail,
     } = useOrderDetail();
 
+    const params = useParams();
+
+    // Fetch initial settings
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const response = await axios.get(`/api/get-user-settings`);
+                if (response.status === 200) {
+                    const data = response.data;
+                    setSettings({
+                        minDiscountAmount: data.minDiscountAmount ?? 0,
+                        minCancelAmount: data.minCancelAmount ?? 0,
+                        minSaleAmount: data.minSaleAmount ?? 0
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching settings:', error);
+                // Hata durumunda varsayılan değerleri kullan
+                setSettings({
+                    minDiscountAmount: 0,
+                    minCancelAmount: 0,
+                    minSaleAmount: 0
+                });
+            }
+        };
+
+        fetchSettings();
+    },[]);
+
+    // Fetch notifications only after settings are loaded
     useEffect(() => {
         const fetchNotifications = async () => {
-            if(selectedFilter.branches.length > 0){
+            if (selectedFilter.branches.length > 0 && settings !== null) {
                 try {
                     setLoading(true);
-                    setError(null)
-                    const response = await axios.post<Notification[]>('/api/notifications', {
-                       branches: selectedFilter.branches.map(item => item.BranchID) || [] 
+                    setError(null);
+                    const response = await axios.post(`/api/notifications`, {
+                        branches: selectedFilter.branches.map(item => item.BranchID) || [],
+                        minDiscountAmount: settings.minDiscountAmount,
+                        minCancelAmount: settings.minCancelAmount,
+                        minSaleAmount: settings.minSaleAmount
                     });
-    
-                    if(response.status === 200){
-                        console.log('API Response:', response.data); // Debug log
+
+                    if (response.status === 200) {
                         if (Array.isArray(response.data)) {
                             setNotifications(response.data);
                         } else {
@@ -58,21 +97,38 @@ export default function NotificationPanel() {
                 } catch (err) {
                     console.error('Error fetching notifications:', err);
                     setError(err instanceof Error ? err.message : 'Bilinmeyen hata');
-                    setNotifications([]); // Hata durumunda boş dizi
+                    setNotifications([]);
                 } finally {
                     setLoading(false);
                 }
-            } else {
-                setNotifications([]); // Şube seçili değilse boş dizi
             }
         };
 
         fetchNotifications();
 
+        // Refresh every 90 seconds
         const interval = setInterval(fetchNotifications, 90000);
 
         return () => clearInterval(interval);
-    }, [selectedFilter.branches]);
+    }, [selectedFilter.branches, settings]);
+
+    // Listen for settings updates
+    useEffect(() => {
+        const handleSettingsUpdate = (event: CustomEvent) => {
+            const newSettings = event.detail;
+            setSettings({
+                minDiscountAmount: newSettings.minDiscountAmount ?? 0,
+                minCancelAmount: newSettings.minCancelAmount ?? 0,
+                minSaleAmount: newSettings.minSaleAmount ?? 0
+            });
+        };
+
+        window.addEventListener('settingsUpdated', handleSettingsUpdate as EventListener);
+
+        return () => {
+            window.removeEventListener('settingsUpdated', handleSettingsUpdate as EventListener);
+        };
+    }, []);
 
     const getNotificationStyle = (type: Notification["type"]) => {
         switch (type) {
@@ -136,7 +192,7 @@ export default function NotificationPanel() {
     }
 
     return (
-        <TooltipProvider>
+        <div className="space-y-4">
             <div className="w-full max-w-md mx-auto">
                 <div className="bg-background/95 backdrop-blur-sm sticky top-0 z-10 pb-3">
                     <div className="flex items-center justify-between p-3">
@@ -155,6 +211,11 @@ export default function NotificationPanel() {
                             className="text-xs text-muted-foreground">
                             Canlı
                         </motion.div>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                            </div>
+                            <SettingsMenu />
+                        </div>
                     </div>
 
                     <div className="flex gap-1.5 px-3 mt-2">
@@ -287,6 +348,6 @@ export default function NotificationPanel() {
                 orderDetail={orderDetail as OrderDetail | null}
                 loading={loading}
             />
-        </TooltipProvider>
+        </div>
     );
 }

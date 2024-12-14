@@ -53,13 +53,13 @@ export default async function handler(
         return res.status(405).json({ error: 'Method not allowed' });
 
     }
-    const { branches } = req.body;
+    const { branches, minCancelAmount, minDiscountAmount, minSaleAmount } = req.body;
 
 console.log(branches)
     try {
 
         const query = `
-       WITH RankedData AS (
+       ;WITH RankedData AS (
     -- Cancel ve Discount kayıtları
     SELECT DISTINCT
         h.AutoID,
@@ -95,6 +95,25 @@ console.log(branches)
             AND t.LineDeleted = 1
         )
     )
+    AND (
+        @MinCancelAmount IS NULL 
+        OR @MinCancelAmount <= 0
+        OR CASE 
+            WHEN EXISTS (
+                SELECT 1 
+                FROM OrderTransactions t WITH (NOLOCK)
+                WHERE t.OrderKey = h.OrderKey 
+                AND t.LineDeleted = 1
+            ) THEN (
+                SELECT SUM(t.ExtendedPrice)
+                FROM OrderTransactions t WITH (NOLOCK)
+                WHERE t.OrderKey = h.OrderKey 
+                AND t.LineDeleted = 1
+            )
+            WHEN h.LineDeleted = 1 THEN h.AmountDue
+            ELSE 0
+        END >= @MinCancelAmount
+    )
 
     UNION ALL
 
@@ -103,14 +122,18 @@ console.log(branches)
         h.OrderKey,
         h.BranchID,
         h.OrderDateTime,
-        h.DiscountTotalAmount as Tutar,
+        ISNULL(h.DiscountTotalAmount, 0) as Tutar,
         'discount' as type,
-        1 as TurSirasi,
+        2 as TurSirasi,
         ROW_NUMBER() OVER (PARTITION BY 'İndirim' ORDER BY h.OrderDateTime DESC) as RowNum
     FROM OrderHeaders h WITH (NOLOCK)
     WHERE h.@BranchID
-    AND h.LineDeleted = 0
-    AND h.DiscountTotalAmount > 0
+    AND ISNULL(h.DiscountTotalAmount, 0) > 0
+    AND (
+        @MinDiscountAmount IS NULL 
+        OR @MinDiscountAmount <= 0
+        OR ISNULL(h.DiscountTotalAmount, 0) >= @MinDiscountAmount
+    )
 
     UNION ALL
 
@@ -121,11 +144,15 @@ console.log(branches)
         h.OrderDateTime,
         h.AmountDue as Tutar,
         'sale' as type,
-        2 as TurSirasi,
+        3 as TurSirasi,
         ROW_NUMBER() OVER (PARTITION BY 'Satış' ORDER BY h.OrderDateTime DESC) as RowNum
     FROM OrderHeaders h WITH (NOLOCK)
     WHERE h.@BranchID
-    AND h.LineDeleted = 0
+    AND (
+        @MinSaleAmount IS NULL 
+        OR @MinSaleAmount <= 0
+        OR h.AmountDue >= @MinSaleAmount
+    )
 )
 SELECT 
     rd.AutoID as autoId,
@@ -144,10 +171,18 @@ FROM (
 
     UNION ALL
 
-    -- İlk 10 sale
+    -- İlk 10 discount
     SELECT TOP 10 *
     FROM RankedData
     WHERE TurSirasi = 2 AND RowNum <= 10
+    ORDER BY OrderDateTime DESC
+
+    UNION ALL
+
+    -- İlk 10 sale
+    SELECT TOP 10 *
+    FROM RankedData
+    WHERE TurSirasi = 3 AND RowNum <= 10
     ORDER BY OrderDateTime DESC
 ) rd
 LEFT JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = rd.BranchID
@@ -160,7 +195,10 @@ ORDER BY rd.TurSirasi, rd.OrderDateTime DESC;
 
             query,
             parameters:{
-                BranchID: branches
+                BranchID: branches,
+                MinCancelAmount: minCancelAmount,
+                MinDiscountAmount: minDiscountAmount,
+                MinSaleAmount: minSaleAmount
             },
             req
 
@@ -184,4 +222,3 @@ ORDER BY rd.TurSirasi, rd.OrderDateTime DESC;
     }
 
 }
-

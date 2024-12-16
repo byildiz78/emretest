@@ -23,10 +23,10 @@ const gradientColors = [
         badge: "bg-blue-500 text-white dark:bg-blue-600"
     },
     {
-        bg: "from-sky-100/95 via-blue-50/85 to-white/80 dark:from-sky-950/30 dark:via-blue-900/20 dark:to-background/80",
-        border: "border-sky-200/60 dark:border-blue-800/60",
-        text: "text-sky-700 dark:text-blue-400",
-        badge: "bg-sky-500 text-white dark:bg-blue-600"
+        bg: "from-violet-100/95 via-purple-50/85 to-white/80 dark:from-violet-950/30 dark:via-purple-900/20 dark:to-background/80",
+        border: "border-violet-200/60 dark:border-purple-800/60",
+        text: "text-violet-700 dark:text-purple-400",
+        badge: "bg-violet-500 text-white dark:bg-violet-600"
     },
     {
         bg: "from-violet-100/95 via-purple-50/85 to-white/80 dark:from-violet-950/30 dark:via-purple-900/20 dark:to-background/80",

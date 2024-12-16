@@ -56,22 +56,6 @@ const gradientColors = [
 
     {
 
-        bg: "from-blue-100/95 via-blue-50/85 to-white/80 dark:from-blue-950/30 dark:via-blue-900/20 dark:to-background/80",
-
-        border: "border-blue-200/60 dark:border-blue-800/60",
-
-        bar: "from-blue-500 to-blue-700 dark:from-blue-400 dark:to-blue-600",
-
-        shadow: "bg-blue-500/5 dark:bg-blue-400/5",
-
-        text: "text-blue-700 dark:text-blue-400",
-
-        badge: "bg-blue-100/90 text-blue-700 border-blue-200 dark:bg-blue-950/90 dark:text-blue-400 dark:border-blue-800"
-
-    },
-
-    {
-
         bg: "from-emerald-100/95 via-emerald-50/85 to-white/80 dark:from-emerald-950/30 dark:via-emerald-900/20 dark:to-background/80",
 
         border: "border-emerald-200/60 dark:border-emerald-800/60",
@@ -85,20 +69,34 @@ const gradientColors = [
         badge: "bg-emerald-100/90 text-emerald-700 border-emerald-200 dark:bg-emerald-950/90 dark:text-emerald-400 dark:border-emerald-800"
 
     },
-
     {
 
-        bg: "from-amber-100/95 via-amber-50/85 to-white/80 dark:from-amber-950/30 dark:via-amber-900/20 dark:to-background/80",
+        bg: "from-blue-100/95 via-indigo-50/85 to-white/80 dark:from-blue-950/30 dark:via-indigo-900/20 dark:to-background/80",
 
-        border: "border-amber-200/60 dark:border-amber-800/60",
+        border: "border-blue-200/60 dark:border-indigo-800/60",
 
-        bar: "from-amber-500 to-amber-700 dark:from-amber-400 dark:to-amber-600",
+        bar: "from-blue-500 to-blue-700 dark:from-blue-400 dark:to-blue-600",
 
-        shadow: "bg-amber-500/5 dark:bg-amber-400/5",
+        shadow: "bg-blue-500/5 dark:bg-blue-400/5",
 
-        text: "text-amber-700 dark:text-amber-400",
+        text: "text-blue-700 dark:text-indigo-400",
 
-        badge: "bg-amber-100/90 text-amber-700 border-amber-200 dark:bg-amber-950/90 dark:text-amber-400 dark:border-amber-800"
+        badge: "bg-blue-500 text-white dark:bg-blue-600"
+
+    },
+    {
+
+        bg: "from-violet-100/95 via-purple-50/85 to-white/80 dark:from-violet-950/30 dark:via-purple-900/20 dark:to-background/80",
+
+        border: "border-violet-200/60 dark:border-purple-800/60",
+
+        bar: "from-violet-500 to-violet-700 dark:from-violet-400 dark:to-violet-600",
+
+        shadow: "bg-violet-500/5 dark:bg-violet-400/5",
+
+        text: "text-violet-700 dark:text-purple-400",
+
+        badge: "bg-violet-500 text-white dark:bg-violet-600"
 
     }
 
@@ -213,7 +211,6 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
                                 canceled: Math.floor(Math.random() * 20)
 
                             },
-
                             revenue: {
 
                                 openChecks: Math.floor(Math.random() * 50000),
@@ -223,7 +220,6 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
                                 total: Number(data.currentValue) || 0
 
                             },
-
                             orders: Array.from({ length: 10 }, (_, index) => ({
 
                                 id: `order-${index}`,
@@ -265,7 +261,6 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
                                 canceled: Math.floor(Math.random() * 20)
 
                             },
-
                             revenue: {
 
                                 openChecks: Math.floor(Math.random() * 50000),
@@ -275,7 +270,6 @@ function BranchCard({ data, index, maxValue }: BranchCardProps) {
                                 total: Math.floor(Math.random() * 150000)
 
                             },
-
                             orders: []
 
                         }));

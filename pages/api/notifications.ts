@@ -2,142 +2,92 @@ import { NextApiRequest, NextApiResponse } from 'next';
 
 import { Dataset } from '@/pages/api/dataset';
 
-
 interface Notification {
-
     autoId: number;
-
     logKey: string;
-
     branchId: number;
-
     orderDateTime: string;
-
     orderKey: string;
-
     userName: string;
-
     voidAmount: number;
-
     discountAmount: number;
-
     amountDue: number;
-
     deliveryTime: string;
-
     logTitle: string;
-
     logDetail: string;
-
     addDateTime: string;
-
     deviceSended: boolean;
-
     branchName: string;
-
     type: 'sale' | 'discount' | 'cancel' | 'alert';
-
 }
 
-
 export default async function handler(
-
     req: NextApiRequest,
-
     res: NextApiResponse
-
 ) {
-
     if (req.method !== 'POST') {
-
         return res.status(405).json({ error: 'Method not allowed' });
-
     }
     const { branches, minCancelAmount, minDiscountAmount, minSaleAmount } = req.body;
 
-console.log(branches)
+    console.log(branches)
     try {
-
         const query = `
-       ;WITH RankedData AS (
-    -- Cancel ve Discount kayıtları
-    SELECT DISTINCT
+WITH RankedData AS (
+    -- Cancel işlemleri
+    SELECT 
         h.AutoID,
         h.OrderKey,
         h.BranchID,
         h.OrderDateTime,
-        CASE 
-            WHEN EXISTS (
-                SELECT 1 
-                FROM OrderTransactions t WITH (NOLOCK)
-                WHERE t.OrderKey = h.OrderKey 
-                AND t.LineDeleted = 1
-            ) THEN (
-                SELECT SUM(t.ExtendedPrice)
-                FROM OrderTransactions t WITH (NOLOCK)
-                WHERE t.OrderKey = h.OrderKey 
-                AND t.LineDeleted = 1
-            )
-            WHEN h.LineDeleted = 1 THEN h.AmountDue
-            ELSE 0
-        END as Tutar,
+        COALESCE(
+            (SELECT SUM(t.ExtendedPrice)
+             FROM OrderTransactions t WITH (NOLOCK)
+             WHERE t.OrderKey = h.OrderKey 
+             AND t.LineDeleted = 1),
+            CASE WHEN h.LineDeleted = 1 THEN h.AmountDue ELSE 0 END
+        ) as Tutar,
         'cancel' as type,
         1 as TurSirasi,
-        ROW_NUMBER() OVER (PARTITION BY 'İptal' ORDER BY h.OrderDateTime DESC) as RowNum
+        ROW_NUMBER() OVER (PARTITION BY 'cancel' ORDER BY h.OrderDateTime DESC) as RowNum
     FROM OrderHeaders h WITH (NOLOCK)
-    WHERE h.@BranchID
-    AND (
-        h.LineDeleted = 1 
-        OR EXISTS (
-            SELECT 1 
-            FROM OrderTransactions t WITH (NOLOCK)
-            WHERE t.OrderKey = h.OrderKey 
-            AND t.LineDeleted = 1
-        )
-    )
-    AND (
-        @MinCancelAmount IS NULL 
-        OR @MinCancelAmount <= 0
-        OR CASE 
-            WHEN EXISTS (
-                SELECT 1 
-                FROM OrderTransactions t WITH (NOLOCK)
-                WHERE t.OrderKey = h.OrderKey 
-                AND t.LineDeleted = 1
-            ) THEN (
-                SELECT SUM(t.ExtendedPrice)
-                FROM OrderTransactions t WITH (NOLOCK)
-                WHERE t.OrderKey = h.OrderKey 
-                AND t.LineDeleted = 1
-            )
-            WHEN h.LineDeleted = 1 THEN h.AmountDue
-            ELSE 0
-        END >= @MinCancelAmount
-    )
+    WHERE h.BranchID IN (${branches})
+    AND (h.LineDeleted = 1 OR EXISTS (
+        SELECT 1 
+        FROM OrderTransactions t WITH (NOLOCK)
+        WHERE t.OrderKey = h.OrderKey 
+        AND t.LineDeleted = 1
+    ))
+    AND (@MinCancelAmount IS NULL OR @MinCancelAmount <= 0 OR 
+        COALESCE(
+            (SELECT SUM(t.ExtendedPrice)
+             FROM OrderTransactions t WITH (NOLOCK)
+             WHERE t.OrderKey = h.OrderKey 
+             AND t.LineDeleted = 1),
+            CASE WHEN h.LineDeleted = 1 THEN h.AmountDue ELSE 0 END
+        ) >= @MinCancelAmount)
 
     UNION ALL
 
-    SELECT DISTINCT
+    -- Discount işlemleri
+    SELECT 
         h.AutoID,
         h.OrderKey,
         h.BranchID,
         h.OrderDateTime,
-        ISNULL(h.DiscountTotalAmount, 0) as Tutar,
+        h.DiscountTotalAmount as Tutar,
         'discount' as type,
         2 as TurSirasi,
-        ROW_NUMBER() OVER (PARTITION BY 'İndirim' ORDER BY h.OrderDateTime DESC) as RowNum
+        ROW_NUMBER() OVER (PARTITION BY 'discount' ORDER BY h.OrderDateTime DESC) as RowNum
     FROM OrderHeaders h WITH (NOLOCK)
-    WHERE h.@BranchID
-    AND ISNULL(h.DiscountTotalAmount, 0) > 0
-    AND (
-        @MinDiscountAmount IS NULL 
-        OR @MinDiscountAmount <= 0
-        OR ISNULL(h.DiscountTotalAmount, 0) >= @MinDiscountAmount
-    )
+    WHERE h.BranchID IN (${branches})
+    AND h.DiscountTotalAmount > 0
+    AND (@MinDiscountAmount IS NULL OR @MinDiscountAmount <= 0 OR h.DiscountTotalAmount >= @MinDiscountAmount)
 
     UNION ALL
 
-    SELECT DISTINCT
+    -- Sale işlemleri
+    SELECT 
         h.AutoID,
         h.OrderKey,
         h.BranchID,
@@ -145,14 +95,10 @@ console.log(branches)
         h.AmountDue as Tutar,
         'sale' as type,
         3 as TurSirasi,
-        ROW_NUMBER() OVER (PARTITION BY 'Satış' ORDER BY h.OrderDateTime DESC) as RowNum
+        ROW_NUMBER() OVER (PARTITION BY 'sale' ORDER BY h.OrderDateTime DESC) as RowNum
     FROM OrderHeaders h WITH (NOLOCK)
-    WHERE h.@BranchID
-    AND (
-        @MinSaleAmount IS NULL 
-        OR @MinSaleAmount <= 0
-        OR h.AmountDue >= @MinSaleAmount
-    )
+    WHERE h.BranchID IN (${branches})
+    AND (@MinSaleAmount IS NULL OR @MinSaleAmount <= 0 OR h.AmountDue >= @MinSaleAmount)
 )
 SELECT 
     rd.AutoID as autoId,
@@ -163,62 +109,34 @@ SELECT
     rd.type,
     br.BranchName as branchName
 FROM (
-    -- İlk 10 cancel/discount
-    SELECT TOP 10 *
+    SELECT *
     FROM RankedData
-    WHERE TurSirasi = 1 AND RowNum <= 10
-    ORDER BY OrderDateTime DESC
-
-    UNION ALL
-
-    -- İlk 10 discount
-    SELECT TOP 10 *
-    FROM RankedData
-    WHERE TurSirasi = 2 AND RowNum <= 10
-    ORDER BY OrderDateTime DESC
-
-    UNION ALL
-
-    -- İlk 10 sale
-    SELECT TOP 10 *
-    FROM RankedData
-    WHERE TurSirasi = 3 AND RowNum <= 10
-    ORDER BY OrderDateTime DESC
+    WHERE RowNum <= 7
 ) rd
 LEFT JOIN efr_Branchs br WITH (NOLOCK) ON br.BranchID = rd.BranchID
-ORDER BY rd.TurSirasi, rd.OrderDateTime DESC;
-        `;
+ORDER BY rd.TurSirasi, rd.OrderDateTime DESC;`;
 
         const instance = Dataset.getInstance();
 
         const result = await instance.executeQuery<Notification[]>({
-
             query,
-            parameters:{
+            parameters: {
                 BranchID: branches,
                 MinCancelAmount: minCancelAmount,
                 MinDiscountAmount: minDiscountAmount,
                 MinSaleAmount: minSaleAmount
             },
             req
-
         });
-
 
         return res.status(200).json(result);
 
     } catch (error: any) {
-
         console.error('Error in notifications handler:', error);
 
-        return res.status(500).json({ 
-
+        return res.status(500).json({
             error: 'Internal server error',
-
             details: error.message
-
         });
-
     }
-
 }

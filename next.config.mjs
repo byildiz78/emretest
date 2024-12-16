@@ -6,9 +6,6 @@ const nextConfig = {
       defaultLocale: 'tr',
     },
     output: 'standalone',
-    eslint: {
-        ignoreDuringBuilds: true,
-      },
       typescript: {
         // ⚠️ TypeScript hatalarını görmezden gel
         ignoreBuildErrors: true,

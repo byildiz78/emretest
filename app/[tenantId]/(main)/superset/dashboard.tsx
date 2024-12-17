@@ -1,7 +1,9 @@
 'use client'
 import { useFilterStore } from "@/stores/filters-store";
 import { embedDashboard } from "@superset-ui/embedded-sdk";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useParams } from 'next/navigation';
+import { useDatabase } from '@/hooks/use-database';
 
 const SUPERSET_BASE_URL = process.env.NEXT_PUBLIC_SUPERSET_BASE_URL;
 const tokenCache: Record<string, TokenCache> = {};
@@ -26,7 +28,6 @@ interface TokenCache {
     expiresAt: number;
 }
 
-
 const getGuestToken = async (dashboardId: string, forceRefresh?: boolean) => {
     const now = Date.now();
     const cached = tokenCache[dashboardId];
@@ -49,19 +50,21 @@ const getGuestToken = async (dashboardId: string, forceRefresh?: boolean) => {
     }
 };
 
-
-
 export default function SupersetDashboardComponent({ dashboardId, standalone, extraParams }: DasboardParams) {
     const containerRef = useRef<HTMLDivElement>(null);
+    const mountedRef = useRef(false);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [debug, setDebug] = useState<string>('');
-    const { selectedFilter } = useFilterStore()
+    const { selectedFilter } = useFilterStore();
+    const params = useParams();
+    const tenantId = params.tenantId as string;
+    const { database } = useDatabase(tenantId);
+
     if (!SUPERSET_BASE_URL) {
         return <div>Hata: Ayarlar Alınamadı</div>;
     }
 
-    const getFilterParams = () => {
+    const filterParams = useMemo(() => {
         const formatDate = (date: Date) => {
             return date.getFullYear() + '-' +
                 String(date.getMonth() + 1).padStart(2, '0') + '-' +
@@ -74,31 +77,23 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
 
         let params: Record<string, string> = {};
         if (selectedFilter.selectedBranches.length > 0) {
-            // Branch objelerinden BranchID'leri alıp virgülle birleştir
             params.branchids = selectedFilter.selectedBranches.map(branch => branch.BranchID).join(',');
         }
         if (selectedFilter.date.from) params.start_time = formatDate(selectedFilter.date.from);
         if (selectedFilter.date.to) params.end_time = formatDate(selectedFilter.date.to);
         if(standalone) params.standalone = standalone.toString();
-        if(extraParams){
-            return {...params, ...extraParams};
+        if (database?.database) {
+            params.database = database.database;
         }
-        return params;
-    };
+        return extraParams ? {...params, ...extraParams} : params;
+    }, [selectedFilter.date.from, selectedFilter.date.to, selectedFilter.selectedBranches, standalone, database?.database, extraParams]);
 
     useEffect(() => {
-        if (containerRef.current) {
-            const container = containerRef.current;
-            if (container.children[0]) {
-                const firstChild = container.children[0] as HTMLElement;
-                firstChild.style.width = "100%";
-                firstChild.style.height = "100%";
-            }
+        if (!mountedRef.current) {
+            mountedRef.current = true;
+            return;
         }
-    }, [isLoading]);
 
-    useEffect(() => {
-        let isMounted = true;
         const loadDashboard = async () => {
             if (!containerRef.current) {
                 setError("Container ref is null");
@@ -112,8 +107,7 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
             const attemptLoad = async (): Promise<void> => {
                 try {
                     const guestToken = await getGuestToken(dashboardId);
-                    const urlParams = getFilterParams();
-                    console.log('Dashboard yüklenirken parametreler:', urlParams);
+                    console.log('Dashboard yüklenirken parametreler:', filterParams);
                     
                     await embedDashboard({
                         id: dashboardId,
@@ -124,36 +118,29 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
                             hideTitle: true,
                             hideTab: false,
                             hideChartControls: false,
-                            urlParams: urlParams
+                            urlParams: filterParams
                         }
                     });
 
-                    // Set size for the embedded container
-                    if (containerRef.current && containerRef.current.children[0]) {
+                    if (containerRef.current?.children[0]) {
                         const firstChild = containerRef.current.children[0] as HTMLElement;
                         firstChild.style.width = "100%";
                         firstChild.style.height = "100%";
                     }
 
-                    if (isMounted) {
-                        setIsLoading(false);
-                    }
+                    setIsLoading(false);
                 } catch (error) {
                     console.error("Error embedding Superset dashboard:", error);
                     
                     if (retryCount < maxRetries) {
                         retryCount++;
-                        
-                        // Clear any cached token and wait briefly before retry
-                        await getGuestToken(dashboardId, true); 
+                        await getGuestToken(dashboardId, true);
                         await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, retryCount - 1)));
                         return attemptLoad();
                     }
 
                     setError(error instanceof Error ? error.message : String(error));
-                    if (isMounted) {
-                        setIsLoading(false);
-                    }
+                    setIsLoading(false);
                 }
             };
 
@@ -163,20 +150,14 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
         loadDashboard();
 
         return () => {
-            isMounted = false;
             if (containerRef.current) {
                 containerRef.current.innerHTML = '';
             }
         };
-    }, [selectedFilter.date.from, selectedFilter.date.to, selectedFilter.selectedBranches, dashboardId]);
+    }, [dashboardId, filterParams]);
 
     return (
         <div className={`${styles.dashboardContainer} embedded-superset`} style={{ width: '100%', height: '100%', position: 'relative' }}>
-            {debug && (
-                <div style={{ position: 'absolute', top: 0, left: 0, background: 'white', padding: '10px', zIndex: 1000, maxWidth: '500px', overflow: 'auto' }}>
-                    <pre>{debug}</pre>
-                </div>
-            )}
             <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'absolute', top: 0, left: 0 }} />
             {error && <div className="error-message">{error}</div>}
         </div>

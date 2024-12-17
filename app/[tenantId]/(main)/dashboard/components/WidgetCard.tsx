@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -61,7 +61,7 @@ const formatMainValue = (value) => {
     return Math.floor(value).toLocaleString('tr-TR', { maximumFractionDigits: 0 });
 };
 
-export default function EnhancedWidgetCard({
+const WidgetCard = memo(function WidgetCard({
     reportId,
     reportName,
     reportIcon,
@@ -71,11 +71,14 @@ export default function EnhancedWidgetCard({
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
     const { selectedFilter } = useFilterStore();
-    const colorSet = gradientColors[columnIndex % gradientColors.length];
+    const colorSet = useMemo(() => gradientColors[columnIndex % gradientColors.length], [columnIndex]);
 
-    const selectedBranches = selectedFilter.selectedBranches.length <= 0
-        ? selectedFilter.branches
-        : selectedFilter.selectedBranches;
+    const selectedBranches = useMemo(() => 
+        selectedFilter.selectedBranches.length <= 0
+            ? selectedFilter.branches
+            : selectedFilter.selectedBranches,
+        [selectedFilter.selectedBranches, selectedFilter.branches]
+    );
 
     const getReportData = useCallback(async (isInitial = false) => {
         if (selectedBranches.length === 0) return;
@@ -106,15 +109,24 @@ export default function EnhancedWidgetCard({
     }, [selectedFilter.date, selectedBranches, reportId]);
 
     useEffect(() => {
-        // İlk yükleme
-        getReportData(true);
+        let isSubscribed = true;
         
-        // 90 saniyelik interval
+        const fetchData = async () => {
+            await getReportData(true);
+            if (!isSubscribed) return;
+        };
+        
+        fetchData();
+        
         const interval = setInterval(() => {
+            if (!isSubscribed) return;
             getReportData(false);
         }, 90000);
         
-        return () => clearInterval(interval);
+        return () => {
+            isSubscribed = false;
+            clearInterval(interval);
+        };
     }, [getReportData]);
 
     const showValue2 = widgetData?.reportValue2 != null && 
@@ -211,4 +223,6 @@ export default function EnhancedWidgetCard({
             </motion.div>
         </Card>
     );
-}
+});
+
+export default WidgetCard;

@@ -20,8 +20,11 @@ interface LazyBranchCardProps {
     maxValue: number;
 }
 
-const LazyBranchCard = ({ data, index, maxValue }: LazyBranchCardProps) => {
-    const [ref, isInView] = useInView();
+const LazyBranchCard = memo(function LazyBranchCard({ data, index, maxValue }: LazyBranchCardProps) {
+    const [ref, isInView] = useInView({
+        triggerOnce: true,
+        threshold: 0.1
+    });
 
     return (
         <div ref={ref} className="min-h-[300px]">
@@ -58,6 +61,6 @@ const LazyBranchCard = ({ data, index, maxValue }: LazyBranchCardProps) => {
             )}
         </div>
     );
-};
+});
 
-export default memo(LazyBranchCard);
+export default LazyBranchCard;

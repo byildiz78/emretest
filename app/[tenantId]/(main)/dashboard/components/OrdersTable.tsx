@@ -182,11 +182,6 @@ export default function OrdersTable({ selectedBranch, startDate, endDate }: Orde
             ))}
           </TableBody>
         </Table>
-        {tableData.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-            <p className="text-muted-foreground">Veri bulunamadı</p>
-          </div>
-        )}
       </div>
 
       {/* Pagination */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { Calendar, Store, Search, Check, ChevronDown } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subWeeks, subMonths, startOfYear, endOfYear } from "date-fns";
 import { tr } from "date-fns/locale";
@@ -11,23 +11,13 @@ import OrdersTable from "@/app/[tenantId]/(main)/dashboard/components/OrdersTabl
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useTabStore } from "@/stores/tab-store";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { useSettingsStore } from "@/stores/settings-store";
+import { PulseLoader } from "react-spinners";
 
 interface BranchData {
     id: string;
@@ -85,35 +75,28 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
     const [widgetData, setWidgetData] = useState<any>(null);
     const [searchQuery, setSearchQuery] = useState("");
     const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [branchDataReady, setBranchDataReady] = useState(false);
     const searchInputRef = useRef<HTMLInputElement>(null);
     const [availableBranches, setAvailableBranches] = useState<Efr_Branches[]>([]);
-    
-    // Mevcut şube (görüntülenen)
     const [currentBranch, setCurrentBranch] = useState<Efr_Branches | null>(null);
-    // Seçilen şube (henüz uygulanmamış)
     const [selectedBranch, setSelectedBranch] = useState<Efr_Branches | null>(null);
-    // Seçilen tarih aralığı (henüz uygulanmamış)
     const [tempDateRange, setTempDateRange] = useState("today");
     const { settings } = useSettingsStore();
 
-    // Helper function to adjust date based on daystart
     const adjustDateForDaystart = (date: Date, isEndDate: boolean = false) => {
         const newDate = new Date(date);
         const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
         newDate.setHours(daystart, 0, 0, 0);
         
-        // If daystart is after current hour and this is a start date, move back one day
         if (!isEndDate && daystart > date.getHours()) {
             newDate.setDate(newDate.getDate() - 1);
-        }
-        // If daystart is before or equal to current hour and this is an end date, move forward one day
-        else if (isEndDate && daystart <= date.getHours()) {
+        } else if (isEndDate && daystart <= date.getHours()) {
             newDate.setDate(newDate.getDate() + 1);
         }
         return newDate;
     };
 
-    // Helper function to get date range based on type
     const getDateRange = (rangeType: string) => {
         const today = new Date();
         let start: Date;
@@ -160,55 +143,58 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
         return { start, end };
     };
 
-    // Şubeleri çek
-    useEffect(() => {
-        const fetchBranches = async () => {
-            try {
-                const response = await fetch('/api/efr_branches');
-                const data = await response.json();
-                setAvailableBranches(data);
-            } catch (error) {
-                console.error('Error fetching branches:', error);
+    const fetchBranchData = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            setBranchDataReady(false);
+            
+            const response = await fetch('/api/efr_branches');
+            const data = await response.json();
+            setAvailableBranches(data);
+            
+            if (branchData?.id) {
+                const branch = {
+                    BranchID: parseInt(branchData.id),
+                    BranchName: branchData.name
+                };
+                setCurrentBranch(branch);
+                setSelectedBranch(branch);
+                
+                const { start, end } = getDateRange("today");
+                setStartDate(start);
+                setEndDate(end);
+                
+                setBranchDataReady(true);
             }
-        };
-
-        fetchBranches();
-    }, []);
-
-    // Başlangıçta mevcut şubeyi ayarla
-    useEffect(() => {
-        if (branchData?.id && !currentBranch) {
-            const branch = {
-                BranchID: parseInt(branchData.id),
-                BranchName: branchData.name
-            };
-            setCurrentBranch(branch);
-            setSelectedBranch(branch);
+        } catch (error) {
+            console.error('Error fetching branches:', error);
+            setBranchDataReady(false);
+        } finally {
+            setIsLoading(false);
         }
-    }, [branchData, currentBranch]);
+    }, [branchData]);
 
-    // API istekleri için tarih aralığını ayarla
+    useEffect(() => {
+        fetchBranchData();
+    }, [fetchBranchData]);
+
     useEffect(() => {
         const { start, end } = getDateRange("today");
         setStartDate(start);
         setEndDate(end);
         setDateRange("today");
-    }, [settings]); // settings değiştiğinde tarihleri güncelle
+    }, [settings]);
 
     const handleApply = () => {
         if (!selectedBranch) return;
 
-        // Tarih aralığını güncelle
         setDateRange(tempDateRange);
 
-        // Yeni tarih aralığını al
         const { start: newStartDate, end: newEndDate } = getDateRange(tempDateRange);
         setStartDate(newStartDate);
         setEndDate(newEndDate);
 
-        // Şube değişti mi kontrol et
         if (currentBranch?.BranchID !== selectedBranch.BranchID) {
-            // Farklı şube seçildiyse yeni tab aç
             const tabId = `branch-${selectedBranch.BranchID}`;
             
             const newTab = {
@@ -246,7 +232,6 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
             setActiveTab(newTab.id);
             setCurrentBranch(selectedBranch);
         } else {
-            // Aynı şube seçildiyse mevcut tabı güncelle
             setCurrentBranch(selectedBranch);
         }
     };
@@ -423,8 +408,17 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                     </div>
                 </Card>
 
-                {currentBranch && (
-                    <>
+                {isLoading || !branchDataReady ? (
+                    <div className="w-full h-[400px] flex items-center justify-center">
+                        <PulseLoader color="#0ea5e9" size={15} margin={5} />
+                    </div>
+                ) : currentBranch && startDate && endDate && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="space-y-6"
+                    >
                         <BranchStats 
                             selectedBranch={currentBranch} 
                             startDate={startDate} 
@@ -440,7 +434,7 @@ export default function DetailsBranch({ branchData, allBranches }: DetailsClient
                             startDate={startDate} 
                             endDate={endDate}
                         />
-                    </>
+                    </motion.div>
                 )}
             </div>
         </div>

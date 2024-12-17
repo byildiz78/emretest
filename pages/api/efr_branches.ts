@@ -43,7 +43,7 @@ export default async function handler(
                 SELECT DISTINCT b.* 
                 FROM Efr_Branchs b 
                 WHERE b.IsActive = 1 
-                AND b.CountryName = 'TÜRKİYE' 
+                --AND b.CountryName = 'TÜRKİYE' 
                 AND EXISTS (
                     SELECT 1 
                     FROM Efr_Users u 

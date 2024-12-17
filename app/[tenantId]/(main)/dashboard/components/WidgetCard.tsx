@@ -135,13 +135,27 @@ export default function EnhancedWidgetCard({
                 transition={{ duration: 0.3 }}
             >
                 {/* Header with Icon */}
-                <div className="flex items-start justify-between">
-                    <h3 className={cn(
-                        "text-sm font-semibold",
-                        colorSet.text
-                    )}>
-                        {reportName}
-                    </h3>
+                <div className="flex items-start justify-between mb-3">
+                    <div className="relative">
+                        <h3 className={cn(
+                            "text-sm font-semibold",
+                            colorSet.text
+                        )}>
+                            {reportName}
+                        </h3>
+                        <motion.div 
+                            className={cn(
+                                "absolute -bottom-2 left-0 h-[2px]",
+                                "bg-gradient-to-r from-current to-transparent opacity-25"
+                            )}
+                            style={{
+                                background: `linear-gradient(to right, ${colorSet.text} 0%, transparent 100%)`
+                            }}
+                            initial={{ width: 0 }}
+                            animate={{ width: "70%" }}
+                            transition={{ duration: 0.8, ease: "easeOut" }}
+                        />
+                    </div>
                     <div className={cn(
                         "p-2 rounded-lg bg-white/60 dark:bg-black/60",
                         colorSet.text

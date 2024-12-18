@@ -19,8 +19,7 @@ export default async function handler(
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { branches, minCancelAmount, minDiscountAmount, minSaleAmount } = req.body;
-
+    const { branches, minCancelAmount = 0, minDiscountAmount = 0, minSaleAmount = 0 } = req.body;
     try {
         const cancelQuery = `
         SELECT TOP 7

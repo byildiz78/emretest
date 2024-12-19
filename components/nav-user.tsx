@@ -6,7 +6,7 @@ import {
     LogOut,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sidebar";
 import axios from "axios";
 import { useRouter, usePathname } from "next/navigation";
+import Image from "next/image";
 
 export function NavUser({
     user,
@@ -37,39 +38,23 @@ export function NavUser({
     const router = useRouter()
     const pathname = usePathname();
 
-    const Logout = async () => {
-        try {
-            // First make the API call
-            await axios.get('/api/auth/logout', {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
+    const Logout = () => {
+        // Get tenant ID
+        const tenantId = pathname?.split('/')[1];
 
-            // Then clear storage
-            // Clear cookies more effectively
-            const cookies = document.cookie.split(";");
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i];
-                const eqPos = cookie.indexOf("=");
-                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
-            }
+        // Clear only tenant-specific data
+        localStorage.removeItem(`userData_${tenantId}`);
 
-            // Clear localStorage
-            localStorage.removeItem('token');
-            localStorage.removeItem('refreshToken');
-            localStorage.removeItem('user');
+        // Clear all cookies for this tenant
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/");
+        });
 
-            // Get tenant ID and redirect
-            const tenantId = pathname?.split('/')[1];
-            window.location.href = `/${tenantId}/login`;
-        } catch (error) {
-            console.error('Logout error:', error);
-            // Still redirect on error after clearing local storage
-            const tenantId = pathname?.split('/')[1];
-            window.location.href = `/${tenantId}/login`;
-        }
+        // Redirect to login
+        router.push(`/${tenantId}/login`);
+
+        // API çağrısını arka planda yap
+        axios.get('/api/auth/logout').catch(() => {});
     };
     return (
         <SidebarMenu>
@@ -81,13 +66,19 @@ export function NavUser({
                             className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
                             <Avatar className="h-8 w-8 rounded-lg">
-                                <AvatarImage
-                                    src={user.avatar}
-                                    alt={user.name}
-                                />
-                                <AvatarFallback className="rounded-lg">
-                                    RB
-                                </AvatarFallback>
+                                <div className="relative h-full w-full">
+                                    <Image
+                                        src={user.avatar}
+                                        alt={user.name}
+                                        fill
+                                        sizes="32px"
+                                        priority
+                                        className="rounded-lg object-cover"
+                                    />
+                                </div>
+                                {/* <AvatarFallback className="rounded-lg">
+                                    {user.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                                </AvatarFallback> */}
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-semibold">
@@ -109,13 +100,19 @@ export function NavUser({
                         <DropdownMenuLabel className="p-0 font-normal">
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
-                                    <AvatarImage
-                                        src={user.avatar}
-                                        alt={user.name}
-                                    />
-                                    <AvatarFallback className="rounded-lg">
-                                        RB
-                                    </AvatarFallback>
+                                    <div className="relative h-full w-full">
+                                        <Image
+                                            src={user.avatar}
+                                            alt={user.name}
+                                            fill
+                                            sizes="32px"
+                                            priority
+                                            className="rounded-lg object-cover"
+                                        />
+                                    </div>
+                                    {/* <AvatarFallback className="rounded-lg">
+                                        {user.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                                    </AvatarFallback> */}
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-semibold">
@@ -130,7 +127,7 @@ export function NavUser({
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={Logout}>
                             <LogOut />
-                            Log out
+                            Çıkış
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

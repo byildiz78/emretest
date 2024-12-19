@@ -120,6 +120,12 @@ export default function LoginPage() {
             });
 
             if (response.status === 200) {
+                const tenantId = pathname?.split('/')[1];
+                // Store user data in localStorage with tenant-specific key
+                localStorage.setItem(`userData_${tenantId}`, JSON.stringify({
+                    name: response.data.name,
+                    email: response.data.email
+                }));
 
                 const button = document.querySelector('button[type="submit"]');
                 if (button) {

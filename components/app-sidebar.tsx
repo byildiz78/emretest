@@ -99,20 +99,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         teams: [
             {
                 name: "robotPOS Enterprise",
-                logo: LucideIcons.GalleryVerticalEnd,
-                plan: "data manager",
+                logo: "/images/Data.png",
+                plan: "Data Manager",
                 className: "bg-blue-200",
             },
             {
                 name: "robotPOS Operation Manager",
-                logo: LucideIcons.AudioWaveform,
-                plan: "operation manager",
+                logo: "/images/Audit.png",
+                plan: "Operation Manager",
                 className: "bg-blue-200",
             },
             {
                 name: "robotPOS Franchise Manager",
-                logo: LucideIcons.GalleryVerticalEnd,
-                plan: "franchise manager",
+                logo: "/images/Franchise.png",
+                plan: "Franchise Manager",
                 className: "bg-blue-200",
             },
         ],

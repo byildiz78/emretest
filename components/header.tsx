@@ -331,13 +331,13 @@ export default function Header() {
                 <SelectValue placeholder={t.dateRange} />
               </SelectTrigger>
               <SelectContent className="bg-background/95 backdrop-blur-md border-border/50 shadow-xl">
-                <SelectItem value="today">{t.today}</SelectItem>
-                <SelectItem value="yesterday">{t.yesterday}</SelectItem>
-                <SelectItem value="thisWeek">{t.thisWeek}</SelectItem>
-                <SelectItem value="lastWeek">{t.lastWeek}</SelectItem>
-                <SelectItem value="thisMonth">{t.thisMonth}</SelectItem>
-                <SelectItem value="lastMonth">{t.lastMonth}</SelectItem>
-                <SelectItem value="thisYear">{t.thisYear}</SelectItem>
+                <SelectItem value="today" className="cursor-pointer">{t.today}</SelectItem>
+                <SelectItem value="yesterday" className="cursor-pointer">{t.yesterday}</SelectItem>
+                <SelectItem value="thisWeek" className="cursor-pointer">{t.thisWeek}</SelectItem>
+                <SelectItem value="lastWeek" className="cursor-pointer">{t.lastWeek}</SelectItem>
+                <SelectItem value="thisMonth" className="cursor-pointer">{t.thisMonth}</SelectItem>
+                <SelectItem value="lastMonth" className="cursor-pointer">{t.lastMonth}</SelectItem>
+                <SelectItem value="thisYear" className="cursor-pointer">{t.thisYear}</SelectItem>
               </SelectContent>
             </Select>
 

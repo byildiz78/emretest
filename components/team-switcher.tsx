@@ -1,7 +1,8 @@
 "use client"
 
 import * as React from "react"
-import { ChevronsUpDown, Plus } from "lucide-react"
+import { ChevronsUpDown } from "lucide-react"
+import Image from "next/image"
 
 import {
     DropdownMenu,
@@ -9,7 +10,6 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
@@ -19,17 +19,23 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 
+interface Team {
+    name: string
+    logo: string
+    plan: string
+    className?: string
+}
+
 export function TeamSwitcher({
     teams,
 }: {
-    teams: {
-        name: string
-        logo: React.ElementType
-        plan: string
-    }[]
+    teams: Team[]
 }) {
     const { isMobile } = useSidebar()
-    const [activeTeam, setActiveTeam] = React.useState(teams[0])
+    const [activeTeam, setActiveTeam] = React.useState<Team | null>(teams[0] || null)
+
+    if (!activeTeam) return null;
+
     return (
         <SidebarMenu>
             <SidebarMenuItem className="!bg-sky-100/80 dark:!bg-indigo-500/20 hover:!bg-sky-200/90 dark:hover:!bg-indigo-500/30 !rounded-xl !transition-all !duration-200">
@@ -37,10 +43,17 @@ export function TeamSwitcher({
                     <DropdownMenuTrigger asChild>
                         <SidebarMenuButton
                             size="lg"
-                            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                            className="cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                         >
                             <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                                <activeTeam.logo className="size-4" />
+                                <div className="relative h-6 w-6">
+                                    <Image
+                                        src={activeTeam.logo}
+                                        alt={activeTeam.name}
+                                        fill
+                                        className="object-contain"
+                                    />
+                                </div>
                             </div>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-semibold">
@@ -48,7 +61,7 @@ export function TeamSwitcher({
                                 </span>
                                 <span className="truncate text-xs">{activeTeam.plan}</span>
                             </div>
-                            <ChevronsUpDown className="ml-auto" />
+                            <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
@@ -58,28 +71,29 @@ export function TeamSwitcher({
                         sideOffset={4}
                     >
                         <DropdownMenuLabel className="text-xs text-muted-foreground">
-                            Moduller
+                            Modüller
                         </DropdownMenuLabel>
-                        {teams.map((team, index) => (
+                        {teams.map((team) => (
                             <DropdownMenuItem
                                 key={team.name}
                                 onClick={() => setActiveTeam(team)}
-                                className="gap-2 p-2"
+                                className="cursor-pointer gap-2 p-2"
                             >
                                 <div className="flex size-6 items-center justify-center rounded-sm border">
-                                    <team.logo className="size-4 shrink-0" />
+                                    <div className="relative h-4 w-4">
+                                        <Image
+                                            src={team.logo}
+                                            alt={team.name}
+                                            fill
+                                            className="object-contain"
+                                        />
+                                    </div>
                                 </div>
-                                {team.name}
-                                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                                <div className="flex-1">
+                                    <span>{team.name}</span>
+                                </div>
                             </DropdownMenuItem>
                         ))}
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="gap-2 p-2">
-                            <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                                <Plus className="size-4" />
-                            </div>
-                            <div className="font-medium text-muted-foreground">Modül Ekle</div>
-                        </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </SidebarMenuItem>

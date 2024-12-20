@@ -41,6 +41,7 @@ export default function LoginPage() {
     const [shake, setShake] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [bgImageLoaded, setBgImageLoaded] = useState(false);
 
     useEffect(() => {
         const checkMobile = () => {
@@ -99,6 +100,13 @@ export default function LoginPage() {
         return () => window.removeEventListener('message', handleExpoToken);
     }, []);
 
+    useEffect(() => {
+        // Arka plan resmini önceden yükle
+        const img = document.createElement('img');
+        img.src = '/images/background/background1.jpg';
+        img.onload = () => setBgImageLoaded(true);
+    }, []);
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setIsLoading(true);
@@ -112,6 +120,12 @@ export default function LoginPage() {
             });
 
             if (response.status === 200) {
+                const tenantId = pathname?.split('/')[1];
+                // Store user data in localStorage with tenant-specific key
+                localStorage.setItem(`userData_${tenantId}`, JSON.stringify({
+                    name: response.data.name,
+                    email: response.data.email
+                }));
 
                 const button = document.querySelector('button[type="submit"]');
                 if (button) {
@@ -185,9 +199,17 @@ export default function LoginPage() {
         <div
             className={cn(
                 "min-h-screen w-full flex flex-col items-center justify-between relative overflow-hidden",
-                "bg-[url('/images/background/background1.jpg')] dark:bg-gray-900 bg-cover bg-center bg-no-repeat"
+                bgImageLoaded ? "bg-[url('/images/background/background1.jpg')] dark:bg-gray-900 bg-cover bg-center bg-no-repeat" : "bg-gray-900",
+                "transition-all duration-300"
             )}
         >
+            {/* Preload image */}
+            <link
+                rel="preload"
+                href="/images/background/background1.jpg"
+                as="image"
+                type="image/jpeg"
+            />
             {/* Noise overlay */}
             <div className="fixed inset-0 bg-[url('/images/noise.png')] opacity-10 mix-blend-overlay pointer-events-none" />
 

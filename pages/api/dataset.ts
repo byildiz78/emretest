@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { checkTenantDatabase } from "../../lib/utils";
 import { NextApiRequest } from 'next';
 

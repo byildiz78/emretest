@@ -7,7 +7,7 @@ import * as LucideIcons from "lucide-react";
 import axios from "axios";
 import { useFilterStore } from "@/stores/filters-store";
 
-const REFRESH_INTERVAL = 60000;
+const REFRESH_INTERVAL = 90000;
 
 const gradientColors = [
     {
@@ -73,10 +73,10 @@ export default function WidgetCard({
     reportName,
     reportIcon,
     columnIndex = 0,
-}: WidgetCardProps) {
-    const [widgetData, setWidgetData] = useState<any>(null);
+}) {
+    const [widgetData, setWidgetData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [isUpdating, setIsUpdating] = useState(false);
     const { selectedFilter } = useFilterStore();
     const colorSet = gradientColors[columnIndex % gradientColors.length];
 
@@ -84,11 +84,14 @@ export default function WidgetCard({
         ? selectedFilter.branches
         : selectedFilter.selectedBranches;
 
-    const getReportData = useCallback(async () => {
+    const getReportData = useCallback(async (isInitial = false) => {
         if (selectedBranches.length === 0) return;
         try {
-            setIsLoading(true);
-            setError(null);
+            if (isInitial) {
+                setIsLoading(true);
+            } else {
+                setIsUpdating(true);
+            }
             const response = await axios.post("/api/widgetreport", {
                 date1: selectedFilter.date.from,
                 date2: selectedFilter.date.to,
@@ -100,46 +103,22 @@ export default function WidgetCard({
             }
         } catch (err) {
             console.error(`Error fetching data for widget ${reportId}:`, err);
-            setError('Veri Yüklenemedi');
         } finally {
-            setIsLoading(false);
+            if (isInitial) {
+                setIsLoading(false);
+            } else {
+                setIsUpdating(false);
+            }
         }
     }, [selectedFilter.date, selectedBranches, reportId]);
 
     useEffect(() => {
-        getReportData();
-        const fetchInterval = setInterval(getReportData, REFRESH_INTERVAL);
-        return () => clearInterval(fetchInterval);
+        getReportData(true);
+        const interval = setInterval(() => {
+            getReportData(false);
+        }, REFRESH_INTERVAL);
+        return () => clearInterval(interval);
     }, [getReportData]);
-
-    if (isLoading || !widgetData) {
-        return (
-            <Card className="h-32 shadow-lg hover:shadow-xl transition-shadow">
-                <div className={cn(
-                    "h-full flex items-center justify-center bg-gradient-to-br",
-                    colorSet.bg,
-                    colorSet.border
-                )}>
-                    <ScaleLoader color="#6366f1" />
-                </div>
-            </Card>
-        );
-    }
-
-    if (error) {
-        return (
-            <Card className="h-32 shadow-lg">
-                <div className="h-full flex items-center justify-center text-red-500">
-                    {error}
-                </div>
-            </Card>
-        );
-    }
-
-    const showValue2 = widgetData.reportValue2 != null && 
-                      widgetData.reportValue2 !== undefined && 
-                      widgetData.reportValue2 !== "" && 
-                      widgetData.reportValue2 !== "0";
 
     return (
         <Card className="h-32 relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
@@ -173,32 +152,50 @@ export default function WidgetCard({
                 </div>
 
                 {/* Main Value */}
-                <motion.div
-                    className={cn(
-                        "text-2xl font-bold mt-3 flex items-center justify-center",
-                        colorSet.text
-                    )}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    {formatMainValue(widgetData.reportValue1)}
-                </motion.div>
+                <div className="relative">
+                    <motion.div
+                        className={cn(
+                            "text-2xl font-bold",
+                            colorSet.text,
+                            "flex items-center justify-center gap-2 h-8"
+                        )}
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        {isLoading || isUpdating ? (
+                            <div className="transform scale-50">
+                                <ScaleLoader color="#6366f1" height={20} />
+                            </div>
+                        ) : (
+                            formatMainValue(widgetData?.reportValue1 || 0)
+                        )}
+                    </motion.div>
+                </div>
 
                 {/* Secondary Value Tag */}
-                {showValue2 && (
+                {(widgetData?.reportValue2 != null && 
+                  widgetData?.reportValue2 !== undefined && 
+                  widgetData?.reportValue2 !== "" && 
+                  widgetData?.reportValue2 !== "0" || isLoading || isUpdating) && (
                     <motion.div
                         className="absolute bottom-4 right-4"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
                     >
-                        <span className={cn(
-                            "px-2 py-1 rounded-md text-sm font-medium shadow-sm",
-                            colorSet.badge
-                        )}>
-                            {formatNumberIntl(widgetData.reportValue2)}
-                        </span>
+                        {isLoading || isUpdating ? (
+                            <div className="transform scale-50">
+                                <ScaleLoader color="#6366f1" height={15} />
+                            </div>
+                        ) : (
+                            <span className={cn(
+                                "px-2 py-1 rounded-md text-sm font-medium shadow-sm",
+                                colorSet.badge
+                            )}>
+                                {formatNumberIntl(widgetData.reportValue2)}
+                            </span>
+                        )}
                     </motion.div>
                 )}
             </motion.div>

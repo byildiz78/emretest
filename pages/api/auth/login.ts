@@ -58,9 +58,9 @@ export default async function handler(
         const encryptedpass = encrypt(password);
         const instance = Dataset.getInstance();
         
-        const query = "SELECT TOP 1 UserID, UserName FROM Efr_Users WHERE UserName = @username AND EncryptedPass = @password AND IsActive=1";
+        const query = "SELECT TOP 1 UserID, UserName,Email,CONCAT(Name,' ',SurName) as Name FROM Efr_Users WHERE UserName = @username AND EncryptedPass = @password AND IsActive=1";
 
-        const response = await instance.executeQuery<{ UserID: number; UserName: string }[]>({
+        const response = await instance.executeQuery<{ UserID: number; UserName: string, Email: string, Name: string }[]>({
             query,
             parameters: {
                 username: username,
@@ -110,7 +110,13 @@ export default async function handler(
             });
 
             res.setHeader('Set-Cookie', [accessTokenCookie, refreshTokenCookie]);
-            return res.status(200).json({ userId: user.UserID, message: 'Login successful' });
+            return res.status(200).json({ 
+                userId: user.UserID, 
+                userName: user.UserName,
+                name: user.Name,
+                email: user.Email,
+                message: 'Login successful' 
+            });
         }
 
         return res.status(401).json({ message: 'Invalid credentials' });

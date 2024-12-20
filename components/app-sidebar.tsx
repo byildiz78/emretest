@@ -12,6 +12,7 @@ import SupersetDashboardComponent from "@/app/[tenantId]/(main)/superset/dashboa
 import axios from "axios";
 import { getLucideIcon } from "@/lib/utils";
 import { ReportPage } from "@/app/[tenantId]/(main)/reports/page";
+import { usePathname } from "next/navigation";
 
 interface NavItem {
     title: string;
@@ -27,6 +28,9 @@ interface NavItem {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const [supersetMenuItems, setSupersetMenuItems] = React.useState<SupersetDashboard[]>([]);
     const [webreportMenuItems, setWebreportMenuItems] = React.useState<RawReportData[]>([]);
+    const pathname = usePathname();
+    const tenantId = pathname?.split("/")[1] || "";
+    const [userData, setUserData] = React.useState({ name: "", email: "" });
 
     const fetchSupersetMenuItems = React.useCallback(async () => {
         try {
@@ -79,34 +83,41 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     }, []);
 
+    React.useEffect(() => {
+        const storedUserData = localStorage.getItem(`userData_${tenantId}`);
+        if (storedUserData) {
+            setUserData(JSON.parse(storedUserData));
+        }
+    }, [tenantId]);
+
     const baseData = React.useMemo(() => ({
         user: {
-            name: "robotPOS",
-            email: "destek@robotpos.com",
-            avatar: "/avatars/shadcn.jpg",
+            name: userData.name,
+            email: userData.email,
+            avatar: "/images/avatar.png",
         },
         teams: [
             {
                 name: "robotPOS Enterprise",
-                logo: LucideIcons.GalleryVerticalEnd,
-                plan: "data manager",
+                logo: "/images/Data.png",
+                plan: "Data Manager",
                 className: "bg-blue-200",
             },
             {
                 name: "robotPOS Operation Manager",
-                logo: LucideIcons.AudioWaveform,
-                plan: "operation manager",
+                logo: "/images/Audit.png",
+                plan: "Operation Manager",
                 className: "bg-blue-200",
             },
             {
                 name: "robotPOS Franchise Manager",
-                logo: LucideIcons.GalleryVerticalEnd,
-                plan: "franchise manager",
+                logo: "/images/Franchise.png",
+                plan: "Franchise Manager",
                 className: "bg-blue-200",
             },
         ],
         projects: [],
-    }), []);
+    }), [userData]);
 
     const navItems = React.useMemo(() => [
         {

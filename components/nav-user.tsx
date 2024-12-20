@@ -39,22 +39,12 @@ export function NavUser({
     const pathname = usePathname();
 
     const Logout = () => {
-        // Get tenant ID
         const tenantId = pathname?.split('/')[1];
-
-        // Clear only tenant-specific data
         localStorage.removeItem(`userData_${tenantId}`);
+        axios.get('/api/auth/logout').then(()=>{
+            router.push(`/${tenantId}/login`);
 
-        // Clear all cookies for this tenant
-        document.cookie.split(";").forEach(function(c) { 
-            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/");
-        });
-
-        // Redirect to login
-        router.push(`/${tenantId}/login`);
-
-        // API çağrısını arka planda yap
-        axios.get('/api/auth/logout').catch(() => {});
+        }).catch(() => {});
     };
     return (
         <SidebarMenu>

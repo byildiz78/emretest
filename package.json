@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "NODE_OPTIONS='--max-old-space-size=4096' node server.js",
     "copy-files": "node scripts/copy-files.js",
     "build": "next build && npm run copy-files",
-    "start": "next start",
+    "start": "NODE_ENV=production NODE_OPTIONS='--max-old-space-size=4096' node server.js",
     "lint": "next lint"
   },
   "dependencies": {

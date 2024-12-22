@@ -12,7 +12,6 @@ import {
 import {
     Tooltip,
     TooltipContent,
-    TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -77,6 +76,7 @@ export default function NotificationPanel() {
             }
         };
 
+        fetchSettings();
         fetchSettings();
     }, []);
 

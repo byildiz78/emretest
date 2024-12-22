@@ -8,11 +8,21 @@ const nextConfig = {
     output: 'standalone',
     eslint: {
         ignoreDuringBuilds: true,
-      },
-      typescript: {
-        // ⚠️ TypeScript hatalarını görmezden gel
+    },
+    typescript: {
         ignoreBuildErrors: true,
-      }
+    },
+    experimental: {
+        optimizeCss: true,
+        gzipSize: true,
+    },
+    compiler: {
+        removeConsole: process.env.NODE_ENV === 'production',
+    },
+    onDemandEntries: {
+        maxInactiveAge: 25 * 1000,
+        pagesBufferLength: 2,
+    },
 };
 
 export default nextConfig;

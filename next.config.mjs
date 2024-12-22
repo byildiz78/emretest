@@ -13,8 +13,7 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
     experimental: {
-        optimizeCss: true,
-        gzipSize: true,
+        optimizeCss: false, // Disable CSS optimization temporarily
     },
     compiler: {
         removeConsole: process.env.NODE_ENV === 'production',

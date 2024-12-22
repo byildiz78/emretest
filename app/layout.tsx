@@ -3,18 +3,19 @@ import { LanguageProvider } from "@/providers/language-provider";
 import { Toaster } from "@/components/ui/toast/toaster";
 import "./globals.css";
 import { Inter } from "next/font/google";
-import { Metadata } from "next";
+import { Metadata, Viewport } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+};
+
 export const metadata: Metadata = {
-    viewport: {
-        width: 'device-width',
-        initialScale: 1,
-        maximumScale: 1,
-        userScalable: false,
-        viewportFit: 'cover',
-    },
     other: {
         'mobile-web-app-capable': 'yes',
         'apple-mobile-web-app-capable': 'yes',

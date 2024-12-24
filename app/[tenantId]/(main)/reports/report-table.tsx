@@ -31,6 +31,7 @@ interface BranchItem {
 
 const ReportTable = ({ report }: ReportPageProps) => {
   const gridRef = useRef<AgGridReact>(null);
+  const gridContainerRef = useRef<HTMLDivElement>(null);
   const [columnDefs, setColumnDefs] = useState<ColumnDef[]>([]);
   const [rowData, setRowData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -275,18 +276,19 @@ const ReportTable = ({ report }: ReportPageProps) => {
     <>
       {loading && <LoadingOverlay currentStep={currentStep} />}
       <div
-  className={`ag-theme-quartz w-full h-[calc(100vh-12rem)] ${theme === 'dark' && 'ag-theme-quartz-dark'}`}
-  style={{
-    '--ag-background-color': theme === 'dark' ? '#1a1f2e' : '#ffffff',
-    '--ag-odd-row-background-color': theme === 'dark' ? '#242837' : '#ffffff',
-    '--ag-even-row-background-color': theme === 'dark' ? '#1a1f2e' : '#ffffff',
-    '--ag-header-background-color': theme === 'dark' ? '#242837' : '#ffffff',
-    '--ag-row-border-color': theme === 'dark' ? '#2d3344' : '#e6e6e6',
-    '--ag-border-color': theme === 'dark' ? '#2d3344' : '#e6e6e6',
-    '--ag-header-foreground-color': theme === 'dark' ? '#ffffff' : '#000000',
-    '--ag-foreground-color': theme === 'dark' ? '#ffffff' : '#000000',
-  } as React.CSSProperties}
->
+        ref={gridContainerRef}
+        className={`ag-theme-quartz w-full h-[calc(100vh-12rem)] ${theme === 'dark' && 'ag-theme-quartz-dark'}`}
+        style={{
+          '--ag-background-color': theme === 'dark' ? '#1a1f2e' : '#ffffff',
+          '--ag-odd-row-background-color': theme === 'dark' ? '#242837' : '#ffffff',
+          '--ag-even-row-background-color': theme === 'dark' ? '#1a1f2e' : '#ffffff',
+          '--ag-header-background-color': theme === 'dark' ? '#242837' : '#ffffff',
+          '--ag-row-border-color': theme === 'dark' ? '#2d3344' : '#e6e6e6',
+          '--ag-border-color': theme === 'dark' ? '#2d3344' : '#e6e6e6',
+          '--ag-header-foreground-color': theme === 'dark' ? '#ffffff' : '#000000',
+          '--ag-foreground-color': theme === 'dark' ? '#ffffff' : '#000000',
+        } as React.CSSProperties}
+      >
         {error ? (
           <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground">
             <svg
@@ -316,7 +318,7 @@ const ReportTable = ({ report }: ReportPageProps) => {
             ref={gridRef}
             enableCharts={true}
             chartThemeOverrides={chartThemeOverrides}
-            popupParent={document.body}
+            popupParent={gridContainerRef.current}
             columnDefs={columnDefs}
             rowData={rowData}
             defaultColDef={defaultColDef}

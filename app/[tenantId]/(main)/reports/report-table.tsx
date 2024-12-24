@@ -210,11 +210,11 @@ const ReportTable = ({ report }: ReportPageProps) => {
       
       // İlk üç adımı hızlıca geç
       setCurrentStep(0);
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 50));
       setCurrentStep(1);
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 50));
       setCurrentStep(2);
-      await new Promise(resolve => setTimeout(resolve, 200));
+      await new Promise(resolve => setTimeout(resolve, 50));
       setCurrentStep(3);
 
       const branchIds = selectedFilter.selectedBranches.length > 0

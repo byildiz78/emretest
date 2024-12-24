@@ -45,7 +45,7 @@ export function LoadingOverlay({ currentStep = 0 }: LoadingOverlayProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-background/80 backdrop-blur-lg z-50 flex items-center justify-center p-4"
+        className="absolute inset-0 bg-background/80 backdrop-blur-lg z-10 flex items-center justify-center p-4"
       >
         {/* Floating Particles */}
         {floatingParticles.map((_, i) => (

@@ -17,40 +17,83 @@ const Tabs = TabsPrimitive.Root
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> & {
-    onCloseAll?: () => void
+    onCloseAll?: () => void;
   }
->(({ className, onCloseAll, ...props }, ref) => (
-  <TabsPrimitive.List
-    ref={ref}
-    className={cn(
-      "inline-flex h-12 items-center justify-start rounded-lg bg-muted/20 p-1 text-muted-foreground",
-      "border border-border/40 shadow-md backdrop-blur-md",
-      "transition-all duration-300 ease-in-out",
-      "relative",
-      className
-    )}
-    {...props}
-  >
-    {props.children}
-    {onCloseAll && (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div 
-              className="absolute right-2 cursor-pointer p-1.5 rounded-md hover:bg-destructive/10 transition-all duration-200 group"
-              onClick={onCloseAll}
-            >
-              <XCircle className="h-4 w-4 text-muted-foreground group-hover:text-destructive group-hover:scale-110 transition-all duration-200" />
-            </div>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" align="end">
-            <p className="text-xs">Tüm açık tabları kapat</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    )}
-  </TabsPrimitive.List>
-))
+>(({ className, onCloseAll, ...props }, ref) => {
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+  const prevChildrenLength = React.useRef(0);
+
+  React.useEffect(() => {
+    const childrenArray = React.Children.toArray(props.children);
+    if (childrenArray.length > prevChildrenLength.current && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
+    }
+    prevChildrenLength.current = childrenArray.length;
+  }, [props.children]);
+
+  // Mouse wheel için yatay scroll
+  const handleWheel = React.useCallback((e: WheelEvent) => {
+    if (scrollContainerRef.current) {
+      e.preventDefault();
+      scrollContainerRef.current.scrollLeft += e.deltaY;
+    }
+  }, []);
+
+  React.useEffect(() => {
+    const current = scrollContainerRef.current;
+    if (current) {
+      current.addEventListener('wheel', handleWheel, { passive: false });
+      return () => current.removeEventListener('wheel', handleWheel);
+    }
+  }, [handleWheel]);
+
+  return (
+    <TabsPrimitive.List
+      ref={ref}
+      className={cn(
+        "h-12 rounded-lg bg-muted/20 p-1 text-muted-foreground w-full",
+        "border border-border/40 shadow-md backdrop-blur-md",
+        "flex items-center justify-between",
+        className
+      )}
+      {...props}
+    >
+      <div className="flex-1 overflow-hidden">
+        <div ref={scrollContainerRef} className="w-[calc(90vw-20rem)] overflow-x-auto overflow-y-hidden
+          [&::-webkit-scrollbar]:h-1.5
+          [&::-webkit-scrollbar-thumb]:bg-gray-300/50
+          [&::-webkit-scrollbar-thumb]:rounded-full
+          [&::-webkit-scrollbar-track]:bg-transparent
+          dark:[&::-webkit-scrollbar-thumb]:bg-gray-700/50
+          hover:[&::-webkit-scrollbar-thumb]:bg-gray-300/80
+          dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700/80">
+          <div className="flex items-center gap-1">
+            {props.children}
+          </div>
+        </div>
+      </div>
+      {onCloseAll && (
+        <div className="flex-shrink-0 border-l border-border/40 pl-2">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div 
+                  className="cursor-pointer p-1.5 rounded-md hover:bg-destructive/10 transition-all duration-200 group"
+                  onClick={onCloseAll}
+                >
+                  <XCircle className="h-4 w-4 text-muted-foreground group-hover:text-destructive group-hover:scale-110 transition-all duration-200" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="end">
+                <p className="text-xs">Tüm açık tabları kapat</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      )}
+    </TabsPrimitive.List>
+  );
+})
 TabsList.displayName = TabsPrimitive.List.displayName
 
 // İkon eşleştirme helper fonksiyonu

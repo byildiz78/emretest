@@ -132,6 +132,9 @@ export interface RawReportData {
     Reports: WebReport[];
 }
 
+export type NotificationType = 'sale' | 'discount' | 'cancel' | 'alert';
+
+
 export type Notification = {
     autoId: number;
     logKey: string;
@@ -148,7 +151,7 @@ export type Notification = {
     addDateTime: string;
     deviceSended: boolean;
     branchName?: string;
-    type: 'sale' | 'discount' | 'cancel' | 'alert';
+    type: NotificationType;
 }
 
 export type OrderHeader = {

@@ -20,11 +20,31 @@ interface Branch {
     BranchID: string | number;
 }
 
+interface Settings {
+    minDiscountAmount: number;
+    minCancelAmount: number;
+    minSaleAmount: number;
+}
+
+const DEFAULT_SETTINGS: Settings = {
+    minDiscountAmount: 0,
+    minCancelAmount: 0,
+    minSaleAmount: 0
+};
+
 export default function Dashboard() {
     const [widgets, setWidgets] = useState<WebWidget[]>([]);
     const [countdown, setCountdown] = useState(REFRESH_INTERVAL / 1000);
+    const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+    const [settingsLoading, setSettingsLoading] = useState(true);
     const { selectedFilter } = useFilterStore();
     const { setBranchDatas } = useWidgetDataStore();
+
+    const handleSettingsChange = useCallback((newSettings: Settings) => {
+        setSettingsLoading(true);
+        setSettings(newSettings);
+        setSettingsLoading(false);
+    }, []);
 
     const fetchData = useCallback(async () => {
         const branches =
@@ -58,6 +78,24 @@ export default function Dashboard() {
         }
     }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, setBranchDatas]);
 
+    const fetchSettings = useCallback(async () => {
+        try {
+            setSettingsLoading(true);
+            const { data } = await axios.get('/api/get-user-settings');
+            const newSettings = {
+                minDiscountAmount: data.minDiscountAmount ?? 0,
+                minCancelAmount: data.minCancelAmount ?? 0,
+                minSaleAmount: data.minSaleAmount ?? 0
+            };
+            setSettings(newSettings);
+        } catch (error) {
+            console.error('Error fetching settings:', error);
+            setSettings(DEFAULT_SETTINGS);
+        } finally {
+            setSettingsLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
         fetchData();
         const intervalId = setInterval(() => {
@@ -66,6 +104,9 @@ export default function Dashboard() {
         return () => clearInterval(intervalId);
     }, [fetchData]);
 
+    useEffect(() => {
+        fetchSettings();
+    }, [fetchSettings]);
 
     useEffect(() => {
         const fetchWidgetsData = async () => {
@@ -180,7 +221,11 @@ export default function Dashboard() {
                         dark:[&::-webkit-scrollbar-thumb]:bg-gray-700/50
                         hover:[&::-webkit-scrollbar-thumb]:bg-gray-300/80
                         dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700/80">
-                    <NotificationPanel />
+                    <NotificationPanel 
+                        settings={settings} 
+                        settingsLoading={settingsLoading}
+                        onSettingsChange={handleSettingsChange}
+                    />
                 </div>
             </div>
 
@@ -198,7 +243,11 @@ export default function Dashboard() {
                         side="right"
                         className="w-[90%] max-w-[400px] p-0 sm:w-[400px]"
                     >
-                        <NotificationPanel />
+                        <NotificationPanel 
+                            settings={settings} 
+                            settingsLoading={settingsLoading}
+                            onSettingsChange={handleSettingsChange}
+                        />
                     </SheetContent>
                 </Sheet>
             </div>

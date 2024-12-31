@@ -27,7 +27,7 @@ interface IntlFormatNumberOptions {
 
 export const getLucideIcon = (iconName: string | undefined, defaultIcon?: LucideIcon): LucideIcon => {
     if (!iconName) return defaultIcon || LucideIcons.HelpCircle;
-    
+
     const Icon = LucideIcons[iconName as keyof typeof LucideIcons] as LucideIcon;
     return Icon || defaultIcon || LucideIcons.HelpCircle;
 };
@@ -36,20 +36,32 @@ const databaseCache = new Map<string, { database: DatabaseResponse | undefined; 
 const CACHE_DURATION = 5 * 60 * 1000; // 5 dakika
 
 export async function checkTenantDatabase(tenantId: string): Promise<DatabaseResponse | undefined> {
-    /*const cached = databaseCache.get(tenantId);
-    if (cached && Date.now() - cached.timestamp < CACHE_DURATION && cached.database !== undefined) {
-        return cached.database;
-    }*/
-       
-    try {
-        const instance = Dataset.getInstance();
-        const databases = await instance.getDatabase<DatabaseResponse[]>();
-        const database = databases.find(item => item.tenantId === tenantId);
-        //databaseCache.set(tenantId, { database, timestamp: Date.now() });
-        return database;
-    } catch (error) {
-        return undefined;
+
+    if (process.env.USEBOLT === "1") {
+        return {
+            tenantId: "demo",
+            apiKey: "13df1b79-16ed-4991-87e7-28eadaba0b38",
+            databaseId: 3,
+            database: "pfDemo2023",
+        };
+    } else {
+        const cached = databaseCache.get(tenantId);
+        if (cached && Date.now() - cached.timestamp < CACHE_DURATION && cached.database !== undefined) {
+            return cached.database;
+        }
+
+        try {
+            const instance = Dataset.getInstance();
+            const databases = await instance.getDatabase<DatabaseResponse[]>();
+            const database = databases.find(item => item.tenantId === tenantId);
+            //databaseCache.set(tenantId, { database, timestamp: Date.now() });
+            return database;
+        } catch (error) {
+            return undefined;
+        }
     }
+
+
 }
 
 

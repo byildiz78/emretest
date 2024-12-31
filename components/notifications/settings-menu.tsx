@@ -20,9 +20,19 @@ interface SettingsMenuProps {
   } | null;
   onSettingsChange: (newSettings: any) => void;
   onSave: (settings: any) => Promise<void>;
+  loading?: boolean;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function SettingsMenu({ settings, onSettingsChange, onSave }: SettingsMenuProps) {
+export function SettingsMenu({ 
+  settings, 
+  onSettingsChange, 
+  onSave, 
+  loading = false,
+  isOpen,
+  onOpenChange 
+}: SettingsMenuProps) {
   const params = useParams();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -42,9 +52,9 @@ export function SettingsMenu({ settings, onSettingsChange, onSave }: SettingsMen
   if (!settings) return null;
 
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button variant="ghost" size="icon" className="h-8 w-8" disabled={loading}>
           <MoreVertical className="h-4 w-4" />
         </Button>
       </PopoverTrigger>
@@ -106,8 +116,12 @@ export function SettingsMenu({ settings, onSettingsChange, onSave }: SettingsMen
               />
             </div>
           </div>
-          <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving ? 'Kaydediliyor...' : 'Kaydet'}
+          <Button 
+            onClick={handleSave} 
+            disabled={loading || isSaving} 
+            className="w-full mt-2"
+          >
+            {(loading || isSaving) ? 'Kaydediliyor...' : 'Kaydet'}
           </Button>
         </div>
       </PopoverContent>

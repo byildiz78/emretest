@@ -6,6 +6,7 @@ import ScaleLoader from "react-spinners/ScaleLoader";
 import * as LucideIcons from "lucide-react";
 import axios from "axios";
 import { useFilterStore } from "@/stores/filters-store";
+import { useTabStore } from '@/stores/tab-store';
 
 const REFRESH_INTERVAL = 90000;
 
@@ -72,8 +73,9 @@ const WidgetCard = memo(function WidgetCard({
     const [isUpdating, setIsUpdating] = useState(false);
     const { selectedFilter } = useFilterStore();
     const colorSet = useMemo(() => gradientColors[columnIndex % gradientColors.length], [columnIndex]);
+    const { tabs, activeTab } = useTabStore();
 
-    const selectedBranches = useMemo(() => 
+    const selectedBranches = useMemo(() =>
         selectedFilter.selectedBranches.length <= 0
             ? selectedFilter.branches
             : selectedFilter.selectedBranches,
@@ -81,58 +83,61 @@ const WidgetCard = memo(function WidgetCard({
     );
 
     const getReportData = useCallback(async (isInitial = false) => {
-        if (selectedBranches.length === 0) return;
-        try {
-            if (isInitial) {
-                setIsLoading(true);
-            } else {
-                setIsUpdating(true);
-            }
-            const response = await axios.post("/api/widgetreport", {
-                date1: selectedFilter.date.from,
-                date2: selectedFilter.date.to,
-                branches: selectedBranches.map((item) => item.BranchID),
-                reportId,
-            });
-            if (response.status === 200) {
-                setWidgetData(response.data[0]);
-            }
-        } catch (err) {
-            console.error(`Error fetching data for widget ${reportId}:`, err);
-        } finally {
-            if (isInitial) {
-                setIsLoading(false);
-            } else {
-                setIsUpdating(false);
+        if (activeTab === "dashboard") {
+            if (selectedBranches.length === 0) return;
+            try {
+                if (isInitial) {
+                    setIsLoading(true);
+                } else {
+                    setIsUpdating(true);
+                }
+                const response = await axios.post("/api/widgetreport", {
+                    date1: selectedFilter.date.from,
+                    date2: selectedFilter.date.to,
+                    branches: selectedBranches.map((item) => item.BranchID),
+                    reportId,
+                });
+                if (response.status === 200) {
+                    setWidgetData(response.data[0]);
+                }
+            } catch (err) {
+                console.error(`Error fetching data for widget ${reportId}:`, err);
+            } finally {
+                if (isInitial) {
+                    setIsLoading(false);
+                } else {
+                    setIsUpdating(false);
+                }
             }
         }
+
     }, [selectedFilter.date, selectedBranches, reportId]);
 
     useEffect(() => {
         let isSubscribed = true;
-        
+
         const fetchData = async () => {
             await getReportData(true);
             if (!isSubscribed) return;
         };
-        
+
         fetchData();
-        
+
         const interval = setInterval(() => {
             if (!isSubscribed) return;
             getReportData(false);
         }, 90000);
-        
+
         return () => {
             isSubscribed = false;
             clearInterval(interval);
         };
     }, [getReportData]);
 
-    const showValue2 = widgetData?.reportValue2 != null && 
-                      widgetData?.reportValue2 !== undefined && 
-                      widgetData?.reportValue2 !== "" && 
-                      widgetData?.reportValue2 !== "0";
+    const showValue2 = widgetData?.reportValue2 != null &&
+        widgetData?.reportValue2 !== undefined &&
+        widgetData?.reportValue2 !== "" &&
+        widgetData?.reportValue2 !== "0";
 
     return (
         <Card className="h-32 relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300">
@@ -155,7 +160,7 @@ const WidgetCard = memo(function WidgetCard({
                         )}>
                             {reportName}
                         </h3>
-                        <motion.div 
+                        <motion.div
                             className={cn(
                                 "absolute -bottom-2 left-0 h-[2px]",
                                 "bg-gradient-to-r from-current to-transparent opacity-25"

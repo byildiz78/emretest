@@ -17,7 +17,7 @@ import {
   Filter,
   Workflow,
 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import {
   Command,
   CommandEmpty,
@@ -155,6 +155,7 @@ export default function Header() {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = React.useState(false);
   const { selectedFilter, setFilter, handleStartDateSelect, handleEndDateSelect } = useFilterStore();
   const { settings } = useSettingsStore();
+  const { activeTab } = useTabStore();
   const [tempStartTime, setTempStartTime] = React.useState<string>("00:00");
   const [tempEndTime, setTempEndTime] = React.useState<string>("23:59");
   const [tempStartDate, setTempStartDate] = React.useState<Date | undefined>(selectedFilter.date.from);
@@ -162,7 +163,8 @@ export default function Header() {
   const { setTheme } = useTheme();
   const { language, setLanguage } = useLanguage();
   const t = translations[language as keyof typeof translations];
-
+  const [selectedDateRange, setSelectedDateRange] = useState("today");
+  
   const {handleTabOpen } = useTab();
   React.useEffect(() => {
     if (settings.length > 0) {
@@ -218,6 +220,10 @@ export default function Header() {
     selectedFilter.selectedBranches
   );
 
+  React.useEffect(() => {
+    setTempStartDate(selectedFilter.date.from);
+    setTempEndDate(selectedFilter.date.to);
+  }, [selectedFilter.date.from, selectedFilter.date.to, activeTab]);
 
   const applyFilters = () => {
     if (tempStartDate) {
@@ -248,7 +254,43 @@ export default function Header() {
     setPendingBranches([]);
   };
 
+  const determineDateRange = (fromDate: Date, toDate: Date) => {
+    const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
+    let startTime = daystart === 0 ? "00:00" : `${daystart.toString().padStart(2, '0')}:00`;
+    let endTime = daystart === 0 ? "23:59" : `${((daystart - 1 + 24) % 24).toString().padStart(2, '0')}:59`;
+    
+    const [startHours, startMinutes] = startTime.split(':').map(Number);
+    const today = new Date(new Date().setHours(startHours, startMinutes, 0));
+    
+    // Bugün kontrolü
+    const isToday = fromDate.getDate() === today.getDate() && 
+                    fromDate.getMonth() === today.getMonth() &&
+                    fromDate.getFullYear() === today.getFullYear();
+                    
+    if (isToday) return "today";
+    
+    // Dün kontrolü
+    const yesterday = subDays(today, 1);
+    const isYesterday = fromDate.getDate() === yesterday.getDate() &&
+                        fromDate.getMonth() === yesterday.getMonth() &&
+                        fromDate.getFullYear() === yesterday.getFullYear();
+                        
+    if (isYesterday) return "yesterday";
+    
+    // Diğer tarih aralıkları için kontroller eklenebilir
+    
+    return "custom";
+  };
+
+  React.useEffect(() => {
+    if (selectedFilter.date.from && selectedFilter.date.to) {
+      const newDateRange = determineDateRange(selectedFilter.date.from, selectedFilter.date.to);
+      setSelectedDateRange(newDateRange);
+    }
+  }, [selectedFilter.date.from, selectedFilter.date.to, activeTab]);
+
   const dateRangeChange = (value: string) => {
+    setSelectedDateRange(value);
     const daystart = parseInt(settings.find(setting => setting.Kod === "daystart")?.Value || '0');
     let startTime: string;
     let endTime: string;
@@ -265,7 +307,6 @@ export default function Header() {
 
     const [startHours, startMinutes] = startTime.split(':').map(Number);
     const [endHours, endMinutes] = endTime.split(':').map(Number);
-
 
     const today = new Date(new Date().setHours(startHours, startMinutes, 0));
     const tomorrow = addDays(new Date().setHours(endHours, endMinutes, 0), 1);
@@ -316,8 +357,6 @@ export default function Header() {
     }
   };
 
-
-
   return (
     <BranchProvider>
       <header className="sticky top-0 z-40 border-b bg-background/80 backdrop-blur-md shadow-lg dark:shadow-slate-900/20">
@@ -326,7 +365,7 @@ export default function Header() {
 
           {/* Desktop View */}
           <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-5 gap-2 flex-1">
-            <Select onValueChange={dateRangeChange} defaultValue="today">
+          <Select onValueChange={dateRangeChange} value={selectedDateRange}>
               <SelectTrigger className="w-full bg-background/60 backdrop-blur-sm border-border/50 shadow-sm hover:shadow-md transition-all duration-300 hover:border-border">
                 <SelectValue placeholder={t.dateRange} />
               </SelectTrigger>

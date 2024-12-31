@@ -6,7 +6,7 @@ import { Dataset } from '@/pages/api/dataset';
 
 const ACCESS_TOKEN_SECRET = new TextEncoder().encode(process.env.ACCESS_TOKEN_SECRET);
 const REFRESH_TOKEN_SECRET = new TextEncoder().encode(process.env.REFRESH_TOKEN_SECRET);
-const NEXT_PUBLIC_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost';
+const TOKEN_ISSUER = process.env.TOKEN_ISSUER || 'ROBOTPOS';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const ACCESS_TOKEN_LIFETIME = parseInt(process.env.ACCESS_TOKEN_LIFETIME || '900');
 const REFRESH_TOKEN_LIFETIME = parseInt(process.env.REFRESH_TOKEN_LIFETIME || '129600');
@@ -16,7 +16,7 @@ const REFRESH_TOKEN_ALGORITHM = process.env.REFRESH_TOKEN_ALGORITHM || 'HS512';
 // Extract hostname from NEXT_PUBLIC_DOMAIN for cookie domain
 const getDomainForCookie = () => {
     try {
-        const url = new URL(NEXT_PUBLIC_DOMAIN);
+        const url = new URL(TOKEN_ISSUER);
         return url.hostname;
     } catch {
         return 'localhost';
@@ -82,7 +82,7 @@ export default async function handler(
             const accessToken = await new SignJWT(tokenPayload)
                 .setProtectedHeader({ alg: ACCESS_TOKEN_ALGORITHM })
                 //.setExpirationTime(currentTimestamp + ACCESS_TOKEN_LIFETIME)
-                .setIssuer(NEXT_PUBLIC_DOMAIN)
+                .setIssuer(TOKEN_ISSUER)
                 .setAudience(tenantId)
                 .setIssuedAt(currentTimestamp)
                 .sign(ACCESS_TOKEN_SECRET);
@@ -97,7 +97,7 @@ export default async function handler(
             const refreshToken = await new SignJWT(tokenPayload)
                 .setProtectedHeader({ alg: REFRESH_TOKEN_ALGORITHM })
                 //.setExpirationTime(currentTimestamp + REFRESH_TOKEN_LIFETIME)
-                .setIssuer(NEXT_PUBLIC_DOMAIN)
+                .setIssuer(TOKEN_ISSUER)
                 .setAudience(tenantId)
                 .setIssuedAt(currentTimestamp)
                 .sign(REFRESH_TOKEN_SECRET);

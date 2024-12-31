@@ -13,6 +13,8 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import BranchList from "@/app/[tenantId]/(main)/dashboard/components/BranchList";
 import WidgetCard from "./components/WidgetCard";
+import { useTabStore } from "@/stores/tab-store";
+import { usePathname } from "next/navigation";
 
 const REFRESH_INTERVAL = 90000; // 90 seconds in milliseconds
 
@@ -20,42 +22,119 @@ interface Branch {
     BranchID: string | number;
 }
 
+interface Settings {
+    minDiscountAmount: number;
+    minCancelAmount: number;
+    minSaleAmount: number;
+}
+
+const DEFAULT_SETTINGS: Settings = {
+    minDiscountAmount: 0,
+    minCancelAmount: 0,
+    minSaleAmount: 0
+};
+
 export default function Dashboard() {
     const [widgets, setWidgets] = useState<WebWidget[]>([]);
     const [countdown, setCountdown] = useState(REFRESH_INTERVAL / 1000);
+    const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
+    const [settingsLoading, setSettingsLoading] = useState(true);
     const { selectedFilter } = useFilterStore();
     const { setBranchDatas } = useWidgetDataStore();
+    const {tabs, activeTab} = useTabStore();
+    const pathname = usePathname();
+
+    const fetchSettings = useCallback(async () => {
+        try {
+            setSettingsLoading(true);
+            const tenantId = pathname?.split('/')[1];
+            const userData = localStorage.getItem(`userData_${tenantId}`);
+            if (userData) {
+                const parsedData = JSON.parse(userData);
+                if (parsedData.settings) {
+                    setSettings(parsedData.settings);
+                    return;
+                }
+            }
+            const { data } = await axios.get('/api/get-user-settings');
+            const newSettings = {
+                minDiscountAmount: data.minDiscountAmount ?? 0,
+                minCancelAmount: data.minCancelAmount ?? 0,
+                minSaleAmount: data.minSaleAmount ?? 0
+            };
+            setSettings(newSettings);
+        } catch (error) {
+            console.error('Error fetching settings:', error);
+            setSettings(DEFAULT_SETTINGS);
+        } finally {
+            setSettingsLoading(false);
+        }
+    }, [pathname]);
+
+    const handleSettingsChange = useCallback(async (newSettings: Settings) => {
+        try {
+            setSettingsLoading(true);
+            // Önce API'yi güncelle
+            await axios.post('/api/update-user-settings', newSettings);
+            
+            // Sonra state'i güncelle
+            setSettings(newSettings);
+            
+            // En son localStorage'ı güncelle
+            const tenantId = pathname?.split('/')[1];
+            if (tenantId) {
+                const userData = localStorage.getItem(`userData_${tenantId}`);
+                if (userData) {
+                    const parsedData = JSON.parse(userData);
+                    const updatedData = {
+                        ...parsedData,
+                        settings: newSettings
+                    };
+                    localStorage.setItem(`userData_${tenantId}`, JSON.stringify(updatedData));
+                }
+            }
+        } catch (error) {
+            console.error('Error updating settings:', error);
+            // Hata durumunda eski settings'e geri dön
+            await fetchSettings();
+        } finally {
+            setSettingsLoading(false);
+        }
+    }, [pathname, fetchSettings]);
 
     const fetchData = useCallback(async () => {
-        const branches =
+        if(activeTab === 'dashboard'){
+            const branches =
             selectedFilter.selectedBranches.length <= 0
                 ? selectedFilter.branches
                 : selectedFilter.selectedBranches;
 
-        if (branches.length > 0) {
-            const branchIds = branches.map((item: Branch) => item.BranchID);
+            if (branches.length > 0) {
+                const branchIds = branches.map((item: Branch) => item.BranchID);
 
-            try {
-                const response = await axios.post<WebWidgetData[]>(
-                    "/api/widgetreport",
-                    {
-                        date1: selectedFilter.date.from,
-                        date2: selectedFilter.date.to,
-                        branches: branchIds,
-                        reportId: 522,
-                    },
-                    {
-                        headers: { "Content-Type": "application/json" },
-                    }
-                )
-                setBranchDatas(response.data);
+                try {
+                    const response = await axios.post<WebWidgetData[]>(
+                        "/api/widgetreport",
+                        {
+                            date1: selectedFilter.date.from,
+                            date2: selectedFilter.date.to,
+                            branches: branchIds,
+                            reportId: 522,
+                        },
+                        {
+                            headers: { "Content-Type": "application/json" },
+                        }
+                    )
+                    setBranchDatas(response.data);
 
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            } finally {
-                setCountdown(REFRESH_INTERVAL / 1000);
+                } catch (error) {
+                    console.error("Error fetching data:", error);
+                } finally {
+                    setCountdown(REFRESH_INTERVAL / 1000);
+                }
             }
         }
+
     }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, setBranchDatas]);
 
     useEffect(() => {
@@ -66,6 +145,9 @@ export default function Dashboard() {
         return () => clearInterval(intervalId);
     }, [fetchData]);
 
+    useEffect(() => {
+        fetchSettings();
+    }, [fetchSettings]);
 
     useEffect(() => {
         const fetchWidgetsData = async () => {
@@ -161,7 +243,7 @@ export default function Dashboard() {
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
                         >
-                            <h2 className="text-xl font-semibold text-foreground flex items-center gap-2">
+                            <h2 className="text-xl font-semibold text-foreground py-3 flex items-center gap-2 border-b border-border/60">
                                 <Store className="h-5 w-5" />
                                 Cirolar
                             </h2>
@@ -180,7 +262,11 @@ export default function Dashboard() {
                         dark:[&::-webkit-scrollbar-thumb]:bg-gray-700/50
                         hover:[&::-webkit-scrollbar-thumb]:bg-gray-300/80
                         dark:hover:[&::-webkit-scrollbar-thumb]:bg-gray-700/80">
-                    <NotificationPanel />
+                    <NotificationPanel 
+                        settings={settings} 
+                        settingsLoading={settingsLoading}
+                        onSettingsChange={handleSettingsChange}
+                    />
                 </div>
             </div>
 
@@ -198,7 +284,11 @@ export default function Dashboard() {
                         side="right"
                         className="w-[90%] max-w-[400px] p-0 sm:w-[400px]"
                     >
-                        <NotificationPanel />
+                        <NotificationPanel 
+                            settings={settings} 
+                            settingsLoading={settingsLoading}
+                            onSettingsChange={handleSettingsChange}
+                        />
                     </SheetContent>
                 </Sheet>
             </div>

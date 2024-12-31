@@ -1,11 +1,12 @@
 'use client'
 import { useFilterStore } from "@/stores/filters-store";
 import { embedDashboard } from "@superset-ui/embedded-sdk";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useParams } from 'next/navigation';
 import { useDatabase } from '@/hooks/use-database';
 
-const SUPERSET_BASE_URL = process.env.NEXT_PUBLIC_SUPERSET_BASE_URL;
+
+const SUPERSET_BASE_URL = `${typeof window !== 'undefined' ? window.location.protocol + '//' + window.location.hostname : ''}:${process.env.NEXT_PUBLIC_SUPERSET_PORT}`;
 const tokenCache: Record<string, TokenCache> = {};
 const TOKEN_EXPIRY_MINUTES = 50;
 
@@ -107,7 +108,6 @@ export default function SupersetDashboardComponent({ dashboardId, standalone, ex
             const attemptLoad = async (): Promise<void> => {
                 try {
                     const guestToken = await getGuestToken(dashboardId);
-                    console.log('Dashboard yüklenirken parametreler:', filterParams);
                     
                     await embedDashboard({
                         id: dashboardId,

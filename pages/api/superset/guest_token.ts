@@ -10,6 +10,7 @@ export default async function handler(
         const forceRefresh = req.query.force_refresh === 'true';
         
         const instance = Superset.getInstance();
+
         if (!dashboardId) {
             return res.status(400).json({ error: 'Dashboard ID is required' });
         }

@@ -30,7 +30,7 @@ export class Superset {
     private readonly GUEST_TOKEN_CACHE = new Map<string, { token: string; expiresAt: number }>();
 
     private constructor() {
-        this.baseUrl = process.env.SUPERSET_BASE_URL || '';
+        this.baseUrl = `http://localhost:${process.env.SUPERSET_PORT}`;
         this.username = process.env.SUPERSET_USERNAME || '';
         this.password = process.env.SUPERSET_PASSWORD || '';
         this.provider = process.env.SUPERSET_PROVIDER || '';

@@ -6,7 +6,7 @@ import { checkTenantDatabase } from './lib/utils';
 const textEncoder = new TextEncoder();
 const ACCESS_TOKEN_SECRET = textEncoder.encode(process.env.ACCESS_TOKEN_SECRET);
 const REFRESH_TOKEN_SECRET = textEncoder.encode(process.env.REFRESH_TOKEN_SECRET);
-const NEXT_PUBLIC_DOMAIN = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost';
+const TOKEN_ISSUER = process.env.TOKEN_ISSUER || 'ROBOTPOS';
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const ACCESS_TOKEN_LIFETIME = parseInt(process.env.ACCESS_TOKEN_LIFETIME || '900');
 const ACCESS_TOKEN_ALGORITHM = process.env.ACCESS_TOKEN_ALGORITHM || 'HS512';
@@ -49,7 +49,7 @@ async function createNewAccessToken(username: string | unknown, userId: string |
         return await new SignJWT(tokenPayload)
             .setProtectedHeader({ alg: ACCESS_TOKEN_ALGORITHM })
             .setExpirationTime(Math.floor(date / 1000) + ACCESS_TOKEN_LIFETIME)
-            .setIssuer(NEXT_PUBLIC_DOMAIN)
+            .setIssuer(TOKEN_ISSUER)
             .setAudience(tenantId)
             .setIssuedAt(Math.floor(date / 1000))
             .sign(ACCESS_TOKEN_SECRET);
@@ -100,7 +100,7 @@ export async function middleware(request: NextRequest) {
 
     const baseTokenOptions = {
         audience: tenantId,
-        issuer: NEXT_PUBLIC_DOMAIN,
+        issuer: TOKEN_ISSUER,
     };
     const isValidRefresh = await verifyToken(refreshToken, REFRESH_TOKEN_SECRET, {
         ...baseTokenOptions,
@@ -131,8 +131,7 @@ export async function middleware(request: NextRequest) {
             httpOnly: true,
             secure: NODE_ENV === 'production',
             sameSite: 'lax',
-            path: '/',
-            //...(NODE_ENV === 'production' ? { domain: NEXT_PUBLIC_DOMAIN } : {})
+            path: '/'
         });
 
         return response;

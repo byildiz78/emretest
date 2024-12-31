@@ -113,6 +113,7 @@ export default function LoginPage() {
         setError("");
 
         try {
+            // Login isteği
             const response = await axios.post("/api/auth/login", formData, {
                 headers: {
                     "Content-Type": "application/json",
@@ -121,12 +122,37 @@ export default function LoginPage() {
 
             if (response.status === 200) {
                 const tenantId = pathname?.split('/')[1];
-                // Store user data in localStorage with tenant-specific key
-                localStorage.setItem(`userData_${tenantId}`, JSON.stringify({
-                    name: response.data.name,
-                    email: response.data.email
-                }));
 
+                // Settings'i al
+                try {
+                    const settingsResponse = await axios.get('/api/get-user-settings');
+                    const settings = {
+                        minDiscountAmount: settingsResponse.data.minDiscountAmount ?? 0,
+                        minCancelAmount: settingsResponse.data.minCancelAmount ?? 0,
+                        minSaleAmount: settingsResponse.data.minSaleAmount ?? 0
+                    };
+
+                    // Settings ve kullanıcı bilgilerini localStorage'a kaydet
+                    localStorage.setItem(`userData_${tenantId}`, JSON.stringify({
+                        name: response.data.name,
+                        email: response.data.email,
+                        settings: settings
+                    }));
+                } catch (error) {
+                    console.error('Settings alınamadı:', error);
+                    // Default settings ile devam et
+                    localStorage.setItem(`userData_${tenantId}`, JSON.stringify({
+                        name: response.data.name,
+                        email: response.data.email,
+                        settings: {
+                            minDiscountAmount: 0,
+                            minCancelAmount: 0,
+                            minSaleAmount: 0
+                        }
+                    }));
+                }
+
+                // Yönlendirme animasyonu
                 const button = document.querySelector('button[type="submit"]');
                 if (button) {
                     button.classList.add('scale-95', 'opacity-80');

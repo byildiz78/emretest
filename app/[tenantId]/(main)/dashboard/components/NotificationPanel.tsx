@@ -93,8 +93,17 @@ export default function NotificationPanel({
 
     // Update tempSettings when settings prop changes
     useEffect(() => {
-        setTempSettings(settings);
-    }, [settings]);
+
+        if (JSON.stringify(tempSettings) !== JSON.stringify(settings)) {
+            setTempSettings(settings);
+            // Settings değiştiğinde notifications'ı yeniden çek
+            if (!settingsLoading) {
+                fetchNotifications(true);
+            }
+        }
+    }, [settings, settingsLoading]);
+
+
 
     const fetchNotifications = useCallback(async (isInitial = false) => {
         if (!selectedFilter.branches.length) return;
@@ -126,6 +135,11 @@ export default function NotificationPanel({
     const handleSettingsSave = useCallback(async (newSettings: Settings) => {
         try {
             setSettingsUpdateLoading(true);
+
+            await onSettingsChange(newSettings);
+            // Settings güncellendikten sonra notifications'ı otomatik olarak güncelleme
+            // fetchNotifications artık settings prop'undaki değişikliği algılayıp çalışacak
+
             await axios.post('/api/update-user-settings', newSettings);
             onSettingsChange(newSettings);
             
@@ -135,14 +149,16 @@ export default function NotificationPanel({
                 ...newSettings
             });
             setNotifications(Array.isArray(data) ? data : []);
-            
+  
             setIsSettingsOpen(false);
         } catch (error) {
             console.error('Error updating settings:', error);
         } finally {
             setSettingsUpdateLoading(false);
         }
+
     }, [onSettingsChange, selectedFilter.branches]);
+
 
     useEffect(() => {
         let intervalId: NodeJS.Timeout;

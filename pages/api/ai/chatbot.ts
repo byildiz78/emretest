@@ -35,7 +35,6 @@ export default async function handler(
 
         const instance = Dataset.getInstance();
         const query = `SELECT TOP 1 ChatbotRole, ChatbotContent FROM dm_ChatBot WHERE ChatBotID = @ChatBotID`;
-        console.log('Fetching chatbot config with ID:', ChatBotID);
         try {
             const config = await instance.executeQuery<ChatBot[]>({
                 query,
@@ -45,7 +44,6 @@ export default async function handler(
                 }
             });
 
-            console.log('Chatbot config result:', config);
 
             const chatbotConfig = config[0];
             if (!chatbotConfig) {

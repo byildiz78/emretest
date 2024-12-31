@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface LoadingOverlayProps {
   currentStep?: number;
+  message?: string;
 }
 
 const steps = [
@@ -35,7 +36,7 @@ const steps = [
 
 const floatingParticles = Array(6).fill(null);
 
-export function LoadingOverlay({ currentStep = 0 }: LoadingOverlayProps) {
+export function LoadingOverlay({ currentStep = 0, message }: LoadingOverlayProps) {
   const getProgressValue = (step: number) => (step + 1) * 25;
   const progress = getProgressValue(currentStep);
 
@@ -86,6 +87,11 @@ export function LoadingOverlay({ currentStep = 0 }: LoadingOverlayProps) {
           />
 
           <CardHeader className="space-y-4 text-center pb-6 relative">
+            {message && (
+              <CardTitle className="text-lg font-medium text-foreground/80">
+                {message}
+              </CardTitle>
+            )}
             <div className="relative">
               {/* Central Loading Animation */}
               <div className="flex justify-center mb-6">

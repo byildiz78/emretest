@@ -12,6 +12,10 @@ import { useFilterStore } from '@/stores/filters-store';
 import { useTheme } from '@/providers/theme-provider';
 import type { SideBarDef } from 'ag-grid-community';
 import { LoadingOverlay } from '@/components/loading-overlay';
+import { useTabStore } from '@/stores/tab-store';
+import { Card, CardContent } from '@/components/ui/card';
+import { Calendar, Users } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface ColumnDef {
   field: string;
@@ -39,6 +43,8 @@ const ReportTable = ({ report }: ReportPageProps) => {
   const [currentStep, setCurrentStep] = useState(0);
   const { selectedFilter } = useFilterStore();
   const { theme } = useTheme();
+  const { activeTab } = useTabStore();
+  const [currentFilter, setCurrentFilter] = useState(useTabStore.getState().getTabFilter(activeTab));
 
   const defaultColDef = useMemo(() => ({
     sortable: true,
@@ -123,12 +129,12 @@ const ReportTable = ({ report }: ReportPageProps) => {
 
   const formatDate = (value: any) => {
     if (!value) return '';
-    
+
     const date = new Date(value);
     if (isNaN(date.getTime())) return value; // Return original value if invalid date
-    
+
     const isLongDate = typeof value === 'string' && value.includes('T');
-    
+
     if (isLongDate) {
       return new Intl.DateTimeFormat('tr-TR', {
         day: '2-digit',
@@ -151,10 +157,10 @@ const ReportTable = ({ report }: ReportPageProps) => {
   // Alt toplam satırı için özel stil
   const pinnedBottomRowData = useMemo(() => {
     if (!rowData.length) return [];
-    
+
     const totals: any = { field: 'Genel Toplam' };
     const firstRow = rowData[0];
-    
+
     Object.keys(firstRow).forEach(key => {
       if (isNumeric(firstRow[key])) {
         totals[key] = rowData.reduce((sum, row) => {
@@ -163,14 +169,14 @@ const ReportTable = ({ report }: ReportPageProps) => {
         }, 0);
       }
     });
-    
+
     return [totals];
   }, [rowData]);
 
   const createColumnDefs = (firstRow: any) => {
     const keys = Object.keys(firstRow);
     const baseWidth = Math.max(250, Math.floor(window.innerWidth / (keys.length + 1)));
-    
+
     return keys.map(key => {
       const value = firstRow[key];
       let colDef: ColumnDef = {
@@ -204,80 +210,87 @@ const ReportTable = ({ report }: ReportPageProps) => {
   };
 
   const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // İlk üç adımı hızlıca geç
-      setCurrentStep(0);
-      await new Promise(resolve => setTimeout(resolve, 50));
-      setCurrentStep(1);
-      await new Promise(resolve => setTimeout(resolve, 50));
-      setCurrentStep(2);
-      await new Promise(resolve => setTimeout(resolve, 50));
-      setCurrentStep(3);
+    if (activeTab === report.ReportName) {
+      try {
+        setLoading(true);
+        setError(null);
+  
+        // Loading steps
+        setCurrentStep(0);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        setCurrentStep(1);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        setCurrentStep(2);
+        await new Promise(resolve => setTimeout(resolve, 50));
+        setCurrentStep(3);
+  
+        const latestFilter = useTabStore.getState().getTabFilter(activeTab);
+  
+        const branchIds = latestFilter?.selectedBranches?.length > 0
+          ? latestFilter.selectedBranches.map((item: BranchItem) => item.BranchID)
+          : latestFilter?.branches?.map((item: BranchItem) => item.BranchID) || [];
+  
+        const response = await axios.post('/api/reports-table', {
+          date1: latestFilter?.date?.from,
+          date2: latestFilter?.date?.to,
+          reportId: report.ReportID,
+          branches: branchIds
+        });
 
-      const branchIds = selectedFilter.selectedBranches.length > 0
-        ? selectedFilter.selectedBranches.map((item: BranchItem) => item.BranchID)
-        : selectedFilter.branches.map((item: BranchItem) => item.BranchID);
-      
-      const response = await axios.post('/api/reports-table', {
-        date1: selectedFilter.date.from,
-        date2: selectedFilter.date.to,
-        reportId: report.ReportID,
-        branches: branchIds
-      });
-
-      if (response.data?.length > 0) {
-        const firstRow = response.data[0];
-        const cols = createColumnDefs(firstRow);
-        setColumnDefs(cols);
-        setRowData(response.data);
-      } else {
+        if (response.data?.length > 0) {
+          const firstRow = response.data[0];
+          const cols = createColumnDefs(firstRow);
+          setColumnDefs(cols);
+          setRowData(response.data);
+        } else {
+          setRowData([]);
+          setError(`${currentFilter?.date?.from && currentFilter?.date?.to ? 
+            `${new Date(currentFilter.date.from).toLocaleDateString('tr-TR')} - ${new Date(currentFilter.date.to).toLocaleDateString('tr-TR')}` 
+            : 'Seçili tarih aralığı'} ve ${currentFilter?.selectedBranches?.length ? 
+            `${currentFilter.selectedBranches.length} şube` : 'seçili şubeler'} için veri bulunamadı.`);
+        }
+      } catch (error: any) {
+        setError('Bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.');
         setRowData([]);
-        setError(`${selectedFilter.date.from && selectedFilter.date.to ? 
-          `${new Date(selectedFilter.date.from).toLocaleDateString('tr-TR')} - ${new Date(selectedFilter.date.to).toLocaleDateString('tr-TR')}` 
-          : 'Seçili tarih aralığı'} ve ${selectedFilter.selectedBranches.length ? 
-          `${selectedFilter.selectedBranches.length} şube` : 'seçili şubeler'} için veri bulunamadı.`);
+      } finally {
+        setLoading(false);
       }
-    } catch (error: any) {
-      setError('Bir hata oluştu. Lütfen daha sonra tekrar deneyiniz.');
-      setRowData([]);
-    } finally {
-      setLoading(false);
     }
   };
 
-  const onGridReady = (params: any) => {
-    if (params.columnApi && columnDefs.length > 0) {
-      params.api.sizeColumnsToFit();
-    }
-  };
-
-  // Window resize event'ini dinleyelim
   useEffect(() => {
-    const handleResize = () => {
-      if (gridRef.current && gridRef.current.api) {
-        gridRef.current.api.sizeColumnsToFit();
+    const newFilter = useTabStore.getState().getTabFilter(activeTab) || selectedFilter;
+    setCurrentFilter(newFilter);
+  }, [activeTab, selectedFilter]);
+  
+// İlk useEffect - Sadece filtre değişikliklerini izle
+useEffect(() => {
+  if (activeTab === report.ReportName && currentFilter) {
+    fetchData();
+  }
+}, [selectedFilter.appliedAt]);
+
+// Tab değişikliklerini ve ilk yüklemeyi izle
+useEffect(() => {
+  if (activeTab === report.ReportName) {
+    const newFilter = useTabStore.getState().getTabFilter(activeTab);
+    if (newFilter) {
+      setCurrentFilter(newFilter);
+      // Tab değişikliğinde otomatik fetchData yapmıyoruz
+      // Sadece ilk yüklemede yapıyoruz
+      if (!currentFilter) {
+        fetchData();
       }
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  useEffect(() => {
-    if (report?.ReportID) {
-      fetchData();
     }
-  }, [report?.ReportID, selectedFilter.date.from, selectedFilter.date.to, selectedFilter.selectedBranches]);
+  }
+}, [activeTab]);
 
   return (
     <>
       {loading && <LoadingOverlay currentStep={currentStep} />}
       <div
         ref={gridContainerRef}
-        className={`ag-theme-quartz w-full h-[calc(100vh-12rem)] ${theme === 'dark' && 'ag-theme-quartz-dark'}`}
+        className={`ag-theme-quartz w-full h-[calc(100vh-12rem)] ${theme === 'dark' && 'ag-theme-quartz-dark'} flex flex-col rounded-xl border bg-card shadow-md overflow-hidden`}
         style={{
           '--ag-background-color': theme === 'dark' ? '#1a1f2e' : '#ffffff',
           '--ag-odd-row-background-color': theme === 'dark' ? '#242837' : '#ffffff',
@@ -305,7 +318,7 @@ const ReportTable = ({ report }: ReportPageProps) => {
             >
               <path d="M17.2 5H2.8a1.8 1.8 0 0 0-1.8 1.8v10.4a1.8 1.8 0 0 0 1.8 1.8h14.4a1.8 1.8 0 0 0 1.8-1.8V6.8A1.8 1.8 0 0 0 17.2 5Z" />
               <path d="M23 7v10" />
-              <path d="M12 12H2" />
+              <path d="M12 3.13a4 4 0 0 1 0 7.75" />
               <path d="M7 8v8" />
             </svg>
             <div className="text-center">
@@ -314,35 +327,66 @@ const ReportTable = ({ report }: ReportPageProps) => {
             </div>
           </div>
         ) : (
-          <AgGridReact
-            ref={gridRef}
-            enableCharts={true}
-            chartThemeOverrides={chartThemeOverrides}
-            popupParent={gridContainerRef.current}
-            columnDefs={columnDefs}
-            rowData={rowData}
-            defaultColDef={defaultColDef}
-            autoGroupColumnDef={autoGroupColumnDef}
-            animateRows={true}
-            sideBar={sideBar}
-            rowGroupPanelShow="always"
-            pivotPanelShow="always"
-            enableRangeSelection={true}
-            enableRangeHandle={true}
-            pagination={true}
-            paginationPageSize={100}
-            getRowClass={getRowClass}
-            groupIncludeFooter={true}
-            groupDefaultExpanded={1}
-            suppressAggFuncInHeader={true}
-            groupDisplayType="multipleColumns"
-            pinnedBottomRowData={pinnedBottomRowData}
-            onGridReady={onGridReady}
-            suppressLoadingOverlay={true}
-          />
+          <>
+            <Card className="rounded-none border-0 border-b shadow-none bg-card/40 backdrop-blur-sm">
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="flex items-center space-x-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                    <Calendar className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">Seçili Tarih Aralığı</span>
+                    <span className="text-sm text-muted-foreground">
+                      {useTabStore.getState().getTabFilter(useTabStore.getState().activeTab)?.date?.from 
+                        ? new Date(useTabStore.getState().getTabFilter(useTabStore.getState().activeTab).date.from).toLocaleDateString('tr-TR') 
+                        : '-'} - {useTabStore.getState().getTabFilter(useTabStore.getState().activeTab)?.date?.to 
+                        ? new Date(useTabStore.getState().getTabFilter(useTabStore.getState().activeTab).date.to).toLocaleDateString('tr-TR') 
+                        : '-'}</span>
+                  </div>
+                </div>
+                <Badge variant="secondary" className="h-8 px-3 text-sm gap-2">
+                  <Users className="h-4 w-4" />
+                  {rowData.length.toLocaleString('tr-TR')} Kayıt
+                </Badge>
+              </CardContent>
+            </Card>
+            <div className="flex-1 p-2">
+              <AgGridReact
+                ref={gridRef}
+                enableCharts={true}
+                chartThemeOverrides={chartThemeOverrides}
+                popupParent={gridContainerRef.current}
+                columnDefs={columnDefs}
+                rowData={rowData}
+                defaultColDef={defaultColDef}
+                autoGroupColumnDef={autoGroupColumnDef}
+                animateRows={true}
+                sideBar={sideBar}
+                rowGroupPanelShow="always"
+                pivotPanelShow="always"
+                enableRangeSelection={true}
+                enableRangeHandle={true}
+                pagination={true}
+                paginationPageSize={100}
+                getRowClass={getRowClass}
+                groupIncludeFooter={true}
+                groupDefaultExpanded={1}
+                suppressAggFuncInHeader={true}
+                groupDisplayType="multipleColumns"
+                pinnedBottomRowData={pinnedBottomRowData}
+                onGridReady={() => {
+                  if (gridRef.current && gridRef.current.api) {
+                    gridRef.current.api.sizeColumnsToFit();
+                  }
+                }}
+                suppressLoadingOverlay={true}
+              />
+            </div>
+          </> 
         )}
       </div>
       <div id="myChart" className="w-full h-[400px]" />
+      <button onClick={fetchData}>Apply</button>
     </>
   );
 };

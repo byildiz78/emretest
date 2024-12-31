@@ -84,14 +84,7 @@ export default function MobileChatBotComponent() {
         setAnalysisStage('preparing');
 
         try {
-            console.log('Starting analysis with params:', {
-                ChatBotID: menuId,
-                date1: selectedFilter.date.from,
-                date2: selectedFilter.date.to,
-                branches: selectedFilter.selectedBranches.length > 0 
-                    ? selectedFilter.selectedBranches.map(item => item.BranchID) 
-                    : selectedFilter.branches.map(item => item.BranchID) || []
-            });
+
 
             setAnalysisStage('querying');
 
@@ -133,13 +126,11 @@ export default function MobileChatBotComponent() {
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) {
-                    console.log('Stream complete');
                     setAnalysisStage('complete');
                     break;
                 }
 
                 const chunk = textDecoder.decode(value, { stream: true });
-                console.log('Received chunk:', chunk);
                 buffer += chunk;
 
                 const lines = buffer.split('\n');
@@ -149,7 +140,6 @@ export default function MobileChatBotComponent() {
                     if (line.startsWith('data: ')) {
                         try {
                             const data = JSON.parse(line.slice(6));
-                            console.log('Parsed data:', data);
 
                             if (data.balance) {
                                 setBalanceData(data.balance);

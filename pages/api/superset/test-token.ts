@@ -8,7 +8,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         const { dashboard_id, database_name, force_refresh } = req.body;
-        console.log('Test token request:', { dashboard_id, database_name, force_refresh });
 
         const instance = Superset.getInstance();
         if (!dashboard_id) {
@@ -21,12 +20,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         // Clear token cache if force refresh
         if (force_refresh) {
-            console.log('Forcing token refresh for dashboard:', dashboard_id);
         }
 
         // Guest token'ı al
         const guestToken = await instance.getGuestToken(dashboard_id, database_name, force_refresh);
-        console.log('Guest token generated successfully');
 
         return res.json({ 
             guest_token: guestToken,

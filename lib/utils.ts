@@ -36,16 +36,16 @@ const databaseCache = new Map<string, { database: DatabaseResponse | undefined; 
 const CACHE_DURATION = 5 * 60 * 1000; // 5 dakika
 
 export async function checkTenantDatabase(tenantId: string): Promise<DatabaseResponse | undefined> {
-    const cached = databaseCache.get(tenantId);
+    /*const cached = databaseCache.get(tenantId);
     if (cached && Date.now() - cached.timestamp < CACHE_DURATION && cached.database !== undefined) {
         return cached.database;
-    }
+    }*/
        
     try {
         const instance = Dataset.getInstance();
         const databases = await instance.getDatabase<DatabaseResponse[]>();
         const database = databases.find(item => item.tenantId === tenantId);
-        databaseCache.set(tenantId, { database, timestamp: Date.now() });
+        //databaseCache.set(tenantId, { database, timestamp: Date.now() });
         return database;
     } catch (error) {
         return undefined;

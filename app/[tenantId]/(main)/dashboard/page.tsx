@@ -102,6 +102,12 @@ export default function Dashboard() {
         }
     }, [pathname, fetchSettings]);
 
+    const handleSettingsChange = useCallback((newSettings: Settings) => {
+        setSettingsLoading(true);
+        setSettings(newSettings);
+        setSettingsLoading(false);
+    }, []);
+
     const fetchData = useCallback(async () => {
         if(activeTab === 'dashboard'){
             const branches =
@@ -136,6 +142,24 @@ export default function Dashboard() {
         }
 
     }, [selectedFilter.selectedBranches, selectedFilter.branches, selectedFilter.date, setBranchDatas]);
+
+    const fetchSettings = useCallback(async () => {
+        try {
+            setSettingsLoading(true);
+            const { data } = await axios.get('/api/get-user-settings');
+            const newSettings = {
+                minDiscountAmount: data.minDiscountAmount ?? 0,
+                minCancelAmount: data.minCancelAmount ?? 0,
+                minSaleAmount: data.minSaleAmount ?? 0
+            };
+            setSettings(newSettings);
+        } catch (error) {
+            console.error('Error fetching settings:', error);
+            setSettings(DEFAULT_SETTINGS);
+        } finally {
+            setSettingsLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
         fetchData();
